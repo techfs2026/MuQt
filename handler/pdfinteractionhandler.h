@@ -24,6 +24,8 @@ struct TextSelection;
  * - 搜索功能(SearchManager)
  * - 链接处理(LinkManager)
  * - 文本选择(TextSelector)
+ *
+ * 注意：不存储最终状态，只处理交互逻辑并发出完成信号
  */
 class PDFInteractionHandler : public QObject
 {
@@ -35,14 +37,10 @@ public:
                                    QObject* parent = nullptr);
     ~PDFInteractionHandler();
 
-    // ========== 搜索相关 ==========
+    // ==================== 搜索相关 ====================
 
     /**
      * @brief 开始搜索
-     * @param query 搜索关键词
-     * @param caseSensitive 是否大小写敏感
-     * @param wholeWords 是否全词匹配
-     * @param startPage 起始页码
      */
     void startSearch(const QString& query,
                      bool caseSensitive = false,
@@ -53,11 +51,6 @@ public:
      * @brief 取消搜索
      */
     void cancelSearch();
-
-    /**
-     * @brief 是否正在搜索
-     */
-    bool isSearching() const;
 
     /**
      * @brief 跳转到下一个搜索结果
@@ -75,16 +68,6 @@ public:
     void clearSearchResults();
 
     /**
-     * @brief 获取总匹配数
-     */
-    int totalSearchMatches() const;
-
-    /**
-     * @brief 获取当前匹配索引
-     */
-    int currentSearchMatchIndex() const;
-
-    /**
      * @brief 获取指定页的搜索结果
      */
     QVector<SearchResult> getPageSearchResults(int pageIndex) const;
@@ -99,31 +82,17 @@ public:
      */
     QStringList getSearchHistory(int maxCount = 10) const;
 
-    // ========== 链接相关 ==========
+    // ==================== 链接相关 ====================
 
     /**
-     * @brief 设置链接是否可见
+     * @brief 请求设置链接可见性
      */
-    void setLinksVisible(bool visible);
-
-    /**
-     * @brief 链接是否可见
-     */
-    bool linksVisible() const { return m_linksVisible; }
+    void requestSetLinksVisible(bool visible);
 
     /**
      * @brief 命中测试链接
-     * @param pageIndex 页码
-     * @param pagePos 页面坐标(已缩放)
-     * @param zoom 缩放比例
-     * @return 命中的链接指针,如果没有命中返回nullptr
      */
     const PDFLink* hitTestLink(int pageIndex, const QPointF& pagePos, double zoom);
-
-    /**
-     * @brief 获取当前悬停的链接
-     */
-    const PDFLink* hoveredLink() const { return m_hoveredLink; }
 
     /**
      * @brief 清除悬停链接
@@ -132,7 +101,6 @@ public:
 
     /**
      * @brief 处理链接点击
-     * @return true表示成功处理,false表示失败
      */
     bool handleLinkClick(const PDFLink* link);
 
@@ -141,7 +109,7 @@ public:
      */
     QVector<PDFLink> loadPageLinks(int pageIndex);
 
-    // ========== 文本选择相关 ==========
+    // ==================== 文本选择相关 ====================
 
     /**
      * @brief 开始文本选择
@@ -184,19 +152,14 @@ public:
     void selectAll(int pageIndex);
 
     /**
-     * @brief 是否有选中的文本
-     */
-    bool hasTextSelection() const;
-
-    /**
      * @brief 获取选中的文本
      */
-    QString selectedText() const;
+    QString getSelectedText() const;
 
     /**
      * @brief 获取当前文本选择
      */
-    const TextSelection& currentTextSelection() const;
+    const TextSelection& getCurrentTextSelection() const;
 
     /**
      * @brief 复制选中的文本到剪贴板
@@ -208,28 +171,89 @@ public:
      */
     bool isTextSelecting() const;
 
-    // ========== 访问器 ==========
+    // ==================== 访问器 ====================
 
     SearchManager* searchManager() const { return m_searchManager.get(); }
     LinkManager* linkManager() const { return m_linkManager.get(); }
     TextSelector* textSelector() const { return m_textSelector.get(); }
 
 signals:
-    // 搜索信号
-    void searchProgress(int currentPage, int totalPages, int matchCount);
+    // ==================== 搜索完成信号 ====================
+
+    /**
+     * @brief 搜索进度更新
+     */
+    void searchProgressUpdated(int currentPage, int totalPages, int matchCount);
+
+    /**
+     * @brief 搜索完成
+     */
     void searchCompleted(const QString& query, int totalMatches);
+
+    /**
+     * @brief 搜索取消
+     */
     void searchCancelled();
+
+    /**
+     * @brief 搜索错误
+     */
     void searchError(const QString& error);
 
-    // 链接信号
+    /**
+     * @brief 搜索结果导航完成
+     * @param result 找到的结果
+     * @param currentIndex 当前匹配索引
+     * @param totalMatches 总匹配数
+     */
+    void searchNavigationCompleted(const SearchResult& result,
+                                   int currentIndex,
+                                   int totalMatches);
+
+    // ==================== 链接完成信号 ====================
+
+    /**
+     * @brief 链接可见性设置完成
+     */
+    void linksVisibilityChanged(bool visible);
+
+    /**
+     * @brief 链接悬停状态变化
+     */
     void linkHovered(const PDFLink* link);
+
+    /**
+     * @brief 链接点击完成
+     */
     void linkClicked(const PDFLink* link);
+
+    /**
+     * @brief 需要跳转到内部链接
+     */
     void internalLinkRequested(int targetPage);
+
+    /**
+     * @brief 需要打开外部链接
+     */
     void externalLinkRequested(const QString& uri);
+
+    /**
+     * @brief 链接处理错误
+     */
     void linkError(const QString& error);
 
-    // 文本选择信号
-    void textSelectionChanged();
+    // ==================== 文本选择完成信号 ====================
+
+    /**
+     * @brief 文本选择状态变化
+     * @param hasSelection 是否有选择
+     * @param selectedText 选中的文本
+     */
+    void textSelectionChanged(bool hasSelection, const QString& selectedText);
+
+    /**
+     * @brief 文本复制完成
+     */
     void textCopied(int characterCount);
 
 private:
@@ -244,8 +268,7 @@ private:
     std::unique_ptr<LinkManager> m_linkManager;
     std::unique_ptr<TextSelector> m_textSelector;
 
-    // 链接状态
-    bool m_linksVisible;
+    // 中间状态（悬停链接）
     const PDFLink* m_hoveredLink;
 };
 

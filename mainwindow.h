@@ -99,6 +99,8 @@ private:
     void updateStatusBar();
     void applyModernStyle();
 
+    void updateZoomCombox(double zoom);
+
     // ========== 标签页操作 ==========
     PDFDocumentTab* currentTab() const;
     PDFDocumentTab* createNewTab();

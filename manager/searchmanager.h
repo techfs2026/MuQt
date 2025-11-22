@@ -11,6 +11,8 @@
 #include <QStringList>
 #include <atomic>
 
+#include "datastructure.h"
+
 extern "C" {
 #include <mupdf/fitz.h>
 }
@@ -23,26 +25,7 @@ struct TextBlock;
 struct TextLine;
 struct TextChar;
 
-// ========== 搜索选项 ==========
 
-struct SearchOptions {
-    bool caseSensitive = false;
-    bool wholeWords = false;
-    int maxResults = 1000;
-};
-
-// ========== 搜索结果 ==========
-
-struct SearchResult {
-    int pageIndex;
-    QVector<QRectF> quads;  // 匹配文本的位置
-    QString context;        // 上下文
-
-    SearchResult() : pageIndex(-1) {}
-    explicit SearchResult(int page) : pageIndex(page) {}
-
-    bool isValid() const { return pageIndex >= 0 && !quads.isEmpty(); }
-};
 
 // ========== 搜索工作线程 ==========
 

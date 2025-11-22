@@ -238,18 +238,16 @@ void MainWindow::onTabChanged(int index)
 
     PDFDocumentTab* tab = currentTab();
 
-    // ✅ 简化：只要有 tab 且文档已加载，就显示它的导航面板
     if (tab && tab->isDocumentLoaded() && tab->navigationPanel()) {
         m_navigationDock->setWidget(tab->navigationPanel());
-
-        // 保持当前的显示状态（如果用户之前关闭了导航面板，切换 tab 时保持关闭）
-        bool wasVisible = m_navigationDock->isVisible();
-        // 但如果是第一次加载文档，默认显示
-        if (!wasVisible) {
-            // 可以选择：切换到已加载文档的 tab 时，总是显示导航面板
-            // m_navigationDock->setVisible(true);
-        }
         m_showNavigationAction->setChecked(m_navigationDock->isVisible());
+
+        QTimer::singleShot(0, [tab]() {
+            ZoomMode mode = tab->zoomMode();
+            if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
+                tab->pageWidget()->updateZoom();
+            }
+        });
     } else {
         // 无文档或无 tab，隐藏导航面板
         m_navigationDock->setWidget(nullptr);
@@ -390,7 +388,6 @@ void MainWindow::toggleNavigationPanel()
 
     bool visible = !m_navigationDock->isVisible();
 
-    // ✅ 显示前确保设置了正确的 widget
     if (visible) {
         if (m_navigationDock->widget() != tab->navigationPanel()) {
             m_navigationDock->setWidget(tab->navigationPanel());
@@ -399,6 +396,13 @@ void MainWindow::toggleNavigationPanel()
 
     m_navigationDock->setVisible(visible);
     m_showNavigationAction->setChecked(visible);
+
+    QTimer::singleShot(0, this, [tab]() {
+        ZoomMode mode = tab->zoomMode();
+        if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
+            tab->pageWidget()->updateZoom();
+        }
+    });
 }
 
 void MainWindow::toggleLinksVisible()
@@ -477,6 +481,10 @@ void MainWindow::onCurrentTabZoomChanged(double zoom)
     updateStatusBar();
 
     // 更新ComboBox
+    updateZoomCombox(zoom);
+}
+
+void MainWindow::updateZoomCombox(double zoom) {
     if (m_zoomComboBox) {
         QString text = QString::number(qRound(zoom * 100)) + "%";
         int index = m_zoomComboBox->findText(text);
@@ -883,6 +891,8 @@ void MainWindow::updateUIState()
     bool hasDocument = tab && tab->isDocumentLoaded();
     int pageCount = hasDocument ? tab->pageCount() : 0;
     int currentPage = hasDocument ? tab->currentPage() : 0;
+    double zoom = hasDocument? tab->zoom(): 1.0;
+    bool continuousScroll = hasDocument? tab->isContinuousScroll(): false;
 
     // 文件操作
     m_closeAction->setEnabled(hasDocument);
@@ -912,6 +922,7 @@ void MainWindow::updateUIState()
     m_singlePageAction->setEnabled(hasDocument);
     m_doublePageAction->setEnabled(hasDocument);
     m_continuousScrollAction->setEnabled(hasDocument);
+    m_continuousScrollAction->setChecked(continuousScroll);
 
     // 导航面板
     m_showNavigationAction->setEnabled(hasDocument);
@@ -932,6 +943,7 @@ void MainWindow::updateUIState()
 
     if (m_zoomComboBox) {
         m_zoomComboBox->setEnabled(hasDocument);
+        updateZoomCombox(zoom);
     }
 
     updateStatusBar();

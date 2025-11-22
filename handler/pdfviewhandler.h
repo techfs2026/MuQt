@@ -12,15 +12,16 @@
 
 class MuPDFRenderer;
 
-
 /**
- * @brief PDF视图处理器 - 管理导航、缩放、滚动状态
+ * @brief PDF视图处理器 - 处理视图相关的计算和逻辑
  *
  * 职责：
- * 1. 管理当前页码、缩放级别、显示模式
+ * 1. 执行页面导航逻辑
  * 2. 计算缩放比例（FitWidth/FitPage）
  * 3. 处理连续滚动模式的页面位置计算
- * 4. 提供页面导航逻辑（上一页/下一页/跳转）
+ * 4. 不再存储最终状态，只处理逻辑和发出完成信号
+ *
+ * 注意：状态由PDFDocumentState管理
  */
 class PDFViewHandler : public QObject
 {
@@ -33,46 +34,55 @@ public:
     // ==================== 导航相关 ====================
 
     /**
-     * @brief 获取当前页码（0-based）
-     */
-    int currentPage() const { return m_currentPage; }
-
-    /**
-     * @brief 设置当前页码
+     * @brief 请求跳转到指定页码
      * @param pageIndex 目标页码（0-based）
      * @param adjustForDoublePageMode 是否自动调整到双页起始位置
+     * @param currentDisplayMode 当前显示模式
+     * @param currentPage 当前页码
      */
-    void setCurrentPage(int pageIndex, bool adjustForDoublePageMode = true);
+    void requestGoToPage(int pageIndex,
+                         bool adjustForDoublePageMode,
+                         PageDisplayMode currentDisplayMode,
+                         int currentPage);
 
     /**
-     * @brief 上一页
+     * @brief 请求上一页
      */
-    void previousPage();
+    void requestPreviousPage(PageDisplayMode currentDisplayMode,
+                             bool isContinuousScroll,
+                             int currentPage);
 
     /**
-     * @brief 下一页
+     * @brief 请求下一页
      */
-    void nextPage();
+    void requestNextPage(PageDisplayMode currentDisplayMode,
+                         bool isContinuousScroll,
+                         int currentPage,
+                         int pageCount);
 
     /**
-     * @brief 第一页
+     * @brief 请求第一页
      */
-    void firstPage();
+    void requestFirstPage(PageDisplayMode currentDisplayMode);
 
     /**
-     * @brief 最后一页
+     * @brief 请求最后一页
      */
-    void lastPage();
+    void requestLastPage(PageDisplayMode currentDisplayMode, int pageCount);
 
     /**
      * @brief 获取上一页索引（考虑显示模式）
      */
-    int getPreviousPageIndex() const;
+    int getPreviousPageIndex(PageDisplayMode displayMode,
+                             bool continuousScroll,
+                             int currentPage) const;
 
     /**
      * @brief 获取下一页索引（考虑显示模式）
      */
-    int getNextPageIndex() const;
+    int getNextPageIndex(PageDisplayMode displayMode,
+                         bool continuousScroll,
+                         int currentPage) const;
 
     /**
      * @brief 获取双页模式的起始页索引（偶数页）
@@ -82,139 +92,117 @@ public:
     // ==================== 缩放相关 ====================
 
     /**
-     * @brief 获取当前缩放比例
+     * @brief 请求设置缩放比例
+     * @param zoom 目标缩放比例
      */
-    double zoom() const { return m_zoom; }
+    void requestSetZoom(double zoom);
 
     /**
-     * @brief 获取缩放模式
+     * @brief 请求设置缩放模式
      */
-    ZoomMode zoomMode() const { return m_zoomMode; }
+    void requestSetZoomMode(ZoomMode mode);
 
     /**
-     * @brief 设置缩放比例
-     * @param zoom 目标缩放比例（将被限制在有效范围内）
+     * @brief 请求放大
      */
-    void setZoom(double zoom);
+    void requestZoomIn(double currentZoom);
 
     /**
-     * @brief 设置缩放模式
+     * @brief 请求缩小
      */
-    void setZoomMode(ZoomMode mode);
-
-    /**
-     * @brief 放大
-     */
-    void zoomIn();
-
-    /**
-     * @brief 缩小
-     */
-    void zoomOut();
+    void requestZoomOut(double currentZoom);
 
     /**
      * @brief 计算实际缩放比例（考虑FitWidth/FitPage模式）
-     * @param viewportSize 视口大小
      */
-    double calculateActualZoom(const QSize& viewportSize) const;
+    double calculateActualZoom(const QSize& viewportSize,
+                               ZoomMode zoomMode,
+                               double customZoom,
+                               int currentPage,
+                               PageDisplayMode displayMode,
+                               int rotation) const;
 
     /**
      * @brief 计算适应页面的缩放比例
-     * @param viewportSize 视口大小
      */
-    double calculateFitPageZoom(const QSize& viewportSize) const;
+    double calculateFitPageZoom(const QSize& viewportSize,
+                                int currentPage,
+                                int rotation) const;
 
     /**
      * @brief 计算适应宽度的缩放比例
-     * @param viewportSize 视口大小
      */
-    double calculateFitWidthZoom(const QSize& viewportSize) const;
+    double calculateFitWidthZoom(const QSize& viewportSize,
+                                 int currentPage,
+                                 PageDisplayMode displayMode,
+                                 int rotation,
+                                 int pageCount) const;
 
     /**
-     * @brief 更新缩放（当窗口大小变化时调用）
-     * @param viewportSize 新的视口大小
+     * @brief 请求更新缩放（当窗口大小变化时调用）
      */
-    void updateZoom(const QSize& viewportSize);
+    void requestUpdateZoom(const QSize& viewportSize,
+                           ZoomMode zoomMode,
+                           double currentZoom,
+                           int currentPage,
+                           PageDisplayMode displayMode,
+                           int rotation);
 
     // ==================== 显示模式相关 ====================
 
     /**
-     * @brief 获取显示模式
+     * @brief 请求设置显示模式
      */
-    PageDisplayMode displayMode() const { return m_displayMode; }
+    void requestSetDisplayMode(PageDisplayMode mode,
+                               bool currentContinuousScroll,
+                               int currentPage);
 
     /**
-     * @brief 设置显示模式
+     * @brief 请求设置连续滚动模式
      */
-    void setDisplayMode(PageDisplayMode mode);
-
-    /**
-     * @brief 是否为连续滚动模式
-     */
-    bool isContinuousScroll() const { return m_continuousScroll; }
-
-    /**
-     * @brief 设置连续滚动模式
-     */
-    void setContinuousScroll(bool continuous);
+    void requestSetContinuousScroll(bool continuous);
 
     // ==================== 连续滚动相关 ====================
 
     /**
      * @brief 计算连续滚动模式下的页面位置
-     * @param zoom 缩放比例
-     * @return 是否计算成功
+     * @return 成功返回true，失败返回false
      */
-    bool calculatePagePositions(double zoom);
+    bool calculatePagePositions(double zoom,
+                                int rotation,
+                                int pageCount,
+                                QVector<int>& outPositions,
+                                QVector<int>& outHeights);
 
     /**
-     * @brief 获取页面Y位置列表
+     * @brief 根据滚动位置计算当前页码
      */
-    const QVector<int>& pageYPositions() const { return m_pageYPositions; }
-
-    /**
-     * @brief 获取页面高度列表
-     */
-    const QVector<int>& pageHeights() const { return m_pageHeights; }
-
-    /**
-     * @brief 根据滚动位置更新当前页码
-     * @param scrollY 滚动条Y位置
-     * @param margin 边距
-     * @return 当前页码（如果变化则发射信号）
-     */
-    int updateCurrentPageFromScroll(int scrollY, int margin = 0);
+    int calculateCurrentPageFromScroll(int scrollY,
+                                       int margin,
+                                       const QVector<int>& pageYPositions) const;
 
     /**
      * @brief 获取指定页码的滚动目标位置
-     * @param pageIndex 页码
-     * @param margin 边距
-     * @return Y位置（如果页码无效返回-1）
      */
-    int getScrollPositionForPage(int pageIndex, int margin = 0) const;
+    int getScrollPositionForPage(int pageIndex,
+                                 int margin,
+                                 const QVector<int>& pageYPositions) const;
 
     /**
      * @brief 获取可见页面集合
-     * @param visibleRect 可见区域
-     * @param preloadMargin 预加载边距
-     * @param margin 页面边距
-     * @return 可见页面索引集合
      */
     QSet<int> getVisiblePages(const QRect& visibleRect,
-                              int preloadMargin = 0,
-                              int margin = 0) const;
+                              int preloadMargin,
+                              int margin,
+                              const QVector<int>& pageYPositions,
+                              const QVector<int>& pageHeights) const;
 
     // ==================== 旋转相关 ====================
 
     /**
-     * @brief 获取旋转角度
+     * @brief 请求设置旋转角度（0, 90, 180, 270）
      */
-    int rotation() const { return m_rotation; }
-
-    /**
-     * @brief 设置旋转角度（0, 90, 180, 270）
-     */
-    void setRotation(int rotation);
+    void requestSetRotation(int rotation);
 
     // ==================== 工具方法 ====================
 
@@ -226,82 +214,73 @@ public:
     /**
      * @brief 检查页码是否有效
      */
-    bool isValidPageIndex(int pageIndex) const;
-
-    /**
-     * @brief 重置所有状态
-     */
-    void reset();
+    bool isValidPageIndex(int pageIndex, int pageCount) const;
 
 signals:
-    /**
-     * @brief 当前页码变化
-     * @param pageIndex 新的页码
-     */
-    void pageChanged(int pageIndex);
+    // ==================== 导航完成信号 ====================
 
     /**
-     * @brief 缩放比例变化
-     * @param zoom 新的缩放比例
+     * @brief 页面导航完成
+     * @param newPageIndex 新的页码
      */
-    void zoomChanged(double zoom);
+    void pageNavigationCompleted(int newPageIndex);
+
+    // ==================== 缩放完成信号 ====================
 
     /**
-     * @brief 缩放模式变化
-     * @param mode 新的缩放模式
+     * @brief 缩放设置完成
+     * @param newZoom 新的缩放比例
+     * @param newMode 新的缩放模式
      */
-    void zoomModeChanged(ZoomMode mode);
+    void zoomSettingCompleted(double newZoom, ZoomMode newMode);
+
+    // ==================== 显示模式完成信号 ====================
 
     /**
-     * @brief 显示模式变化
-     * @param mode 新的显示模式
+     * @brief 显示模式设置完成
+     * @param newMode 新的显示模式
+     * @param adjustedPage 调整后的页码（双页模式下可能会调整）
      */
-    void displayModeChanged(PageDisplayMode mode);
+    void displayModeSettingCompleted(PageDisplayMode newMode, int adjustedPage);
 
     /**
-     * @brief 连续滚动模式变化
+     * @brief 连续滚动模式设置完成
      * @param continuous 是否连续滚动
      */
-    void continuousScrollChanged(bool continuous);
+    void continuousScrollSettingCompleted(bool continuous);
+
+    // ==================== 旋转完成信号 ====================
 
     /**
-     * @brief 旋转角度变化
-     * @param rotation 新的旋转角度
+     * @brief 旋转设置完成
+     * @param newRotation 新的旋转角度
      */
-    void rotationChanged(int rotation);
+    void rotationSettingCompleted(int newRotation);
+
+    // ==================== 页面位置计算完成信号 ====================
 
     /**
-     * @brief 页面位置计算完成（连续滚动模式）
+     * @brief 页面位置计算完成
+     * @param positions Y位置列表
+     * @param heights 高度列表
      */
-    void pagePositionsCalculated();
+    void pagePositionsCalculated(const QVector<int>& positions,
+                                 const QVector<int>& heights);
 
     /**
-     * @brief 需要跳转到指定滚动位置
+     * @brief 需要滚动到指定位置
      * @param scrollY 目标Y位置
      */
     void scrollToPositionRequested(int scrollY);
 
+    /**
+     * @brief 当前页从滚动位置更新完成
+     * @param newPageIndex 新的页码
+     */
+    void currentPageUpdatedFromScroll(int newPageIndex);
 
 private:
     MuPDFRenderer* m_renderer;
-
-    // 导航状态
-    int m_currentPage;
-
-    // 缩放状态
-    double m_zoom;
-    ZoomMode m_zoomMode;
-
-    // 显示模式
-    PageDisplayMode m_displayMode;
-    bool m_continuousScroll;
-
-    // 旋转角度
-    int m_rotation;
-
-    // 连续滚动位置信息
-    QVector<int> m_pageYPositions;  // 每页的Y位置
-    QVector<int> m_pageHeights;     // 每页的高度
 
     // 常量
     static constexpr double DEFAULT_ZOOM = 1.0;

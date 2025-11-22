@@ -7,12 +7,6 @@
 PDFViewHandler::PDFViewHandler(MuPDFRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
-    , m_currentPage(-1)
-    , m_zoom(DEFAULT_ZOOM)
-    , m_zoomMode(ZoomMode::FitWidth)
-    , m_displayMode(PageDisplayMode::SinglePage)
-    , m_continuousScroll(false)
-    , m_rotation(0)
 {
 }
 
@@ -22,7 +16,10 @@ PDFViewHandler::~PDFViewHandler()
 
 // ==================== 导航相关 ====================
 
-void PDFViewHandler::setCurrentPage(int pageIndex, bool adjustForDoublePageMode)
+void PDFViewHandler::requestGoToPage(int pageIndex,
+                                     bool adjustForDoublePageMode,
+                                     PageDisplayMode currentDisplayMode,
+                                     int currentPage)
 {
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         return;
@@ -35,72 +32,87 @@ void PDFViewHandler::setCurrentPage(int pageIndex, bool adjustForDoublePageMode)
 
     // 双页模式：调整到双页起始位置
     if (adjustForDoublePageMode &&
-        m_displayMode == PageDisplayMode::DoublePage &&
-        !m_continuousScroll) {
+        currentDisplayMode == PageDisplayMode::DoublePage) {
         pageIndex = getDoublePageStartIndex(pageIndex);
     }
 
-    if (m_currentPage != pageIndex) {
-        m_currentPage = pageIndex;
-        emit pageChanged(m_currentPage);
+    if (currentPage != pageIndex) {
+        emit pageNavigationCompleted(pageIndex);
     }
 }
 
-void PDFViewHandler::previousPage()
+void PDFViewHandler::requestPreviousPage(PageDisplayMode currentDisplayMode,
+                                         bool isContinuousScroll,
+                                         int currentPage)
 {
-    int prevPage = getPreviousPageIndex();
+    int prevPage = getPreviousPageIndex(currentDisplayMode, isContinuousScroll, currentPage);
     if (prevPage >= 0) {
-        setCurrentPage(prevPage, false);
+        emit pageNavigationCompleted(prevPage);
     }
 }
 
-void PDFViewHandler::nextPage()
+void PDFViewHandler::requestNextPage(PageDisplayMode currentDisplayMode,
+                                     bool isContinuousScroll,
+                                     int currentPage,
+                                     int pageCount)
 {
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         return;
     }
 
-    int nextPage = getNextPageIndex();
-    int pageCount = m_renderer->pageCount();
+    int nextPage = getNextPageIndex(currentDisplayMode, isContinuousScroll, currentPage);
 
     if (nextPage < pageCount) {
-        setCurrentPage(nextPage, false);
+        emit pageNavigationCompleted(nextPage);
     }
 }
 
-void PDFViewHandler::firstPage()
+void PDFViewHandler::requestFirstPage(PageDisplayMode currentDisplayMode)
 {
-    setCurrentPage(0, true);
+    int firstPage = 0;
+
+    // 双页模式下第一页也是0
+    emit pageNavigationCompleted(firstPage);
 }
 
-void PDFViewHandler::lastPage()
+void PDFViewHandler::requestLastPage(PageDisplayMode currentDisplayMode, int pageCount)
 {
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         return;
     }
 
-    int lastPage = m_renderer->pageCount() - 1;
-    setCurrentPage(lastPage, true);
+    int lastPage = pageCount - 1;
+
+    // 双页模式：调整到起始位置
+    if (currentDisplayMode == PageDisplayMode::DoublePage) {
+        lastPage = getDoublePageStartIndex(lastPage);
+    }
+
+    emit pageNavigationCompleted(lastPage);
 }
 
-int PDFViewHandler::getPreviousPageIndex() const
+int PDFViewHandler::getPreviousPageIndex(PageDisplayMode displayMode,
+                                         bool continuousScroll,
+                                         int currentPage) const
 {
-    if (m_displayMode == PageDisplayMode::DoublePage && !m_continuousScroll) {
+    if (displayMode == PageDisplayMode::DoublePage && !continuousScroll) {
         // 双页模式：跳2页
-        return m_currentPage - 2;
+        return currentPage - 2;
     }
     // 单页模式：跳1页
-    return m_currentPage - 1;
+    return currentPage - 1;
 }
 
-int PDFViewHandler::getNextPageIndex() const
+int PDFViewHandler::getNextPageIndex(PageDisplayMode displayMode,
+                                     bool continuousScroll,
+                                     int currentPage) const
 {
-    if (m_displayMode == PageDisplayMode::DoublePage && !m_continuousScroll) {
+    if (displayMode == PageDisplayMode::DoublePage && !continuousScroll) {
         // 双页模式：跳2页
-        return m_currentPage + 2;
+        return currentPage + 2;
     }
     // 单页模式：跳1页
-    return m_currentPage + 1;
+    return currentPage + 1;
 }
 
 int PDFViewHandler::getDoublePageStartIndex(int pageIndex) const
@@ -111,63 +123,64 @@ int PDFViewHandler::getDoublePageStartIndex(int pageIndex) const
 
 // ==================== 缩放相关 ====================
 
-void PDFViewHandler::setZoom(double zoom)
+void PDFViewHandler::requestSetZoom(double zoom)
 {
     zoom = clampZoom(zoom);
-
-    if (qAbs(m_zoom - zoom) > 0.001) {
-        m_zoom = zoom;
-        m_zoomMode = ZoomMode::Custom;
-        emit zoomChanged(m_zoom);
-        emit zoomModeChanged(m_zoomMode);
-    }
+    emit zoomSettingCompleted(zoom, ZoomMode::Custom);
 }
 
-void PDFViewHandler::setZoomMode(ZoomMode mode)
+void PDFViewHandler::requestSetZoomMode(ZoomMode mode)
 {
-    if (m_zoomMode != mode) {
-        m_zoomMode = mode;
-        emit zoomModeChanged(m_zoomMode);
-        // 注意：不在这里计算缩放，由调用者根据viewport大小调用updateZoom
-    }
+    // 模式变化，具体zoom值由Session根据viewport计算
+    emit zoomSettingCompleted(-1.0, mode); // -1表示需要重新计算
 }
 
-void PDFViewHandler::zoomIn()
+void PDFViewHandler::requestZoomIn(double currentZoom)
 {
-    setZoom(m_zoom + ZOOM_STEP);
+    double newZoom = clampZoom(currentZoom + ZOOM_STEP);
+    emit zoomSettingCompleted(newZoom, ZoomMode::Custom);
 }
 
-void PDFViewHandler::zoomOut()
+void PDFViewHandler::requestZoomOut(double currentZoom)
 {
-    setZoom(m_zoom - ZOOM_STEP);
+    double newZoom = clampZoom(currentZoom - ZOOM_STEP);
+    emit zoomSettingCompleted(newZoom, ZoomMode::Custom);
 }
 
-double PDFViewHandler::calculateActualZoom(const QSize& viewportSize) const
+double PDFViewHandler::calculateActualZoom(const QSize& viewportSize,
+                                           ZoomMode zoomMode,
+                                           double customZoom,
+                                           int currentPage,
+                                           PageDisplayMode displayMode,
+                                           int rotation) const
 {
-    double actualZoom = m_zoom;
+    double actualZoom = customZoom;
 
-    if (m_zoomMode == ZoomMode::FitPage) {
-        actualZoom = calculateFitPageZoom(viewportSize);
-    } else if (m_zoomMode == ZoomMode::FitWidth) {
-        actualZoom = calculateFitWidthZoom(viewportSize);
+    if (zoomMode == ZoomMode::FitPage) {
+        actualZoom = calculateFitPageZoom(viewportSize, currentPage, rotation);
+    } else if (zoomMode == ZoomMode::FitWidth) {
+        actualZoom = calculateFitWidthZoom(viewportSize, currentPage, displayMode,
+                                           rotation, m_renderer->pageCount());
     }
 
     return clampZoom(actualZoom);
 }
 
-double PDFViewHandler::calculateFitPageZoom(const QSize& viewportSize) const
+double PDFViewHandler::calculateFitPageZoom(const QSize& viewportSize,
+                                            int currentPage,
+                                            int rotation) const
 {
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         return DEFAULT_ZOOM;
     }
 
-    QSizeF pageSize = m_renderer->pageSize(m_currentPage);
+    QSizeF pageSize = m_renderer->pageSize(currentPage);
     if (pageSize.isEmpty()) {
         return DEFAULT_ZOOM;
     }
 
     // 考虑旋转
-    if (m_rotation == 90 || m_rotation == 270) {
+    if (rotation == 90 || rotation == 270) {
         pageSize.transpose();
     }
 
@@ -185,29 +198,33 @@ double PDFViewHandler::calculateFitPageZoom(const QSize& viewportSize) const
     return std::min(widthZoom, heightZoom);
 }
 
-double PDFViewHandler::calculateFitWidthZoom(const QSize& viewportSize) const
+double PDFViewHandler::calculateFitWidthZoom(const QSize& viewportSize,
+                                             int currentPage,
+                                             PageDisplayMode displayMode,
+                                             int rotation,
+                                             int pageCount) const
 {
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         return DEFAULT_ZOOM;
     }
 
-    QSizeF pageSize = m_renderer->pageSize(m_currentPage);
+    QSizeF pageSize = m_renderer->pageSize(currentPage);
     if (pageSize.isEmpty()) {
         return DEFAULT_ZOOM;
     }
 
     // 考虑旋转
-    if (m_rotation == 90 || m_rotation == 270) {
+    if (rotation == 90 || rotation == 270) {
         pageSize.transpose();
     }
 
     // 双页模式需要考虑两页宽度
-    if (m_displayMode == PageDisplayMode::DoublePage) {
-        int nextPage = m_currentPage + 1;
-        if (nextPage < m_renderer->pageCount()) {
+    if (displayMode == PageDisplayMode::DoublePage) {
+        int nextPage = currentPage + 1;
+        if (nextPage < pageCount) {
             QSizeF secondPageSize = m_renderer->pageSize(nextPage);
             if (!secondPageSize.isEmpty()) {
-                if (m_rotation == 90 || m_rotation == 270) {
+                if (rotation == 90 || rotation == 270) {
                     secondPageSize.transpose();
                 }
                 pageSize.setWidth(pageSize.width() + secondPageSize.width() +
@@ -226,137 +243,131 @@ double PDFViewHandler::calculateFitWidthZoom(const QSize& viewportSize) const
     return availableWidth / pageSize.width();
 }
 
-void PDFViewHandler::updateZoom(const QSize& viewportSize)
+void PDFViewHandler::requestUpdateZoom(const QSize& viewportSize,
+                                       ZoomMode zoomMode,
+                                       double currentZoom,
+                                       int currentPage,
+                                       PageDisplayMode displayMode,
+                                       int rotation)
 {
-    if (m_zoomMode == ZoomMode::Custom) {
-        return;
+    if (zoomMode == ZoomMode::Custom) {
+        return; // Custom模式不自动更新
     }
 
-    double newZoom = calculateActualZoom(viewportSize);
+    double newZoom = calculateActualZoom(viewportSize, zoomMode, currentZoom,
+                                         currentPage, displayMode, rotation);
     newZoom = clampZoom(newZoom);
 
-    if (qAbs(m_zoom - newZoom) > 0.001) {
-        m_zoom = newZoom;
-        emit zoomChanged(m_zoom);
+    if (qAbs(currentZoom - newZoom) > 0.001) {
+        emit zoomSettingCompleted(newZoom, zoomMode);
     }
 }
 
 // ==================== 显示模式相关 ====================
 
-void PDFViewHandler::setDisplayMode(PageDisplayMode mode)
+void PDFViewHandler::requestSetDisplayMode(PageDisplayMode mode,
+                                           bool currentContinuousScroll,
+                                           int currentPage)
 {
-    if (m_displayMode != mode) {
-        m_displayMode = mode;
-        emit displayModeChanged(m_displayMode);
+    int adjustedPage = currentPage;
 
-        // 切换到双页模式时，自动关闭连续滚动并调整页码
-        if (mode == PageDisplayMode::DoublePage) {
-            if (m_continuousScroll) {
-                setContinuousScroll(false);
-            }
-
-            int adjustedPage = getDoublePageStartIndex(m_currentPage);
-            if (adjustedPage != m_currentPage) {
-                setCurrentPage(adjustedPage, false);
-            }
-        }
+    // 切换到双页模式时，自动调整页码
+    if (mode == PageDisplayMode::DoublePage) {
+        adjustedPage = getDoublePageStartIndex(currentPage);
     }
+
+    emit displayModeSettingCompleted(mode, adjustedPage);
 }
 
-void PDFViewHandler::setContinuousScroll(bool continuous)
+void PDFViewHandler::requestSetContinuousScroll(bool continuous)
 {
-    if (m_continuousScroll != continuous) {
-        m_continuousScroll = continuous;
-        emit continuousScrollChanged(m_continuousScroll);
-
-        // 切换连续滚动模式时清空位置信息
-        if (!continuous) {
-            m_pageYPositions.clear();
-            m_pageHeights.clear();
-        }
-    }
+    emit continuousScrollSettingCompleted(continuous);
 }
 
 // ==================== 连续滚动相关 ====================
 
-bool PDFViewHandler::calculatePagePositions(double zoom)
+bool PDFViewHandler::calculatePagePositions(double zoom,
+                                            int rotation,
+                                            int pageCount,
+                                            QVector<int>& outPositions,
+                                            QVector<int>& outHeights)
 {
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         return false;
     }
 
-    int pageCount = m_renderer->pageCount();
-    m_pageYPositions.clear();
-    m_pageYPositions.reserve(pageCount);
-    m_pageHeights.clear();
-    m_pageHeights.reserve(pageCount);
+    outPositions.clear();
+    outPositions.reserve(pageCount);
+    outHeights.clear();
+    outHeights.reserve(pageCount);
 
     const int pageGap = AppConfig::PAGE_GAP;
     int currentY = 0;
 
-    // 只计算位置，不渲染
     for (int i = 0; i < pageCount; ++i) {
         QSizeF pageSize = m_renderer->pageSize(i);
 
         // 考虑旋转
-        if (m_rotation == 90 || m_rotation == 270) {
+        if (rotation == 90 || rotation == 270) {
             pageSize.transpose();
         }
 
         int height = qRound(pageSize.height() * zoom);
 
-        m_pageYPositions.append(currentY);
-        m_pageHeights.append(height);
+        outPositions.append(currentY);
+        outHeights.append(height);
 
         currentY += height + pageGap;
     }
 
-    emit pagePositionsCalculated();
+    emit pagePositionsCalculated(outPositions, outHeights);
     return true;
 }
 
-int PDFViewHandler::updateCurrentPageFromScroll(int scrollY, int margin)
+int PDFViewHandler::calculateCurrentPageFromScroll(int scrollY,
+                                                   int margin,
+                                                   const QVector<int>& pageYPositions) const
 {
-    if (!m_continuousScroll || m_pageYPositions.isEmpty()) {
-        return m_currentPage;
+    if (pageYPositions.isEmpty()) {
+        return -1;
     }
 
     int adjustedY = scrollY - margin;
 
     // 找到当前显示的页面
-    for (int i = m_pageYPositions.size() - 1; i >= 0; --i) {
-        if (adjustedY >= m_pageYPositions[i]) {
-            if (m_currentPage != i) {
-                m_currentPage = i;
-                emit pageChanged(m_currentPage);
-            }
-            return m_currentPage;
+    for (int i = pageYPositions.size() - 1; i >= 0; --i) {
+        if (adjustedY >= pageYPositions[i]) {
+            return i;
         }
     }
 
-    return m_currentPage;
+    return 0;
 }
 
-int PDFViewHandler::getScrollPositionForPage(int pageIndex, int margin) const
+int PDFViewHandler::getScrollPositionForPage(int pageIndex,
+                                             int margin,
+                                             const QVector<int>& pageYPositions) const
 {
-    if (!m_continuousScroll || m_pageYPositions.isEmpty()) {
+    if (pageYPositions.isEmpty()) {
         return -1;
     }
 
-    if (pageIndex < 0 || pageIndex >= m_pageYPositions.size()) {
+    if (pageIndex < 0 || pageIndex >= pageYPositions.size()) {
         return -1;
     }
 
-    return m_pageYPositions[pageIndex] + margin;
+    return pageYPositions[pageIndex] + margin;
 }
 
 QSet<int> PDFViewHandler::getVisiblePages(const QRect& visibleRect,
                                           int preloadMargin,
-                                          int margin) const
+                                          int margin,
+                                          const QVector<int>& pageYPositions,
+                                          const QVector<int>& pageHeights) const
 {
     QSet<int> visiblePages;
 
-    if (m_pageYPositions.isEmpty()) {
+    if (pageYPositions.isEmpty()) {
         return visiblePages;
     }
 
@@ -364,9 +375,9 @@ QSet<int> PDFViewHandler::getVisiblePages(const QRect& visibleRect,
     QRect extended = visibleRect.adjusted(0, -preloadMargin, 0, preloadMargin);
 
     // 找出可见的页面
-    for (int i = 0; i < m_pageYPositions.size(); ++i) {
-        int pageTop = m_pageYPositions[i] + margin;
-        int pageBottom = pageTop + m_pageHeights[i];
+    for (int i = 0; i < pageYPositions.size(); ++i) {
+        int pageTop = pageYPositions[i] + margin;
+        int pageBottom = pageTop + pageHeights[i];
 
         // 判断页面是否在扩展的可见区域内
         if (pageBottom >= extended.top() && pageTop <= extended.bottom()) {
@@ -379,7 +390,7 @@ QSet<int> PDFViewHandler::getVisiblePages(const QRect& visibleRect,
 
 // ==================== 旋转相关 ====================
 
-void PDFViewHandler::setRotation(int rotation)
+void PDFViewHandler::requestSetRotation(int rotation)
 {
     // 规范化旋转角度
     rotation = rotation % 360;
@@ -390,10 +401,7 @@ void PDFViewHandler::setRotation(int rotation)
     // 只允许90度的倍数
     rotation = (rotation / 90) * 90;
 
-    if (m_rotation != rotation) {
-        m_rotation = rotation;
-        emit rotationChanged(m_rotation);
-    }
+    emit rotationSettingCompleted(rotation);
 }
 
 // ==================== 工具方法 ====================
@@ -403,30 +411,7 @@ double PDFViewHandler::clampZoom(double zoom) const
     return std::clamp(zoom, MIN_ZOOM, MAX_ZOOM);
 }
 
-bool PDFViewHandler::isValidPageIndex(int pageIndex) const
+bool PDFViewHandler::isValidPageIndex(int pageIndex, int pageCount) const
 {
-    if (!m_renderer || !m_renderer->isDocumentLoaded()) {
-        return false;
-    }
-
-    return pageIndex >= 0 && pageIndex < m_renderer->pageCount();
-}
-
-void PDFViewHandler::reset()
-{
-    m_currentPage = 0;
-    m_zoom = DEFAULT_ZOOM;
-    m_zoomMode = ZoomMode::FitWidth;
-    m_displayMode = PageDisplayMode::SinglePage;
-    m_continuousScroll = false;
-    m_rotation = 0;
-    m_pageYPositions.clear();
-    m_pageHeights.clear();
-
-    emit pageChanged(m_currentPage);
-    emit zoomChanged(m_zoom);
-    emit zoomModeChanged(m_zoomMode);
-    emit displayModeChanged(m_displayMode);
-    emit continuousScrollChanged(m_continuousScroll);
-    emit rotationChanged(m_rotation);
+    return pageIndex >= 0 && pageIndex < pageCount;
 }

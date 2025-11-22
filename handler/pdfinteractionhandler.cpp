@@ -14,7 +14,6 @@ PDFInteractionHandler::PDFInteractionHandler(MuPDFRenderer* renderer,
     : QObject(parent)
     , m_renderer(renderer)
     , m_textCacheManager(textCacheManager)
-    , m_linksVisible(true)
     , m_hoveredLink(nullptr)
 {
     if (!m_renderer) {
@@ -40,7 +39,7 @@ PDFInteractionHandler::~PDFInteractionHandler()
 {
 }
 
-// ========== 搜索相关 ==========
+// ==================== 搜索相关 ====================
 
 void PDFInteractionHandler::startSearch(const QString& query,
                                         bool caseSensitive,
@@ -72,17 +71,21 @@ void PDFInteractionHandler::cancelSearch()
     }
 }
 
-bool PDFInteractionHandler::isSearching() const
-{
-    return m_searchManager && m_searchManager->isSearching();
-}
-
 SearchResult PDFInteractionHandler::findNext()
 {
     if (!m_searchManager) {
         return SearchResult();
     }
-    return m_searchManager->nextMatch();
+
+    SearchResult result = m_searchManager->nextMatch();
+
+    if (result.isValid()) {
+        int currentIndex = m_searchManager->currentMatchIndex();
+        int totalMatches = m_searchManager->totalMatches();
+        emit searchNavigationCompleted(result, currentIndex, totalMatches);
+    }
+
+    return result;
 }
 
 SearchResult PDFInteractionHandler::findPrevious()
@@ -90,24 +93,25 @@ SearchResult PDFInteractionHandler::findPrevious()
     if (!m_searchManager) {
         return SearchResult();
     }
-    return m_searchManager->previousMatch();
+
+    SearchResult result = m_searchManager->previousMatch();
+
+    if (result.isValid()) {
+        int currentIndex = m_searchManager->currentMatchIndex();
+        int totalMatches = m_searchManager->totalMatches();
+        emit searchNavigationCompleted(result, currentIndex, totalMatches);
+    }
+
+    return result;
 }
 
 void PDFInteractionHandler::clearSearchResults()
 {
     if (m_searchManager) {
         m_searchManager->clearResults();
+        // 清除后发出搜索完成信号，匹配数为0
+        emit searchCompleted(QString(), 0);
     }
-}
-
-int PDFInteractionHandler::totalSearchMatches() const
-{
-    return m_searchManager ? m_searchManager->totalMatches() : 0;
-}
-
-int PDFInteractionHandler::currentSearchMatchIndex() const
-{
-    return m_searchManager ? m_searchManager->currentMatchIndex() : -1;
 }
 
 QVector<SearchResult> PDFInteractionHandler::getPageSearchResults(int pageIndex) const
@@ -133,24 +137,22 @@ QStringList PDFInteractionHandler::getSearchHistory(int maxCount) const
     return m_searchManager->getHistory(maxCount);
 }
 
-// ========== 链接相关 ==========
+// ==================== 链接相关 ====================
 
-void PDFInteractionHandler::setLinksVisible(bool visible)
+void PDFInteractionHandler::requestSetLinksVisible(bool visible)
 {
-    if (m_linksVisible != visible) {
-        m_linksVisible = visible;
-
-        if (!visible) {
-            clearHoveredLink();
-        }
+    if (!visible) {
+        clearHoveredLink();
     }
+
+    emit linksVisibilityChanged(visible);
 }
 
 const PDFLink* PDFInteractionHandler::hitTestLink(int pageIndex,
                                                   const QPointF& pagePos,
                                                   double zoom)
 {
-    if (!m_linkManager || !m_linksVisible) {
+    if (!m_linkManager) {
         return nullptr;
     }
 
@@ -214,7 +216,7 @@ QVector<PDFLink> PDFInteractionHandler::loadPageLinks(int pageIndex)
     return m_linkManager->loadPageLinks(pageIndex);
 }
 
-// ========== 文本选择相关 ==========
+// ==================== 文本选择相关 ====================
 
 void PDFInteractionHandler::startTextSelection(int pageIndex,
                                                const QPointF& pagePos,
@@ -257,6 +259,8 @@ void PDFInteractionHandler::clearTextSelection()
 {
     if (m_textSelector) {
         m_textSelector->clearSelection();
+        // 清除后发出状态变化信号
+        emit textSelectionChanged(false, QString());
     }
 }
 
@@ -285,17 +289,12 @@ void PDFInteractionHandler::selectAll(int pageIndex)
     }
 }
 
-bool PDFInteractionHandler::hasTextSelection() const
-{
-    return m_textSelector && m_textSelector->hasSelection();
-}
-
-QString PDFInteractionHandler::selectedText() const
+QString PDFInteractionHandler::getSelectedText() const
 {
     return m_textSelector ? m_textSelector->selectedText() : QString();
 }
 
-const TextSelection& PDFInteractionHandler::currentTextSelection() const
+const TextSelection& PDFInteractionHandler::getCurrentTextSelection() const
 {
     static TextSelection emptySelection;
     return m_textSelector ? m_textSelector->currentSelection() : emptySelection;
@@ -314,14 +313,14 @@ bool PDFInteractionHandler::isTextSelecting() const
     return m_textSelector && m_textSelector->isSelecting();
 }
 
-// ========== 私有方法 ==========
+// ==================== 私有方法 ====================
 
 void PDFInteractionHandler::setupConnections()
 {
     // 连接搜索管理器信号
     if (m_searchManager) {
         connect(m_searchManager.get(), &SearchManager::searchProgress,
-                this, &PDFInteractionHandler::searchProgress);
+                this, &PDFInteractionHandler::searchProgressUpdated);
         connect(m_searchManager.get(), &SearchManager::searchCompleted,
                 this, &PDFInteractionHandler::searchCompleted);
         connect(m_searchManager.get(), &SearchManager::searchCancelled,
@@ -333,6 +332,10 @@ void PDFInteractionHandler::setupConnections()
     // 连接文本选择器信号
     if (m_textSelector) {
         connect(m_textSelector.get(), &TextSelector::selectionChanged,
-                this, &PDFInteractionHandler::textSelectionChanged);
+                this, [this]() {
+                    bool hasSelection = m_textSelector->hasSelection();
+                    QString selectedText = m_textSelector->selectedText();
+                    emit textSelectionChanged(hasSelection, selectedText);
+                });
     }
 }

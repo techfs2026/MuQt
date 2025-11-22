@@ -17,7 +17,7 @@ link_directories("${MUPDF_DIR}/lib")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ui")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/controller")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/session")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/model")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/core")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/util")
@@ -73,9 +73,11 @@ set(UI_SOURCES
     ui/searchwidget.h
 )
 
-set(CONTROLLER_SOURCES
-    controller/pdfdocumentsession.cpp
-    controller/pdfdocumentsession.h
+set(SESSION_SOURCES
+    session/pdfdocumentsession.cpp
+    session/pdfdocumentsession.h
+    session/pdfdocumentstate.cpp
+    session/pdfdocumentstate.h
 )
 
 set(UTIL_SOURCES
@@ -111,7 +113,7 @@ set(SOURCES
     ${MODEL_SOURCES}
     ${UTIL_SOURCES}
     ${MANAGER_SOURCES}
-    ${CONTROLLER_SOURCES}
+    ${SESSION_SOURCES}
 
     icons.qrc
 )

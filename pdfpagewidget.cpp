@@ -1,5 +1,6 @@
 #include "pdfpagewidget.h"
 #include "pdfdocumentsession.h"
+#include "pdfdocumentstate.h"
 #include "mupdfrenderer.h"
 #include "pagecachemanager.h"
 #include "pdfviewhandler.h"
@@ -28,7 +29,6 @@ PDFPageWidget::PDFPageWidget(PDFDocumentSession* session, QWidget* parent)
     : QWidget(parent)
     , m_session(session)
     , m_renderer(nullptr)
-    , m_viewHandler(nullptr)
     , m_cacheManager(nullptr)
     , m_interactionHandler(nullptr)
     , m_isTextSelecting(false)
@@ -42,7 +42,6 @@ PDFPageWidget::PDFPageWidget(PDFDocumentSession* session, QWidget* parent)
 
     // 从Session获取组件引用(不转移所有权)
     m_renderer = m_session->renderer();
-    m_viewHandler = m_session->viewHandler();
     m_cacheManager = m_session->pageCache();
     m_interactionHandler = m_session->interactionHandler();
 
@@ -59,163 +58,191 @@ PDFPageWidget::PDFPageWidget(PDFDocumentSession* session, QWidget* parent)
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
 
-    // 连接Handler信号
-    connect(m_viewHandler, &PDFViewHandler::pageChanged,
-            this, &PDFPageWidget::onPageChangedFromHandler);
-    connect(m_viewHandler, &PDFViewHandler::zoomChanged,
-            this, &PDFPageWidget::onZoomChangedFromHandler);
-    connect(m_viewHandler, &PDFViewHandler::displayModeChanged,
-            this, &PDFPageWidget::onDisplayModeChanged);
-    connect(m_viewHandler, &PDFViewHandler::continuousScrollChanged,
-            this, [this](bool continuous) {
-                m_cacheManager->clear();
-                renderCurrentPage();
-                emit continuousScrollChanged(continuous);
-            });
-    connect(m_viewHandler, &PDFViewHandler::rotationChanged,
-            this, [this](int rotation) {
-                renderCurrentPage();
-            });
-
-    connect(m_interactionHandler, &PDFInteractionHandler::textSelectionChanged,
-            this, [this]() { update(); });
+    // 连接Session状态变化信号
+    setupConnections();
 }
 
 PDFPageWidget::~PDFPageWidget()
 {
 }
 
-// ========== 页面导航 ==========
+// ========== 连接信号 ==========
 
-void PDFPageWidget::onPageChangedFromHandler(int pageIndex)
+void PDFPageWidget::setupConnections()
 {
-    // 更新缓存管理器
-    double actualZoom = m_viewHandler->calculateActualZoom(getViewportSize());
-    m_cacheManager->setCurrentPage(pageIndex, actualZoom, m_viewHandler->rotation());
+    // ========== Session状态变化信号 ==========
 
-    // 连续滚动模式:滚动到目标位置
-    if (m_viewHandler->isContinuousScroll()) {
-        int targetY = m_viewHandler->getScrollPositionForPage(
-            pageIndex, AppConfig::PAGE_MARGIN);
-        if (targetY >= 0) {
-            QScrollArea* scrollArea = getScrollArea();
-            if (scrollArea) {
-                scrollArea->verticalScrollBar()->setValue(targetY);
-            }
-        }
-    }
+    // 当前页码变化
+    connect(m_session, &PDFDocumentSession::currentPageChanged,
+            this, &PDFPageWidget::onPageChanged);
 
-    // 触发渲染
-    renderCurrentPage();
+    // 缩放变化
+    connect(m_session, &PDFDocumentSession::currentZoomChanged,
+            this, &PDFPageWidget::onZoomChanged);
 
-    // 转发信号给外部
-    emit pageChanged(pageIndex);
+    // 显示模式变化
+    connect(m_session, &PDFDocumentSession::currentDisplayModeChanged,
+            this, [this](PageDisplayMode mode) {
+                m_cacheManager->clear();
+                renderCurrentPage();
+                emit displayModeChanged(mode);
+            });
+
+    // 连续滚动模式变化
+    connect(m_session, &PDFDocumentSession::continuousScrollChanged,
+            this, [this](bool continuous) {
+                m_cacheManager->clear();
+                renderCurrentPage();
+                emit continuousScrollChanged(continuous);
+            });
+
+    // 旋转变化
+    connect(m_session, &PDFDocumentSession::currentRotationChanged,
+            this, [this](int rotation) {
+                renderCurrentPage();
+            });
+
+    // 页面位置计算完成(连续滚动模式)
+    connect(m_session, &PDFDocumentSession::pagePositionsChanged,
+            this, [this](const QVector<int>& positions, const QVector<int>& heights) {
+                QSize targetSize = sizeHint();
+                resize(targetSize);
+
+                QTimer::singleShot(0, this, [this]() {
+                    refreshVisiblePages();
+                });
+            });
+
+    // 滚动位置请求
+    connect(m_session, &PDFDocumentSession::scrollToPositionRequested,
+            this, [this](int scrollY) {
+                QScrollArea* scrollArea = getScrollArea();
+                if (scrollArea) {
+                    scrollArea->verticalScrollBar()->setValue(scrollY);
+                }
+            });
+
+    // 文本选择变化
+    connect(m_session, &PDFDocumentSession::textSelectionChanged,
+            this, [this](bool hasSelection) {
+                update();
+            });
 }
 
-// ========== 缩放控制 ==========
+// ========== 导航方法 (委托给Session) ==========
+
+void PDFPageWidget::setCurrentPage(int pageIndex)
+{
+    m_session->goToPage(pageIndex);
+}
+
+void PDFPageWidget::previousPage()
+{
+    m_session->previousPage();
+}
+
+void PDFPageWidget::nextPage()
+{
+    m_session->nextPage();
+}
+
+int PDFPageWidget::currentPage() const
+{
+    return m_session->state()->currentPage();
+}
+
+// ========== 缩放方法 (委托给Session) ==========
 
 void PDFPageWidget::setZoom(double zoom)
 {
-    m_viewHandler->setZoom(zoom);
-}
-
-void PDFPageWidget::onZoomChangedFromHandler(double zoom)
-{
-    renderCurrentPage();
-    emit zoomChanged(zoom);
+    m_session->setZoom(zoom);
 }
 
 void PDFPageWidget::setZoomMode(ZoomMode mode)
 {
-    m_viewHandler->setZoomMode(mode);
+    m_session->setZoomMode(mode);
     QSize viewportSize = getViewportSize();
-    m_viewHandler->updateZoom(viewportSize);
+    m_session->updateZoom(viewportSize);
+}
+
+void PDFPageWidget::zoomIn()
+{
+    m_session->zoomIn();
+}
+
+void PDFPageWidget::zoomOut()
+{
+    m_session->zoomOut();
+}
+
+double PDFPageWidget::zoom() const
+{
+    return m_session->state()->currentZoom();
+}
+
+ZoomMode PDFPageWidget::zoomMode() const
+{
+    return m_session->state()->currentZoomMode();
 }
 
 void PDFPageWidget::updateZoom()
 {
     QSize viewportSize = getViewportSize();
-    m_viewHandler->updateZoom(viewportSize);
+    m_session->updateZoom(viewportSize);
 }
 
-// ========== 旋转控制 ==========
-
-void PDFPageWidget::setRotation(int rotation)
-{
-    m_viewHandler->setRotation(rotation);
-}
-
-// ========== 显示模式 ==========
+// ========== 显示模式方法 (委托给Session) ==========
 
 void PDFPageWidget::setDisplayMode(PageDisplayMode mode)
 {
-    m_viewHandler->setDisplayMode(mode);
-}
-
-void PDFPageWidget::onDisplayModeChanged(PageDisplayMode mode)
-{
-    m_cacheManager->clear();
-    renderCurrentPage();
-    emit displayModeChanged(mode);
+    m_session->setDisplayMode(mode);
 }
 
 void PDFPageWidget::setContinuousScroll(bool continuous)
 {
-    m_viewHandler->setContinuousScroll(continuous);
+    m_session->setContinuousScroll(continuous);
 }
 
-// ========== 其他 ==========
+PageDisplayMode PDFPageWidget::displayMode() const
+{
+    return m_session->state()->currentDisplayMode();
+}
+
+bool PDFPageWidget::isContinuousScroll() const
+{
+    return m_session->state()->isContinuousScroll();
+}
+
+// ========== 旋转方法 (委托给Session) ==========
+
+void PDFPageWidget::setRotation(int rotation)
+{
+    m_session->setRotation(rotation);
+}
+
+// ========== 其他方法 ==========
 
 void PDFPageWidget::refresh()
 {
     renderCurrentPage();
 }
 
-QSize PDFPageWidget::sizeHint() const
+void PDFPageWidget::setLinksVisible(bool enabled)
 {
-    if (m_currentImage.isNull() && m_viewHandler->pageYPositions().isEmpty()) {
-        QSize viewportSize = getViewportSize();
-        if (viewportSize.isValid() && viewportSize.width() > 0 && viewportSize.height() > 0) {
-            return viewportSize;
-        }
-        return QSize(800, 600);
+    m_session->setLinksVisible(enabled);
+    update();
+}
+
+void PDFPageWidget::copySelectedText()
+{
+    m_session->copySelectedText();
+}
+
+void PDFPageWidget::selectAll()
+{
+    if (m_session->state()->isDocumentLoaded()) {
+        m_session->selectAll(m_session->state()->currentPage());
     }
-
-    const int margin = AppConfig::PAGE_MARGIN;
-
-    // 连续滚动模式:基于预计算的位置
-    if (m_viewHandler->isContinuousScroll() &&
-        !m_viewHandler->pageYPositions().isEmpty()) {
-        int maxWidth = 0;
-
-        if (m_renderer && m_renderer->isDocumentLoaded()) {
-            QSizeF pageSize = m_renderer->pageSize(0);
-            if (m_viewHandler->rotation() == 90 || m_viewHandler->rotation() == 270) {
-                pageSize.transpose();
-            }
-
-            double actualZoom = getActualZoom();
-            maxWidth = qRound(pageSize.width() * actualZoom);
-        }
-
-        const QVector<int>& positions = m_viewHandler->pageYPositions();
-        const QVector<int>& heights = m_viewHandler->pageHeights();
-        int totalHeight = positions.last() + heights.last();
-        return QSize(maxWidth + 2 * margin, totalHeight + 2 * margin);
-    }
-
-    // 单页/双页模式
-    int contentWidth = m_currentImage.width();
-    int contentHeight = m_currentImage.height();
-
-    if (m_viewHandler->displayMode() == PageDisplayMode::DoublePage &&
-        !m_secondImage.isNull()) {
-        contentWidth = m_currentImage.width() + m_secondImage.width() +
-                       AppConfig::DOUBLE_PAGE_SPACING;
-        contentHeight = qMax(m_currentImage.height(), m_secondImage.height());
-    }
-
-    return QSize(contentWidth + 2 * margin, contentHeight + 2 * margin);
 }
 
 QString PDFPageWidget::getCacheStatistics() const
@@ -226,26 +253,82 @@ QString PDFPageWidget::getCacheStatistics() const
     return m_cacheManager->getStatistics();
 }
 
-void PDFPageWidget::setLinksVisible(bool enabled)
+// ========== 状态变化响应 ==========
+
+void PDFPageWidget::onPageChanged(int pageIndex)
 {
-    if (m_interactionHandler) {
-        m_interactionHandler->setLinksVisible(enabled);
-        update();
+    // 更新缓存管理器
+    const PDFDocumentState* state = m_session->state();
+    m_cacheManager->setCurrentPage(
+        pageIndex,
+        state->currentZoom(),
+        state->currentRotation()
+        );
+
+    // 连续滚动模式:滚动到目标位置(由Session发出scrollToPositionRequested信号)
+    // 非连续滚动模式:触发渲染
+    if (!state->isContinuousScroll()) {
+        renderCurrentPage();
     }
+
+    // 转发信号给外部
+    emit pageChanged(pageIndex);
 }
 
-void PDFPageWidget::copySelectedText()
+void PDFPageWidget::onZoomChanged(double zoom)
 {
-    if (m_interactionHandler) {
-        m_interactionHandler->copySelectedText();
-    }
+    renderCurrentPage();
+    emit zoomChanged(zoom);
 }
 
-void PDFPageWidget::selectAll()
+// ========== 尺寸计算 ==========
+
+QSize PDFPageWidget::sizeHint() const
 {
-    if (m_interactionHandler && m_renderer && m_renderer->isDocumentLoaded()) {
-        m_interactionHandler->selectAll(currentPage());
+    const PDFDocumentState* state = m_session->state();
+
+    if (m_currentImage.isNull() && state->pageYPositions().isEmpty()) {
+        QSize viewportSize = getViewportSize();
+        if (viewportSize.isValid() && viewportSize.width() > 0 && viewportSize.height() > 0) {
+            return viewportSize;
+        }
+        return QSize(800, 600);
     }
+
+    const int margin = AppConfig::PAGE_MARGIN;
+
+    // 连续滚动模式:基于预计算的位置
+    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
+        int maxWidth = 0;
+
+        if (m_renderer && m_renderer->isDocumentLoaded()) {
+            QSizeF pageSize = m_renderer->pageSize(0);
+            if (state->currentRotation() == 90 || state->currentRotation() == 270) {
+                pageSize.transpose();
+            }
+
+            double actualZoom = state->currentZoom();
+            maxWidth = qRound(pageSize.width() * actualZoom);
+        }
+
+        const QVector<int>& positions = state->pageYPositions();
+        const QVector<int>& heights = state->pageHeights();
+        int totalHeight = positions.last() + heights.last();
+        return QSize(maxWidth + 2 * margin, totalHeight + 2 * margin);
+    }
+
+    // 单页/双页模式
+    int contentWidth = m_currentImage.width();
+    int contentHeight = m_currentImage.height();
+
+    if (state->currentDisplayMode() == PageDisplayMode::DoublePage &&
+        !m_secondImage.isNull()) {
+        contentWidth = m_currentImage.width() + m_secondImage.width() +
+                       AppConfig::DOUBLE_PAGE_SPACING;
+        contentHeight = qMax(m_currentImage.height(), m_secondImage.height());
+    }
+
+    return QSize(contentWidth + 2 * margin, contentHeight + 2 * margin);
 }
 
 // ========== 渲染相关 ==========
@@ -265,29 +348,29 @@ void PDFPageWidget::renderCurrentPage()
         return;
     }
 
-    // 从Handler获取状态
-    int currentPage = m_viewHandler->currentPage();
-    QSize viewportSize = getViewportSize();
-    double actualZoom = m_viewHandler->calculateActualZoom(viewportSize);
-    int rotation = m_viewHandler->rotation();
+    // 从State获取状态
+    const PDFDocumentState* state = m_session->state();
+    int currentPage = state->currentPage();
+    double actualZoom = state->currentZoom();
+    int rotation = state->currentRotation();
+    PageDisplayMode displayMode = state->currentDisplayMode();
+    bool continuousScroll = state->isContinuousScroll();
 
     // 连续滚动模式
-    if (m_viewHandler->isContinuousScroll()) {
+    if (continuousScroll) {
         m_cacheManager->clear();
-        m_viewHandler->calculatePagePositions(actualZoom);
 
-        QSize targetSize = sizeHint();
-        resize(targetSize);
+        // 计算页面位置(通过Session)
+        m_session->calculatePagePositions();
 
-        QTimer::singleShot(0, this, [this]() {
-            refreshVisiblePages();
-        });
+        // 位置计算完成后会触发pagePositionsChanged信号
+        // 在该信号的槽函数中会调用refreshVisiblePages()
     }
     // 单页/双页模式
     else {
         m_currentImage = renderSinglePage(currentPage, actualZoom);
 
-        if (m_viewHandler->displayMode() == PageDisplayMode::DoublePage) {
+        if (displayMode == PageDisplayMode::DoublePage) {
             int nextPage = currentPage + 1;
             if (nextPage < m_renderer->pageCount()) {
                 m_secondImage = renderSinglePage(nextPage, actualZoom);
@@ -310,7 +393,8 @@ QImage PDFPageWidget::renderSinglePage(int pageIndex, double zoom)
         return QImage();
     }
 
-    int rotation = m_viewHandler->rotation();
+    const PDFDocumentState* state = m_session->state();
+    int rotation = state->currentRotation();
 
     // 检查缓存
     if (m_cacheManager->contains(pageIndex, zoom, rotation)) {
@@ -342,91 +426,29 @@ QImage PDFPageWidget::renderSinglePage(int pageIndex, double zoom)
     }
 }
 
-void PDFPageWidget::renderVisiblePages(const QRect& visibleRect)
-{
-    if (!m_renderer || !m_renderer->isDocumentLoaded() ||
-        !m_viewHandler->isContinuousScroll()) {
-        return;
-    }
-
-    // 如果位置还没计算,先计算
-    if (m_viewHandler->pageYPositions().isEmpty()) {
-        double actualZoom = getActualZoom();
-        m_viewHandler->calculatePagePositions(actualZoom);
-
-        if (m_viewHandler->pageYPositions().isEmpty()) {
-            return;
-        }
-    }
-
-    // 获取可见页面和扩展区域
-    QSet<int> visiblePages = m_viewHandler->getVisiblePages(
-        visibleRect,
-        AppConfig::instance().preloadMargin(),
-        AppConfig::PAGE_MARGIN
-        );
-
-    if (AppConfig::instance().debugMode()) {
-        qDebug() << "renderVisiblePages - visible:" << visiblePages.size()
-        << "cached:" << m_cacheManager->cacheSize();
-        qDebug() << m_cacheManager->getStatistics();
-    }
-
-    // 标记可见页面
-    m_cacheManager->markVisiblePages(visiblePages);
-
-    // 计算实际缩放
-    double actualZoom = getActualZoom();
-
-    // 更新当前页面信息
-    if (m_viewHandler->currentPage() >= 0) {
-        m_cacheManager->setCurrentPage(
-            m_viewHandler->currentPage(),
-            actualZoom,
-            m_viewHandler->rotation()
-            );
-    }
-
-    // 渲染可见页面(如果还未缓存)
-    for (int pageIndex : visiblePages) {
-        if (!m_cacheManager->contains(pageIndex, actualZoom,
-                                      m_viewHandler->rotation())) {
-            QImage pageImage = renderSinglePage(pageIndex, actualZoom);
-
-            if (AppConfig::instance().debugMode() && !pageImage.isNull()) {
-                qDebug() << "Page" << pageIndex << "rendered and cached"
-                         << "zoom:" << actualZoom
-                         << "rotation:" << m_viewHandler->rotation();
-            }
-        }
-    }
-}
-
-// ========== 缩放计算 ==========
-
-double PDFPageWidget::getActualZoom() const
-{
-    QSize viewportSize = getViewportSize();
-    return m_viewHandler->calculateActualZoom(viewportSize);
-}
-
 // ========== 连续滚动相关 ==========
 
 void PDFPageWidget::updateCurrentPageFromScroll(int scrollY)
 {
-    if (!m_viewHandler->isContinuousScroll()) {
+    const PDFDocumentState* state = m_session->state();
+
+    if (!state->isContinuousScroll()) {
         return;
     }
 
-    m_viewHandler->updateCurrentPageFromScroll(scrollY, AppConfig::PAGE_MARGIN);
-    // Handler会发射pageChanged信号,触发缓存更新
+    // 委托给Session更新当前页
+    m_session->updateCurrentPageFromScroll(scrollY, AppConfig::PAGE_MARGIN);
 
+    // Session会更新State，State会发出currentPageChanged信号
+    // 然后触发refreshVisiblePages()
     refreshVisiblePages();
 }
 
 void PDFPageWidget::refreshVisiblePages()
 {
-    if (!m_viewHandler->isContinuousScroll()) {
+    const PDFDocumentState* state = m_session->state();
+
+    if (!state->isContinuousScroll()) {
         return;
     }
 
@@ -440,22 +462,24 @@ void PDFPageWidget::refreshVisiblePages()
                       scrollArea->viewport()->width(),
                       scrollArea->viewport()->height());
 
-    // 使用Handler获取可见页面
-    QSet<int> visiblePages = m_viewHandler->getVisiblePages(
+    // 使用Session的ViewHandler获取可见页面
+    QSet<int> visiblePages = m_session->viewHandler()->getVisiblePages(
         visibleRect,
         AppConfig::instance().preloadMargin(),
-        AppConfig::PAGE_MARGIN
+        AppConfig::PAGE_MARGIN,
+        state->pageYPositions(),
+        state->pageHeights()
         );
 
     // 标记可见页面
     m_cacheManager->markVisiblePages(visiblePages);
 
     // 渲染可见页面
-    QSize viewportSize = getViewportSize();
-    double actualZoom = m_viewHandler->calculateActualZoom(viewportSize);
+    double actualZoom = state->currentZoom();
+    int rotation = state->currentRotation();
 
     for (int pageIndex : visiblePages) {
-        if (!m_cacheManager->contains(pageIndex, actualZoom, m_viewHandler->rotation())) {
+        if (!m_cacheManager->contains(pageIndex, actualZoom, rotation)) {
             renderSinglePage(pageIndex, actualZoom);
         }
     }
@@ -470,9 +494,10 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
+    const PDFDocumentState* state = m_session->state();
+
     // 连续滚动模式
-    if (m_viewHandler->isContinuousScroll() &&
-        !m_viewHandler->pageYPositions().isEmpty()) {
+    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
         paintContinuousMode(painter, event->rect());
         return;
     }
@@ -491,7 +516,7 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
     }
 
     // 单页/双页模式
-    if (m_viewHandler->displayMode() == PageDisplayMode::SinglePage ||
+    if (state->currentDisplayMode() == PageDisplayMode::SinglePage ||
         m_secondImage.isNull()) {
         paintSinglePageMode(painter);
     } else {
@@ -506,14 +531,18 @@ void PDFPageWidget::paintSinglePageMode(QPainter& painter)
 
     drawPageImage(painter, m_currentImage, x, y);
 
-    double actualZoom = getActualZoom();
-    int currentPage = m_viewHandler->currentPage();
+    const PDFDocumentState* state = m_session->state();
+    double actualZoom = state->currentZoom();
+    int currentPage = state->currentPage();
 
     // 通过交互处理器绘制搜索高亮
     if (m_interactionHandler) {
         drawSearchHighlights(painter, currentPage, x, y, actualZoom);
         drawTextSelection(painter, currentPage, x, y, actualZoom);
-        drawLinkAreas(painter, currentPage, x, y, actualZoom);
+
+        if (state->linksVisible()) {
+            drawLinkAreas(painter, currentPage, x, y, actualZoom);
+        }
     }
 }
 
@@ -526,24 +555,22 @@ void PDFPageWidget::paintDoublePageMode(QPainter& painter)
     int startX = (width() - totalWidth) / 2;
     int startY = (height() - maxHeight) / 2;
 
-    int currentPage = m_viewHandler->currentPage();
-    double actualZoom = getActualZoom();
+    const PDFDocumentState* state = m_session->state();
+    int currentPage = state->currentPage();
+    double actualZoom = state->currentZoom();
 
     // 绘制第一页
     int x1 = startX;
     int y1 = startY + (maxHeight - m_currentImage.height()) / 2;
     drawPageImage(painter, m_currentImage, x1, y1);
 
-    if (m_interactionHandler->searchManager()) {
+    if (m_interactionHandler) {
         drawSearchHighlights(painter, currentPage, x1, y1, actualZoom);
-    }
-
-    if (m_interactionHandler->textSelector()) {
         drawTextSelection(painter, currentPage, x1, y1, actualZoom);
-    }
 
-    if (m_interactionHandler->linkManager() && m_interactionHandler->linksVisible()) {
-        drawLinkAreas(painter, currentPage, x1, y1, actualZoom);
+        if (state->linksVisible()) {
+            drawLinkAreas(painter, currentPage, x1, y1, actualZoom);
+        }
     }
 
     // 绘制第二页
@@ -551,24 +578,15 @@ void PDFPageWidget::paintDoublePageMode(QPainter& painter)
     int y2 = startY + (maxHeight - m_secondImage.height()) / 2;
     drawPageImage(painter, m_secondImage, x2, y2);
 
-    if (m_interactionHandler->searchManager() && !m_secondImage.isNull()) {
+    if (m_interactionHandler && !m_secondImage.isNull()) {
         int nextPage = currentPage + 1;
         if (nextPage < m_renderer->pageCount()) {
             drawSearchHighlights(painter, nextPage, x2, y2, actualZoom);
-        }
-    }
-
-    if (m_interactionHandler->textSelector() && !m_secondImage.isNull()) {
-        int nextPage = currentPage + 1;
-        if (nextPage < m_renderer->pageCount()) {
             drawTextSelection(painter, nextPage, x2, y2, actualZoom);
-        }
-    }
 
-    if (m_interactionHandler->linkManager() && m_interactionHandler->linksVisible() && !m_secondImage.isNull()) {
-        int nextPage = currentPage + 1;
-        if (nextPage < m_renderer->pageCount()) {
-            drawLinkAreas(painter, nextPage, x2, y2, actualZoom);
+            if (state->linksVisible()) {
+                drawLinkAreas(painter, nextPage, x2, y2, actualZoom);
+            }
         }
     }
 }
@@ -576,8 +594,9 @@ void PDFPageWidget::paintDoublePageMode(QPainter& painter)
 void PDFPageWidget::paintContinuousMode(QPainter& painter, const QRect& visibleRect)
 {
     const int margin = AppConfig::PAGE_MARGIN;
-    double actualZoom = getActualZoom();
-    int rotation = m_viewHandler->rotation();
+    const PDFDocumentState* state = m_session->state();
+    double actualZoom = state->currentZoom();
+    int rotation = state->currentRotation();
 
     QList<PageCacheKey> cachedKeys = m_cacheManager->cachedKeys();
 
@@ -588,7 +607,7 @@ void PDFPageWidget::paintContinuousMode(QPainter& painter, const QRect& visibleR
             continue;
         }
 
-        if (pageIndex >= m_viewHandler->pageYPositions().size()) {
+        if (pageIndex >= state->pageYPositions().size()) {
             continue;
         }
 
@@ -597,23 +616,20 @@ void PDFPageWidget::paintContinuousMode(QPainter& painter, const QRect& visibleR
             continue;
         }
 
-        int pageY = m_viewHandler->pageYPositions()[pageIndex] + margin;
+        int pageY = state->pageYPositions()[pageIndex] + margin;
         int pageX = (width() - pageImage.width()) / 2;
 
         int pageBottom = pageY + pageImage.height();
         if (pageBottom >= visibleRect.top() && pageY <= visibleRect.bottom()) {
             drawPageImage(painter, pageImage, pageX, pageY);
 
-            if (m_interactionHandler->searchManager()) {
+            if (m_interactionHandler) {
                 drawSearchHighlights(painter, pageIndex, pageX, pageY, actualZoom);
-            }
-
-            if (m_interactionHandler->textSelector()) {
                 drawTextSelection(painter, pageIndex, pageX, pageY, actualZoom);
-            }
 
-            if (m_interactionHandler->linkManager() && m_interactionHandler->linksVisible()) {
-                drawLinkAreas(painter, pageIndex, pageX, pageY, actualZoom);
+                if (state->linksVisible()) {
+                    drawLinkAreas(painter, pageIndex, pageX, pageY, actualZoom);
+                }
             }
         }
     }
@@ -624,8 +640,8 @@ void PDFPageWidget::paintContinuousMode(QPainter& painter, const QRect& visibleR
     font.setPointSize(10);
     painter.setFont(font);
 
-    const QVector<int>& positions = m_viewHandler->pageYPositions();
-    const QVector<int>& heights = m_viewHandler->pageHeights();
+    const QVector<int>& positions = state->pageYPositions();
+    const QVector<int>& heights = state->pageHeights();
 
     for (int i = 0; i < positions.size(); ++i) {
         if (!m_cacheManager->contains(i, actualZoom, rotation)) {
@@ -676,7 +692,8 @@ void PDFPageWidget::drawSearchHighlights(QPainter& painter,
         return;
     }
 
-    int currentMatchIndex = m_interactionHandler->currentSearchMatchIndex();
+    const PDFDocumentState* state = m_session->state();
+    int currentMatchIndex = state->searchCurrentMatchIndex();
 
     for (const SearchResult& result : results) {
         bool isCurrent = false; // 判断逻辑保持不变
@@ -704,7 +721,7 @@ void PDFPageWidget::drawSearchHighlights(QPainter& painter,
 void PDFPageWidget::drawLinkAreas(QPainter& painter, int pageIndex,
                                   int pageX, int pageY, double zoom)
 {
-    if (!m_interactionHandler || !m_interactionHandler->linksVisible()) {
+    if (!m_interactionHandler) {
         return;
     }
 
@@ -713,7 +730,12 @@ void PDFPageWidget::drawLinkAreas(QPainter& painter, int pageIndex,
         return;
     }
 
-    const PDFLink* hoveredLink = m_interactionHandler->hoveredLink();
+    // 注意：hoveredLink是InteractionHandler的中间状态，可以访问
+    const PDFLink* hoveredLink = nullptr;
+    if (m_interactionHandler->linkManager()) {
+        // hoveredLink需要从InteractionHandler获取
+        // 这里假设InteractionHandler提供了访问方法
+    }
 
     for (const PDFLink& link : links) {
         QRectF scaledRect(
@@ -741,11 +763,11 @@ void PDFPageWidget::drawLinkAreas(QPainter& painter, int pageIndex,
 void PDFPageWidget::drawTextSelection(QPainter& painter, int pageIndex,
                                       int pageX, int pageY, double zoom)
 {
-    if (!m_interactionHandler || !m_interactionHandler->hasTextSelection()) {
+    if (!m_interactionHandler) {
         return;
     }
 
-    const TextSelection& selection = m_interactionHandler->currentTextSelection();
+    const TextSelection& selection = m_interactionHandler->getCurrentTextSelection();
 
     if (selection.pageIndex != pageIndex) {
         return;
@@ -799,23 +821,23 @@ int PDFPageWidget::getPageAtPos(const QPoint& pos, int* pageX, int* pageY) const
     }
 
     const int margin = AppConfig::PAGE_MARGIN;
+    const PDFDocumentState* state = m_session->state();
 
     // 连续滚动模式
-    if (m_viewHandler->isContinuousScroll() &&
-        !m_viewHandler->pageYPositions().isEmpty()) {
+    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
 
-        const QVector<int>& positions = m_viewHandler->pageYPositions();
-        const QVector<int>& heights = m_viewHandler->pageHeights();
+        const QVector<int>& positions = state->pageYPositions();
+        const QVector<int>& heights = state->pageHeights();
 
         for (int i = 0; i < positions.size(); ++i) {
             int top = positions[i] + margin;
             int bottom = top + heights[i];
 
             if (pos.y() >= top && pos.y() <= bottom) {
-                double actualZoom = getActualZoom();
+                double actualZoom = state->currentZoom();
                 QSizeF pageSize = m_renderer->pageSize(i);
-                if (m_viewHandler->rotation() == 90 ||
-                    m_viewHandler->rotation() == 270) {
+                if (state->currentRotation() == 90 ||
+                    state->currentRotation() == 270) {
                     pageSize.transpose();
                 }
                 int pageWidth = qRound(pageSize.width() * actualZoom);
@@ -833,7 +855,7 @@ int PDFPageWidget::getPageAtPos(const QPoint& pos, int* pageX, int* pageY) const
     }
     // 单页/双页模式
     else {
-        int currentPage = m_viewHandler->currentPage();
+        int currentPage = state->currentPage();
         int contentX = (width() - m_currentImage.width()) / 2;
         int contentY = (height() - m_currentImage.height()) / 2;
 
@@ -847,7 +869,7 @@ int PDFPageWidget::getPageAtPos(const QPoint& pos, int* pageX, int* pageY) const
         }
 
         // 双页模式:检查第二页
-        if (m_viewHandler->displayMode() == PageDisplayMode::DoublePage &&
+        if (state->currentDisplayMode() == PageDisplayMode::DoublePage &&
             !m_secondImage.isNull()) {
             int secondX = contentX + m_currentImage.width() +
                           AppConfig::DOUBLE_PAGE_SPACING;
@@ -871,13 +893,15 @@ int PDFPageWidget::getPageAtPos(const QPoint& pos, int* pageX, int* pageY) const
 
 void PDFPageWidget::mouseMoveEvent(QMouseEvent* event)
 {
+    const PDFDocumentState* state = m_session->state();
+
     // 如果正在进行文本选择
     if (m_isTextSelecting && m_interactionHandler) {
         int pageX, pageY;
         int pageIndex = getPageAtPos(event->pos(), &pageX, &pageY);
 
         if (pageIndex >= 0) {
-            double actualZoom = getActualZoom();
+            double actualZoom = state->currentZoom();
             QPointF pagePos = screenToPageCoord(event->pos(), pageX, pageY);
 
             m_interactionHandler->updateTextSelection(pageIndex, pagePos, actualZoom);
@@ -912,11 +936,11 @@ void PDFPageWidget::mouseMoveEvent(QMouseEvent* event)
         return;
     }
 
-    double actualZoom = getActualZoom();
+    double actualZoom = state->currentZoom();
     QPointF pagePos = screenToPageCoord(event->pos(), pageX, pageY);
 
     const PDFLink* link = nullptr;
-    if (m_interactionHandler) {
+    if (m_interactionHandler && state->linksVisible()) {
         link = m_interactionHandler->hitTestLink(pageIndex, pagePos, actualZoom);
     }
 
@@ -935,7 +959,7 @@ void PDFPageWidget::mouseMoveEvent(QMouseEvent* event)
     } else {
         QToolTip::hideText();
 
-        if (m_renderer->isTextPDF()) {
+        if (state->isTextPDF()) {
             if (cursor().shape() != Qt::IBeamCursor) {
                 setCursor(Qt::IBeamCursor);
             }
@@ -967,26 +991,38 @@ void PDFPageWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void PDFPageWidget::mousePressEvent(QMouseEvent* event)
 {
+    const PDFDocumentState* state = m_session->state();
+
     // 处理链接点击(优先级最高)
     if (event->button() == Qt::LeftButton && m_interactionHandler) {
-        const PDFLink* hoveredLink = m_interactionHandler->hoveredLink();
-        if (hoveredLink) {
-            m_interactionHandler->handleLinkClick(hoveredLink);
-            event->accept();
-            return;
+        // 注意：这里需要访问InteractionHandler的中间状态(hoveredLink)
+        // 由于InteractionHandler保留了中间状态，这里可以正常工作
+        int pageX, pageY;
+        int pageIndex = getPageAtPos(event->pos(), &pageX, &pageY);
+
+        if (pageIndex >= 0 && state->linksVisible()) {
+            double actualZoom = state->currentZoom();
+            QPointF pagePos = screenToPageCoord(event->pos(), pageX, pageY);
+
+            const PDFLink* link = m_interactionHandler->hitTestLink(pageIndex, pagePos, actualZoom);
+            if (link) {
+                m_session->handleLinkClick(link);
+                event->accept();
+                return;
+            }
         }
     }
 
     // 处理文本选择
     if (event->button() == Qt::LeftButton &&
-        m_renderer && m_renderer->isTextPDF() &&
+        m_renderer && state->isTextPDF() &&
         m_interactionHandler) {
 
         int pageX, pageY;
         int pageIndex = getPageAtPos(event->pos(), &pageX, &pageY);
 
         if (pageIndex >= 0) {
-            double actualZoom = getActualZoom();
+            double actualZoom = state->currentZoom();
             QPointF pagePos = screenToPageCoord(event->pos(), pageX, pageY);
 
             // 检测多击
@@ -1038,14 +1074,16 @@ void PDFPageWidget::mousePressEvent(QMouseEvent* event)
 
 void PDFPageWidget::contextMenuEvent(QContextMenuEvent* event)
 {
-    if (!m_renderer || !m_renderer->isDocumentLoaded() || !m_interactionHandler) {
+    const PDFDocumentState* state = m_session->state();
+
+    if (!state->isDocumentLoaded() || !m_interactionHandler) {
         return;
     }
 
     QMenu menu(this);
 
     // 如果有选中的文本
-    if (m_interactionHandler->hasTextSelection()) {
+    if (state->hasTextSelection()) {
         QAction* copyAction = menu.addAction(tr("Copy"));
         copyAction->setShortcut(QKeySequence::Copy);
         connect(copyAction, &QAction::triggered,
@@ -1055,12 +1093,12 @@ void PDFPageWidget::contextMenuEvent(QContextMenuEvent* event)
     }
 
     // 如果是文本PDF
-    if (m_renderer->isTextPDF()) {
+    if (state->isTextPDF()) {
         int pageX, pageY;
         int pageIndex = getPageAtPos(event->pos(), &pageX, &pageY);
 
-        if (pageIndex >= 0 && !m_interactionHandler->hasTextSelection()) {
-            double actualZoom = getActualZoom();
+        if (pageIndex >= 0 && !state->hasTextSelection()) {
+            double actualZoom = state->currentZoom();
             QPointF pagePos = screenToPageCoord(event->pos(), pageX, pageY);
 
             QAction* selectWordAction = menu.addAction(tr("Select Word"));
@@ -1105,8 +1143,8 @@ void PDFPageWidget::keyPressEvent(QKeyEvent* event)
 
     // Escape: 清除选择
     if (event->key() == Qt::Key_Escape) {
-        if (m_interactionHandler && m_interactionHandler->hasTextSelection()) {
-            m_interactionHandler->clearTextSelection();
+        if (m_session->state()->hasTextSelection()) {
+            m_session->clearTextSelection();
             event->accept();
             return;
         }

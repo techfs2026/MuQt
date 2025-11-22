@@ -32,34 +32,32 @@ public:
     ~PDFPageWidget();
 
     // 页面导航
-    int currentPage() const { return m_viewHandler ? m_viewHandler->currentPage() : 0; }
-    void setCurrentPage(int pageIndex, bool adjustForDoublePageMode = true) {
-        if (m_viewHandler) m_viewHandler->setCurrentPage(pageIndex, adjustForDoublePageMode);
-    }
-    void previousPage() { if (m_viewHandler) m_viewHandler->previousPage(); }
-    void nextPage() { if (m_viewHandler) m_viewHandler->nextPage(); }
-    void firstPage() { if (m_viewHandler) m_viewHandler->firstPage(); }
-    void lastPage() { if (m_viewHandler) m_viewHandler->lastPage(); }
+    int currentPage() const;
+    void setCurrentPage(int pageIndex);
+    void previousPage();
+    void nextPage();
+    void firstPage();
+    void lastPage();
 
     // 缩放控制
-    double zoom() const { return m_viewHandler ? m_viewHandler->zoom() : 1.0; }
+    double zoom() const;
     void setZoom(double zoom);
-    void zoomIn() { if (m_viewHandler) m_viewHandler->zoomIn(); }
-    void zoomOut() { if (m_viewHandler) m_viewHandler->zoomOut(); }
+    void zoomIn();
+    void zoomOut();
 
-    ZoomMode zoomMode() const {return m_viewHandler->zoomMode();};
+    ZoomMode zoomMode() const;
     void setZoomMode(ZoomMode mode);
     void updateZoom();
     double getActualZoom() const;
 
     // 旋转控制
-    int rotation() const { return m_viewHandler ? m_viewHandler->rotation() : 0; }
+    int rotation() const;
     void setRotation(int rotation);
 
     // 显示模式
-    PageDisplayMode displayMode() const {return m_viewHandler? m_viewHandler->displayMode(): PageDisplayMode::SinglePage;}
+    PageDisplayMode displayMode() const;
     void setDisplayMode(PageDisplayMode mode);
-    bool isContinuousScroll() const {return m_viewHandler->isContinuousScroll();};
+    bool isContinuousScroll() const;
     void setContinuousScroll(bool continuous);
 
     // 其他
@@ -115,6 +113,10 @@ private:
 
     QScrollArea* getScrollArea() const;
     QSize getViewportSize() const;
+
+    void setupConnections();
+    void onPageChanged(int pageIndex);
+    void onZoomChanged(double zoom);
 
 private:
     // Session引用(不拥有所有权)

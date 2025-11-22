@@ -5,7 +5,6 @@
 #include "pdfcontenthandler.h"
 #include "outlineeditor.h"
 
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDesktopServices>
@@ -47,7 +46,7 @@ void NavigationPanel::loadDocument(int pageCount)
     }
 
     // 加载大纲
-    bool hasOutline = m_session->contentHandler()->loadOutline();
+    bool hasOutline = m_session->loadOutline();
     if (hasOutline) {
         m_outlineWidget->loadOutline();
         qInfo() << "NavigationPanel: Outline loaded";
@@ -242,6 +241,8 @@ void NavigationPanel::setupUI()
 
 void NavigationPanel::setupConnections()
 {
+    // ========== OutlineWidget信号 ==========
+
     // 大纲跳转信号
     connect(m_outlineWidget, &OutlineWidget::pageJumpRequested,
             this, &NavigationPanel::pageJumpRequested);
@@ -274,6 +275,8 @@ void NavigationPanel::setupConnections()
     connect(m_collapseAllBtn, &QToolButton::clicked,
             m_outlineWidget, &OutlineWidget::collapseAll);
 
+    // ========== ThumbnailWidget信号 ==========
+
     // 缩略图跳转信号
     connect(m_thumbnailWidget, &ThumbnailWidget::pageJumpRequested,
             this, &NavigationPanel::pageJumpRequested);
@@ -286,7 +289,8 @@ void NavigationPanel::setupConnections()
                 }
             });
 
-    // Session信号连接
+    // ========== Session信号连接 ==========
+
     if (m_session) {
         // 大纲加载完成
         connect(m_session, &PDFDocumentSession::outlineLoaded,
