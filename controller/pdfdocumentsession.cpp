@@ -47,7 +47,6 @@ PDFDocumentSession::PDFDocumentSession(QObject* parent)
 
 PDFDocumentSession::~PDFDocumentSession()
 {
-    cleanupResources();
     qInfo() << "PDFDocumentSession: Destroyed";
 }
 
@@ -95,6 +94,7 @@ void PDFDocumentSession::closeDocument()
     // 取消所有正在进行的操作
     if (m_interactionHandler) {
         m_interactionHandler->cancelSearch();
+        m_interactionHandler->clearHoveredLink();
         m_interactionHandler->clearTextSelection();
     }
 
@@ -116,7 +116,9 @@ void PDFDocumentSession::closeDocument()
     }
 
     // 关闭文档
-    m_contentHandler->closeDocument();
+    if(m_contentHandler) {
+        m_contentHandler->closeDocument();
+    }
 
     m_currentFilePath.clear();
     m_isTextPDF = false;
@@ -562,9 +564,4 @@ void PDFDocumentSession::setupConnections()
         connect(m_textCache.get(), &TextCacheManager::preloadCancelled,
                 this, &PDFDocumentSession::textPreloadCancelled);
     }
-}
-
-void PDFDocumentSession::cleanupResources()
-{
-    closeDocument();
 }

@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget* parent)
     , m_showLinksAction(nullptr)
     , m_copyAction(nullptr)
 {
-    setWindowTitle(tr("Simple PDF Viewer"));
+    setWindowTitle(tr("JoPDF"));
 
     // 应用初始配置
     applyInitialSettings();
@@ -98,14 +98,11 @@ MainWindow::MainWindow(QWidget* parent)
 
     // 应用全局样式
     applyModernStyle();
-
-    // 加载上次会话
-    loadLastSession();
 }
 
 MainWindow::~MainWindow()
 {
-    saveCurrentSession();
+    m_session->closeDocument();
 }
 
 // ========== 文件操作 ==========
@@ -141,6 +138,7 @@ void MainWindow::closeFile()
 
 void MainWindow::quit()
 {
+    closeFile();
     QApplication::quit();
 }
 
@@ -741,6 +739,7 @@ void MainWindow::updateUIState()
     if (m_zoomComboBox) {
         m_zoomComboBox->setEnabled(hasDocument);
     }
+
 
     updateStatusBar();
 }

@@ -38,13 +38,6 @@ PDFInteractionHandler::PDFInteractionHandler(MuPDFRenderer* renderer,
 
 PDFInteractionHandler::~PDFInteractionHandler()
 {
-    // 取消正在进行的操作
-    if (m_searchManager) {
-        m_searchManager->cancelSearch();
-    }
-
-    clearHoveredLink();
-    clearTextSelection();
 }
 
 // ========== 搜索相关 ==========

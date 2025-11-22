@@ -29,7 +29,6 @@ PDFContentHandler::PDFContentHandler(MuPDFRenderer* renderer, QObject* parent)
 
 PDFContentHandler::~PDFContentHandler()
 {
-    closeDocument();
 }
 
 // ========== 文档加载 ==========
@@ -58,7 +57,6 @@ bool PDFContentHandler::loadDocument(const QString& filePath, QString* errorMess
         return false;
     }
 
-    m_currentFilePath = filePath;
     int pageCount = m_renderer->pageCount();
 
     qInfo() << "PDFContentHandler: Document loaded successfully -"
@@ -90,8 +88,6 @@ void PDFContentHandler::closeDocument()
         m_renderer->closeDocument();
     }
 
-    m_currentFilePath.clear();
-
     qInfo() << "PDFContentHandler: Document closed";
 
     emit documentClosed();
@@ -100,11 +96,6 @@ void PDFContentHandler::closeDocument()
 bool PDFContentHandler::isDocumentLoaded() const
 {
     return m_renderer && m_renderer->isDocumentLoaded();
-}
-
-QString PDFContentHandler::documentPath() const
-{
-    return m_currentFilePath;
 }
 
 int PDFContentHandler::pageCount() const

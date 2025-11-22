@@ -234,7 +234,6 @@ signals:
 
 private:
     void setupConnections();
-    void cleanupResources();
 
 private:
     // 核心组件

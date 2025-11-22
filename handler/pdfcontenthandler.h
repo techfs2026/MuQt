@@ -49,11 +49,6 @@ public:
     bool isDocumentLoaded() const;
 
     /**
-     * @brief 获取当前文档路径
-     */
-    QString documentPath() const;
-
-    /**
      * @brief 获取文档页数
      */
     int pageCount() const;
@@ -245,8 +240,6 @@ private:
     std::unique_ptr<OutlineManager> m_outlineManager;
     std::unique_ptr<ThumbnailManager> m_thumbnailManager;
     std::unique_ptr<OutlineEditor> m_outlineEditor;
-
-    QString m_currentFilePath;
 
     // 连接子管理器的信号
     void setupConnections();
