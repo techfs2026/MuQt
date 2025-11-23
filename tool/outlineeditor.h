@@ -64,6 +64,8 @@ public:
      */
     bool renameOutline(OutlineItem* item, const QString& newTitle);
 
+    bool updatePageIndex(OutlineItem* item, int newPageIndex);
+
     /**
      * @brief 移动大纲项
      * @param item 要移动的大纲节点

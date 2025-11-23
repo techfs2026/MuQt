@@ -127,6 +127,46 @@ bool OutlineEditor::renameOutline(OutlineItem* item, const QString& newTitle)
     return true;
 }
 
+bool OutlineEditor::updatePageIndex(OutlineItem* item, int newPageIndex)
+{
+    if (!item) return false;
+
+    if (item == m_root) {
+        qWarning() << "OutlineEditor: Cannot update root node page index";
+        return false;
+    }
+
+    // 验证页码有效性
+    if (newPageIndex < -1) {
+        qWarning() << "OutlineEditor: Invalid page index:" << newPageIndex;
+        return false;
+    }
+
+    if (m_renderer && newPageIndex >= m_renderer->pageCount()) {
+        qWarning() << "OutlineEditor: Page index out of range:" << newPageIndex;
+        return false;
+    }
+
+    int oldPageIndex = item->pageIndex();
+
+    // 如果页码没有变化，直接返回
+    if (oldPageIndex == newPageIndex) {
+        return true;
+    }
+
+    // 更新页码
+    item->setPageIndex(newPageIndex);
+
+    // 设置修改标记并发出信号
+    m_modified = true;
+    emit outlineModified();
+
+    qInfo() << "OutlineEditor: Updated page index from" << (oldPageIndex + 1)
+            << "to" << (newPageIndex + 1);
+
+    return true;
+}
+
 bool OutlineEditor::moveOutline(OutlineItem* item,
                                 OutlineItem* newParent,
                                 int newIndex)

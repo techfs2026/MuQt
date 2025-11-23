@@ -565,8 +565,7 @@ void OutlineWidget::onEditOutline()
         }
 
         if (pageChanged) {
-            outlineItem->setPageIndex(newPageIndex);
-            m_outlineEditor->resetModifiedFlag();
+            m_outlineEditor->updatePageIndex(outlineItem, newPageIndex);
         }
 
         if (titleChanged || pageChanged) {
