@@ -145,6 +145,8 @@ private:
     QAction* m_showNavigationAction;
     QAction* m_showLinksAction;
 
+    QActionGroup* m_pageModeGroup;
+
     // 导航菜单
     QAction* m_firstPageAction;
     QAction* m_previousPageAction;

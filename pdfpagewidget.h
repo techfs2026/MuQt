@@ -80,7 +80,6 @@ public:
 
 signals:
     void zoomChanged(double zoom);
-    void displayModeChanged(PageDisplayMode mode);
 
 protected:
     void paintEvent(QPaintEvent* event) override;

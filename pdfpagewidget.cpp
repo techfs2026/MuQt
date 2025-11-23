@@ -76,14 +76,6 @@ void PDFPageWidget::setupConnections()
     connect(m_session, &PDFDocumentSession::currentZoomChanged,
             this, &PDFPageWidget::onZoomChanged);
 
-    // 显示模式变化
-    connect(m_session, &PDFDocumentSession::currentDisplayModeChanged,
-            this, [this](PageDisplayMode mode) {
-                m_cacheManager->clear();
-                renderCurrentPage();
-                emit displayModeChanged(mode);
-            });
-
     // 旋转变化
     connect(m_session, &PDFDocumentSession::currentRotationChanged,
             this, [this](int rotation) {

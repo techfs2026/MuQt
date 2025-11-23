@@ -533,9 +533,7 @@ void PDFDocumentSession::setupConnections()
         // 缩放设置完成 -> 更新State
         connect(m_viewHandler.get(), &PDFViewHandler::zoomSettingCompleted,
                 this, [this](double newZoom, ZoomMode newMode) {
-                    if (newMode != ZoomMode::Custom) {
-                        m_state->setCurrentZoomMode(newMode);
-                    }
+                    m_state->setCurrentZoomMode(newMode);
 
                     // 如果zoom为-1，表示需要重新计算
                     if (newZoom < 0) {
@@ -556,6 +554,11 @@ void PDFDocumentSession::setupConnections()
         // 显示模式设置完成 -> 更新State
         connect(m_viewHandler.get(), &PDFViewHandler::displayModeSettingCompleted,
                 this, [this](PageDisplayMode newMode, int adjustedPage) {
+                    // 双页模式自动关闭连续滚动
+                    if (newMode == PageDisplayMode::DoublePage && m_state->isContinuousScroll()) {
+                        m_state->setContinuousScroll(false);
+                    }
+
                     m_state->setCurrentDisplayMode(newMode);
 
                     // 双页模式下可能调整了页码
@@ -563,11 +566,7 @@ void PDFDocumentSession::setupConnections()
                         m_state->setCurrentPage(adjustedPage);
                     }
 
-                    // 双页模式自动关闭连续滚动
-                    if (newMode == PageDisplayMode::DoublePage &&
-                        m_state->isContinuousScroll()) {
-                        m_state->setContinuousScroll(false);
-                    }
+
                 });
 
         // 连续滚动设置完成 -> 更新State

@@ -16,6 +16,7 @@
 #include <QFileInfo>
 #include <QCloseEvent>
 #include <QDockWidget>
+#include <QActionGroup>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -662,16 +663,21 @@ void MainWindow::createMenuBar()
 
     viewMenu->addSeparator();
 
+    m_pageModeGroup = new QActionGroup(this);
+    m_pageModeGroup->setExclusive(true);
+
     m_singlePageAction = viewMenu->addAction(tr("&Single Page"), this, [this]() {
         togglePageMode(PageDisplayMode::SinglePage);
     });
     m_singlePageAction->setCheckable(true);
     m_singlePageAction->setChecked(true);
+    m_pageModeGroup->addAction(m_singlePageAction);
 
     m_doublePageAction = viewMenu->addAction(tr("&Double Page"), this, [this]() {
         togglePageMode(PageDisplayMode::DoublePage);
     });
     m_doublePageAction->setCheckable(true);
+    m_pageModeGroup->addAction(m_doublePageAction);
 
     m_continuousScrollAction = viewMenu->addAction(tr("&Continuous Scroll"),
                                                    this, &MainWindow::toggleContinuousScroll);

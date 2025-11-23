@@ -134,6 +134,9 @@ void PDFDocumentTab::setupConnections()
     connect(m_session, &PDFDocumentSession::currentDisplayModeChanged,
             this, [this](PageDisplayMode mode) {
                 updateScrollBarPolicy();
+                m_session->textCache()->clear();
+                m_pageWidget->updateZoom();
+                m_pageWidget->renderCurrentPage();
                 emit displayModeChanged(mode);
             });
 
@@ -315,7 +318,9 @@ void PDFDocumentTab::setZoom(double zoom)
 
 void PDFDocumentTab::setDisplayMode(PageDisplayMode mode)
 {
-    m_session->setDisplayMode(mode);
+    if(mode != m_session->state()->currentDisplayMode()) {
+        m_session->setDisplayMode(mode);
+    }
 }
 
 void PDFDocumentTab::setContinuousScroll(bool continuous)
