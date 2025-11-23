@@ -208,11 +208,6 @@ signals:
     void linksVisibleChanged(bool visible);
 
     /**
-     * @brief 文本选择状态变化
-     */
-    void textSelectionChanged(bool hasSelection);
-
-    /**
      * @brief 搜索状态变化
      */
     void searchStateChanged(bool searching, int totalMatches, int currentIndex);

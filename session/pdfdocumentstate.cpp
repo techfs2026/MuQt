@@ -113,7 +113,6 @@ void PDFDocumentState::setHasTextSelection(bool has)
 {
     if (m_hasTextSelection != has) {
         m_hasTextSelection = has;
-        emit textSelectionChanged(has);
     }
 }
 

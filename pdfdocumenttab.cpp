@@ -178,9 +178,11 @@ void PDFDocumentTab::setupConnections()
             this, &PDFDocumentTab::searchCompleted);
 
     // ========== 文本选择 ==========
-
     connect(m_session, &PDFDocumentSession::textSelectionChanged,
-            this, &PDFDocumentTab::textSelectionChanged);
+            this, [this](bool hasSelection) {
+                m_pageWidget->update();
+                emit textSelectionChanged();
+            });
 
     // ========== 链接跳转 ==========
 

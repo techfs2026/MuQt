@@ -90,12 +90,6 @@ void PDFPageWidget::setupConnections()
                     scrollArea->verticalScrollBar()->setValue(scrollY);
                 }
             });
-
-    // 文本选择变化
-    connect(m_session, &PDFDocumentSession::textSelectionChanged,
-            this, [this](bool hasSelection) {
-                update();
-            });
 }
 
 // ========== 导航方法 (委托给Session) ==========
@@ -983,7 +977,6 @@ void PDFPageWidget::mousePressEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton &&
         m_renderer && state->isTextPDF() &&
         m_interactionHandler) {
-
         int pageX, pageY;
         int pageIndex = getPageAtPos(event->pos(), &pageX, &pageY);
 

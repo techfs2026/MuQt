@@ -668,6 +668,7 @@ void PDFDocumentSession::setupConnections()
                 this, [this](bool hasSelection, const QString& selectedText) {
                     Q_UNUSED(selectedText);
                     m_state->setHasTextSelection(hasSelection);
+                    emit textSelectionChanged(hasSelection);
                 });
 
         connect(m_interactionHandler.get(), &PDFInteractionHandler::textCopied,
@@ -708,8 +709,6 @@ void PDFDocumentSession::setupConnections()
         // 交互状态
         connect(m_state.get(), &PDFDocumentState::linksVisibleChanged,
                 this, &PDFDocumentSession::linksVisibleChanged);
-        connect(m_state.get(), &PDFDocumentState::textSelectionChanged,
-                this, &PDFDocumentSession::textSelectionChanged);
         connect(m_state.get(), &PDFDocumentState::searchStateChanged,
                 this, &PDFDocumentSession::searchStateChanged);
     }
