@@ -61,6 +61,7 @@ public:
     void setContinuousScroll(bool continuous);
 
     void onPageChanged(int pageIndex);
+    void onZoomChanged(double zoom);
 
     // 其他
     void refresh();
@@ -115,7 +116,7 @@ private:
     QSize getViewportSize() const;
 
     void setupConnections();
-    void onZoomChanged(double zoom);
+
 
 private:
     // Session引用(不拥有所有权)

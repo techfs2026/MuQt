@@ -120,7 +120,15 @@ void PDFDocumentTab::setupConnections()
 
     // 缩放变化
     connect(m_session, &PDFDocumentSession::currentZoomChanged,
-            this, &PDFDocumentTab::zoomChanged);
+            this, [this](double zoom) {
+                m_pageWidget->onZoomChanged(zoom);
+                emit zoomChanged(zoom);
+            });
+
+    connect(m_session, &PDFDocumentSession::currentZoomModeChanged,
+            this, [this](ZoomMode mode) {
+                m_pageWidget->setZoomMode(mode);
+            });
 
     // 显示模式变化
     connect(m_session, &PDFDocumentSession::currentDisplayModeChanged,
