@@ -8,7 +8,7 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QToolButton>
-#include "pdfinteractionhandler.h"
+#include "pdfdocumentsession.h"
 
 class PDFPageWidget;
 
@@ -33,7 +33,7 @@ public:
      * @param pageWidget 页面显示组件
      * @param parent 父窗口
      */
-    explicit SearchWidget(PDFInteractionHandler* interactionHandler,
+    explicit SearchWidget(PDFDocumentSession* session,
                           PDFPageWidget* pageWidget,
                           QWidget* parent);
 
@@ -104,7 +104,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
-    PDFInteractionHandler* m_interactionHandler;
+    PDFDocumentSession* m_session;
 
     PDFPageWidget* m_pageWidget;            ///< 页面显示组件
 

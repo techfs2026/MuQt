@@ -73,7 +73,7 @@ void PDFDocumentTab::setupUI()
     });
 
     // 创建搜索工具栏
-    m_searchWidget = new SearchWidget(m_session->interactionHandler(),
+    m_searchWidget = new SearchWidget(m_session,
                                       m_pageWidget, this);
     m_searchWidget->setVisible(false);
 
@@ -132,7 +132,19 @@ void PDFDocumentTab::setupConnections()
     connect(m_session, &PDFDocumentSession::continuousScrollChanged,
             this, [this](bool continuous) {
                 updateScrollBarPolicy();
+                m_pageWidget->renderCurrentPage();
                 emit continuousScrollChanged(continuous);
+            });
+
+    // 页面位置计算完成(连续滚动模式)
+    connect(m_session, &PDFDocumentSession::pagePositionsChanged,
+            this, [this](const QVector<int>& positions, const QVector<int>& heights) {
+                QSize targetSize = m_pageWidget->sizeHint();
+                m_pageWidget->resize(targetSize);
+
+                QTimer::singleShot(0, this, [this]() {
+                    m_pageWidget->refreshVisiblePages();
+                });
             });
 
     // ========== 滚动条信号 ==========
@@ -142,6 +154,7 @@ void PDFDocumentTab::setupConnections()
                 const PDFDocumentState* state = m_session->state();
                 if (state->isContinuousScroll()) {
                     m_session->updateCurrentPageFromScroll(value);
+                    m_pageWidget->updateCurrentPageFromScroll(value);
                 }
             });
 
@@ -457,6 +470,8 @@ void PDFDocumentTab::onPageChanged(int pageIndex)
     if (m_navigationPanel) {
         m_navigationPanel->updateCurrentPage(pageIndex);
     }
+
+    m_pageWidget->onPageChanged(pageIndex);
 
     emit pageChanged(pageIndex);
 }

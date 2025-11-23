@@ -241,13 +241,6 @@ void MainWindow::onTabChanged(int index)
     if (tab && tab->isDocumentLoaded() && tab->navigationPanel()) {
         m_navigationDock->setWidget(tab->navigationPanel());
         m_showNavigationAction->setChecked(m_navigationDock->isVisible());
-
-        QTimer::singleShot(0, [tab]() {
-            ZoomMode mode = tab->zoomMode();
-            if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
-                tab->pageWidget()->updateZoom();
-            }
-        });
     } else {
         // 无文档或无 tab，隐藏导航面板
         m_navigationDock->setWidget(nullptr);

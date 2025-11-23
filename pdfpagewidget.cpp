@@ -72,10 +72,6 @@ void PDFPageWidget::setupConnections()
 {
     // ========== Session状态变化信号 ==========
 
-    // 当前页码变化
-    connect(m_session, &PDFDocumentSession::currentPageChanged,
-            this, &PDFPageWidget::onPageChanged);
-
     // 缩放变化
     connect(m_session, &PDFDocumentSession::currentZoomChanged,
             this, &PDFPageWidget::onZoomChanged);
@@ -88,29 +84,10 @@ void PDFPageWidget::setupConnections()
                 emit displayModeChanged(mode);
             });
 
-    // 连续滚动模式变化
-    connect(m_session, &PDFDocumentSession::continuousScrollChanged,
-            this, [this](bool continuous) {
-                m_cacheManager->clear();
-                renderCurrentPage();
-                emit continuousScrollChanged(continuous);
-            });
-
     // 旋转变化
     connect(m_session, &PDFDocumentSession::currentRotationChanged,
             this, [this](int rotation) {
                 renderCurrentPage();
-            });
-
-    // 页面位置计算完成(连续滚动模式)
-    connect(m_session, &PDFDocumentSession::pagePositionsChanged,
-            this, [this](const QVector<int>& positions, const QVector<int>& heights) {
-                QSize targetSize = sizeHint();
-                resize(targetSize);
-
-                QTimer::singleShot(0, this, [this]() {
-                    refreshVisiblePages();
-                });
             });
 
     // 滚动位置请求
@@ -270,9 +247,6 @@ void PDFPageWidget::onPageChanged(int pageIndex)
     if (!state->isContinuousScroll()) {
         renderCurrentPage();
     }
-
-    // 转发信号给外部
-    emit pageChanged(pageIndex);
 }
 
 void PDFPageWidget::onZoomChanged(double zoom)
@@ -359,7 +333,7 @@ void PDFPageWidget::renderCurrentPage()
     // 连续滚动模式
     if (continuousScroll) {
         m_cacheManager->clear();
-
+        qDebug() << "m_session->calculatePagePositions();";
         // 计算页面位置(通过Session)
         m_session->calculatePagePositions();
 
@@ -994,7 +968,7 @@ void PDFPageWidget::mousePressEvent(QMouseEvent* event)
     const PDFDocumentState* state = m_session->state();
 
     // 处理链接点击(优先级最高)
-    if (event->button() == Qt::LeftButton && m_interactionHandler) {
+    if (event->button() == Qt::LeftButton && m_interactionHandler && state->linksVisible()) {
         // 注意：这里需要访问InteractionHandler的中间状态(hoveredLink)
         // 由于InteractionHandler保留了中间状态，这里可以正常工作
         int pageX, pageY;

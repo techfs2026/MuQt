@@ -467,10 +467,6 @@ void PDFDocumentSession::calculatePagePositions()
         positions,
         heights
         );
-
-    if (success) {
-        m_state->setPagePositions(positions, heights);
-    }
 }
 
 void PDFDocumentSession::updateCurrentPageFromScroll(int scrollY, int margin)
@@ -572,13 +568,17 @@ void PDFDocumentSession::setupConnections()
         // 连续滚动设置完成 -> 更新State
         connect(m_viewHandler.get(), &PDFViewHandler::continuousScrollSettingCompleted,
                 this, [this](bool continuous) {
+                    qDebug() << "m_state->setContinuousScroll(continuous);";
                     m_state->setContinuousScroll(continuous);
-
-                    if (continuous) {
-                        // 开启连续滚动，计算页面位置
-                        calculatePagePositions();
-                    }
                 });
+
+        connect(m_viewHandler.get(), &PDFViewHandler::pagePositionsCalculated,
+                this, [this](const QVector<int>& positions,const QVector<int>& heights) {
+                    qDebug() << "m_state->setPagePositions(positions, heights);";
+                    m_state->setPagePositions(positions, heights);
+                });
+
+
 
         // 旋转设置完成 -> 更新State
         connect(m_viewHandler.get(), &PDFViewHandler::rotationSettingCompleted,

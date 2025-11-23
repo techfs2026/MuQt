@@ -60,6 +60,8 @@ public:
     bool isContinuousScroll() const;
     void setContinuousScroll(bool continuous);
 
+    void onPageChanged(int pageIndex);
+
     // 其他
     void refresh();
     QSize sizeHint() const override;
@@ -76,10 +78,8 @@ public:
     void refreshVisiblePages();
 
 signals:
-    void pageChanged(int pageIndex);
     void zoomChanged(double zoom);
     void displayModeChanged(PageDisplayMode mode);
-    void continuousScrollChanged(bool continuous);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -89,10 +89,10 @@ protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 
-private slots:
-    void onPageChangedFromHandler(int pageIndex);
-    void onZoomChangedFromHandler(double zoom);
-    void onDisplayModeChanged(PageDisplayMode mode);
+// private slots:
+//     void onPageChangedFromHandler(int pageIndex);
+//     void onZoomChangedFromHandler(double zoom);
+//     void onDisplayModeChanged(PageDisplayMode mode);
 
 private:
     QImage renderSinglePage(int pageIndex, double zoom);
@@ -115,7 +115,6 @@ private:
     QSize getViewportSize() const;
 
     void setupConnections();
-    void onPageChanged(int pageIndex);
     void onZoomChanged(double zoom);
 
 private:

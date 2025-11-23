@@ -1,8 +1,5 @@
-// searchwidget.cpp - 修改为使用PDFInteractionHandler
-
 #include "searchwidget.h"
-#include "pdfinteractionhandler.h"  // 【修改】引入交互处理器
-#include "searchmanager.h"
+#include "pdfinteractionhandler.h"
 #include "pdfpagewidget.h"
 
 #include <QHBoxLayout>
@@ -11,11 +8,11 @@
 #include <QStyle>
 
 // 【修改】构造函数参数改为PDFInteractionHandler
-SearchWidget::SearchWidget(PDFInteractionHandler* interactionHandler,
+SearchWidget::SearchWidget(PDFDocumentSession* session,
                            PDFPageWidget* pageWidget,
                            QWidget* parent)
     : QWidget(parent)
-    , m_interactionHandler(interactionHandler)  // 【修改】
+    , m_session(session)
     , m_pageWidget(pageWidget)
     , m_isSearching(false)
 {
@@ -107,24 +104,15 @@ void SearchWidget::setupConnections()
     // 关闭按钮
     connect(m_closeButton, &QToolButton::clicked, this, &SearchWidget::closeRequested);
 
-    // 【修改】连接交互处理器信号
-    if (m_interactionHandler) {
-        connect(m_interactionHandler, &PDFInteractionHandler::searchCompleted,
-                this, &SearchWidget::onSearchCompleted);
-        connect(m_interactionHandler, &PDFInteractionHandler::searchProgress,
-                this, &SearchWidget::onSearchProgress);
-        connect(m_interactionHandler, &PDFInteractionHandler::searchCancelled,
-                this, [this]() {
-                    m_isSearching = false;
-                    updateUI();
-                });
-        connect(m_interactionHandler, &PDFInteractionHandler::searchError,
-                this, [this](const QString& error) {
-                    m_isSearching = false;
-                    m_matchLabel->setText(tr("Error: %1").arg(error));
-                    updateUI();
-                });
-    }
+    connect(m_session, &PDFDocumentSession::searchCompleted,
+            this, &SearchWidget::onSearchCompleted);
+    connect(m_session, &PDFDocumentSession::searchProgressUpdated,
+            this, &SearchWidget::onSearchProgress);
+    connect(m_session, &PDFDocumentSession::searchCancelled,
+            this, [this]() {
+                m_isSearching = false;
+                updateUI();
+            });
 }
 
 void SearchWidget::performSearch()
@@ -133,26 +121,24 @@ void SearchWidget::performSearch()
 
     if (query.isEmpty()) {
         // 【修改】使用交互处理器
-        if (m_interactionHandler) {
-            m_interactionHandler->clearSearchResults();
-        }
+        // m_session->clearSearchResults();
         updateUI();
         return;
     }
 
     // 取消之前的搜索
-    if (m_isSearching && m_interactionHandler) {
-        m_interactionHandler->cancelSearch();
+    if (m_isSearching) {
+        m_session->cancelSearch();
     }
 
     // 【修改】使用交互处理器启动搜索
-    if (m_interactionHandler) {
+    if (m_session) {
         bool caseSensitive = m_caseSensitiveCheck->isChecked();
         bool wholeWords = m_wholeWordsCheck->isChecked();
         int startPage = m_pageWidget->currentPage();
 
-        m_interactionHandler->startSearch(query, caseSensitive, wholeWords, startPage);
-        m_interactionHandler->addSearchHistory(query);
+        m_session->startSearch(query, caseSensitive, wholeWords, startPage);
+        // m_session->addSearchHistory(query);
     }
 
     // 开始搜索
@@ -165,11 +151,11 @@ void SearchWidget::performSearch()
 
 void SearchWidget::findNext()
 {
-    if (!m_interactionHandler || m_interactionHandler->totalSearchMatches() == 0) {
-        return;
-    }
+    // if (m_session->totalSearchMatches() == 0) {
+    //     return;
+    // }
 
-    SearchResult result = m_interactionHandler->findNext();
+    SearchResult result = m_session->findNext();
     if (result.isValid()) {
         navigateToResult(result);
         updateUI();
@@ -178,11 +164,11 @@ void SearchWidget::findNext()
 
 void SearchWidget::findPrevious()
 {
-    if (!m_interactionHandler || m_interactionHandler->totalSearchMatches() == 0) {
-        return;
-    }
+    // if (m_session->totalSearchMatches() == 0) {
+    //     return;
+    // }
 
-    SearchResult result = m_interactionHandler->findPrevious();
+    SearchResult result = m_session->findPrevious();
     if (result.isValid()) {
         navigateToResult(result);
         updateUI();
@@ -192,10 +178,8 @@ void SearchWidget::findPrevious()
 void SearchWidget::updateUI()
 {
     // 【修改】从交互处理器获取信息
-    int totalMatches = m_interactionHandler ?
-                           m_interactionHandler->totalSearchMatches() : 0;
-    int currentIndex = m_interactionHandler ?
-                           m_interactionHandler->currentSearchMatchIndex() : -1;
+    int totalMatches = 0; //m_session->totalSearchMatches();
+    int currentIndex = 0; //m_session->currentSearchMatchIndex();
 
     // 更新按钮状态
     bool hasResults = totalMatches > 0;
@@ -218,17 +202,8 @@ void SearchWidget::updateUI()
                                   .arg(totalMatches));
     }
 
-    // 更新搜索历史下拉框
-    if (m_interactionHandler) {
-        QStringList history = m_interactionHandler->getSearchHistory(10);
-        QString currentText = m_searchCombo->currentText();
+    // TODO: 更新搜索历史下拉框
 
-        m_searchCombo->blockSignals(true);
-        m_searchCombo->clear();
-        m_searchCombo->addItems(history);
-        m_searchCombo->setEditText(currentText);
-        m_searchCombo->blockSignals(false);
-    }
 }
 
 void SearchWidget::onSearchCompleted(const QString& query, int totalMatches)
@@ -237,9 +212,9 @@ void SearchWidget::onSearchCompleted(const QString& query, int totalMatches)
     updateUI();
 
     // 如果有结果，自动跳转到第一个
-    if (totalMatches > 0 && m_interactionHandler) {
+    if (totalMatches > 0) {
         // 设置当前匹配索引为0
-        SearchResult result = m_interactionHandler->findNext(); // 这会设置为第0个
+        SearchResult result = m_session->findNext(); // 这会设置为第0个
         if (result.isValid()) {
             navigateToResult(result);
         }
