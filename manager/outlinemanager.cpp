@@ -20,57 +20,56 @@ OutlineManager::~OutlineManager()
 
 bool OutlineManager::loadOutline()
 {
-
-    clear();
-
     if (!m_renderer || !m_renderer->isDocumentLoaded()) {
         qWarning() << "OutlineManager: No document loaded";
-        emit outlineLoaded(false, 0);
         return false;
     }
 
-    // 创建根节点
-    m_root = new OutlineItem();
+    // 清空旧数据
+    clear();
 
-    // 获取MuPDF上下文和文档
     fz_context* ctx = static_cast<fz_context*>(m_renderer->context());
     fz_document* doc = static_cast<fz_document*>(m_renderer->document());
 
     if (!ctx || !doc) {
-        emit outlineLoaded(false, 0);
+        qWarning() << "OutlineManager: Invalid MuPDF context or document";
         return false;
     }
 
     fz_outline* outline = nullptr;
 
     fz_try(ctx) {
-        // 加载文档大纲
         outline = fz_load_outline(ctx, doc);
-        if (outline) {
-            // 递归构建大纲树
-            m_totalItems = buildOutlineTree(outline, m_root);
-
-            qInfo() << "OutlineManager: Loaded" << m_totalItems << "outline items";
-        } else {
-            qInfo() << "OutlineManager: Document has no outline";
-        }
-    }
-    fz_always(ctx) {
-        // 释放大纲
-        if (outline) {
-            fz_drop_outline(ctx, outline);
-        }
     }
     fz_catch(ctx) {
         qWarning() << "OutlineManager: Failed to load outline:"
                    << fz_caught_message(ctx);
-        emit outlineLoaded(false, 0);
-        return false;
+        outline = nullptr;
     }
 
-    bool success = m_totalItems > 0;
-    emit outlineLoaded(success, m_totalItems);
-    return success;
+    // ✅ 关键修改：无论是否有 outline，都创建虚拟根节点
+    // 虚拟根节点：title = 空字符串, pageIndex = -1
+    // 这个节点不会显示在 UI 上，只作为容器
+    m_root = new OutlineItem();
+
+    int itemCount = 0;
+
+    if (outline) {
+        // PDF 有目录：从 MuPDF outline 构建树
+        itemCount = buildOutlineTree(outline, m_root);
+        fz_drop_outline(ctx, outline);
+
+        qInfo() << "OutlineManager: Loaded outline with" << itemCount << "items";
+    } else {
+        // PDF 没有目录：root 是空的容器，但不是 nullptr
+        // 用户可以向这个空容器添加新的目录项
+        qInfo() << "OutlineManager: PDF has no outline, created empty root for editing";
+    }
+
+    // ✅ 总是返回 true（即使没有目录项）
+    // 因为 root 已经创建成功，可以进行编辑操作
+    emit outlineLoaded(true, itemCount);
+    return true;
 }
 
 void OutlineManager::clear()

@@ -27,7 +27,13 @@ OutlineEditor::~OutlineEditor()
 
 void OutlineEditor::setRoot(OutlineItem* root)
 {
-    m_root = root;
+    if (!root) {
+        qWarning() << "OutlineEditor::setRoot: root is nullptr, creating virtual root";
+        m_root = new OutlineItem();
+    } else {
+        m_root = root;
+    }
+
     m_modified = false;
 }
 
@@ -44,6 +50,11 @@ OutlineItem* OutlineEditor::addOutline(OutlineItem* parentItem,
     if (!validateOutline(title, pageIndex)) {
         qWarning() << "OutlineEditor: Invalid outline parameters";
         return nullptr;
+    }
+
+    if (!m_root) {
+        qWarning() << "OutlineEditor: No root, creating virtual root";
+        m_root = new OutlineItem();
     }
 
     OutlineItem* parent = parentItem ? parentItem : m_root;

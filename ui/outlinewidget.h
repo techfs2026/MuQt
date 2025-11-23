@@ -249,7 +249,6 @@ public:
     explicit OutlineWidget(PDFContentHandler* contentHandler, QWidget* parent = nullptr);
     ~OutlineWidget();
 
-    void setOutlineEditor(OutlineEditor* editor);
     bool loadOutline();
     void clear();
     void highlightCurrentPage(int pageIndex);
@@ -264,7 +263,6 @@ public:
 signals:
     void pageJumpRequested(int pageIndex);
     void externalLinkRequested(const QString& uri);
-    void outlineModified();
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event) override;

@@ -143,7 +143,6 @@ void NavigationPanel::setupUI()
 
     // 创建大纲视图(使用Session的ContentHandler)
     m_outlineWidget = new OutlineWidget(m_session->contentHandler(), this);
-    m_outlineWidget->setOutlineEditor(m_session->outlineEditor());
     m_outlineWidget->setMinimumWidth(0);
     m_outlineWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_outlineWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -266,7 +265,7 @@ void NavigationPanel::setupConnections()
             });
 
     // 大纲项修改信号
-    connect(m_outlineWidget, &OutlineWidget::outlineModified,
+    connect(m_session->contentHandler(), &PDFContentHandler::outlineModified,
             this, &NavigationPanel::outlineModified);
 
     // 连接展开/折叠按钮

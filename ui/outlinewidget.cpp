@@ -18,7 +18,7 @@
 OutlineWidget::OutlineWidget(PDFContentHandler* contentHandler, QWidget* parent)
     : QTreeWidget(parent)
     , m_contentHandler(contentHandler)
-    , m_outlineEditor(nullptr)
+    , m_outlineEditor(contentHandler->outlineEditor())
     , m_currentHighlight(nullptr)
     , m_darkMode(false)
     , m_allExpanded(false)
@@ -42,6 +42,9 @@ OutlineWidget::OutlineWidget(PDFContentHandler* contentHandler, QWidget* parent)
     setAcceptDrops(true);
     setDropIndicatorShown(false);
     setDragDropMode(QAbstractItemView::DragDrop);
+
+    connect(m_contentHandler, &PDFContentHandler::outlineModified,
+            this, &OutlineWidget::refreshTree);
 }
 
 OutlineWidget::~OutlineWidget()
@@ -201,28 +204,24 @@ void OutlineWidget::resizeEvent(QResizeEvent* event)
         m_overlay->resize(viewport()->size());
 }
 
-void OutlineWidget::setOutlineEditor(OutlineEditor* editor)
-{
-    m_outlineEditor = editor;
-
-    if (m_outlineEditor) {
-        connect(m_outlineEditor, &OutlineEditor::outlineModified,
-                this, &OutlineWidget::refreshTree);
-    }
-}
-
 bool OutlineWidget::loadOutline()
 {
     clear();
 
-    if (!m_contentHandler || !m_contentHandler->hasOutline()) {
+    if (!m_contentHandler) {
         return false;
     }
 
     // 通过 PDFContentHandler 获取大纲根节点
     OutlineItem* root = m_contentHandler->outlineRoot();
     if (!root) {
+        qWarning() << "OutlineWidget::loadOutline: No root available";
         return false;
+    }
+
+    if (root->childCount() == 0) {
+        qInfo() << "OutlineWidget::loadOutline: Outline is empty (no items yet)";
+        return true;  // 返回 true，表示结构正常，只是没内容
     }
 
     // 递归构建树
@@ -433,11 +432,6 @@ void OutlineWidget::onItemClicked(QTreeWidgetItem* item, int column)
     }
 }
 
-// ... [其余代码保持不变,包括 onAddChildOutline, onAddSiblingOutline, onEditOutline,
-//      onDeleteOutline, onSaveToDocument, buildTree, createTreeItem, findItemByPage,
-//      expandToItem, getOutlineItem, setOutlineItem, refreshTree, getCurrentPageIndex,
-//      setItemDefaultColor, startDrag, dragEnterEvent, dragMoveEvent, dropEvent, dragLeaveEvent]
-
 void OutlineWidget::onAddChildOutline()
 {
     if (!m_outlineEditor) {
@@ -470,7 +464,6 @@ void OutlineWidget::onAddChildOutline()
             parentItem, title, pageIndex);
 
         if (newItem) {
-            emit outlineModified();
             clearSelection();
             setCurrentItem(nullptr);
 
@@ -523,7 +516,6 @@ void OutlineWidget::onAddSiblingOutline()
             parentItem, title, pageIndex);
 
         if (newItem) {
-            emit outlineModified();
             QMessageBox::information(this, tr("成功"),
                                      tr("目录项已添加!\n记得保存到PDF文档。"));
         } else {
@@ -575,7 +567,6 @@ void OutlineWidget::onEditOutline()
         if (pageChanged) {
             outlineItem->setPageIndex(newPageIndex);
             m_outlineEditor->resetModifiedFlag();
-            emit outlineModified();
         }
 
         if (titleChanged || pageChanged) {
@@ -622,7 +613,6 @@ void OutlineWidget::onDeleteOutline()
 
     if (reply == QMessageBox::Yes) {
         if (m_outlineEditor->deleteOutline(outlineItem)) {
-            emit outlineModified();
             QMessageBox::information(this, tr("成功"),
                                      tr("目录项已删除!\n记得保存到PDF文档。"));
         } else {
@@ -815,6 +805,9 @@ void OutlineWidget::refreshTree()
         }
         ++it2;
     }
+
+    clearSelection();
+    setCurrentItem(nullptr);
 }
 
 int OutlineWidget::getCurrentPageIndex() const
@@ -1137,7 +1130,6 @@ void OutlineWidget::dropEvent(QDropEvent* event)
 
     if (ok) {
         event->acceptProposedAction();
-        emit outlineModified();
     } else {
         event->ignore();
         QMessageBox::warning(this, tr("失败"), tr("移动目录项失败!"));
