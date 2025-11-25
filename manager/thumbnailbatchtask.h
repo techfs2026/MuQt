@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QAtomicInt>
 #include <QImage>
+#include <QPointer>
 
 class ThreadSafeRenderer;
 class ThumbnailCache;
@@ -71,7 +72,7 @@ public:
 
 private:
     ThreadSafeRenderer* m_renderer;
-    ThumbnailManager* m_manager;
+    QPointer<ThumbnailManager> m_manager;
     ThumbnailCache* m_cache;
     QVector<int> m_pageIndices;
     RenderPriority m_priority;

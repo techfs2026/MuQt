@@ -159,6 +159,12 @@ void MainWindow::closeTab(int index)
     }
 
     disconnectTabSignals(tab);
+
+    if (tab == currentTab() && m_navigationDock) {
+        m_navigationDock->setWidget(nullptr);
+        m_navigationDock->setVisible(false);
+    }
+
     m_tabWidget->removeTab(index);
     tab->deleteLater();
 

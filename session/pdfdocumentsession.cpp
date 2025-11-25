@@ -102,11 +102,6 @@ void PDFDocumentSession::closeDocument()
         m_textCache->cancelPreload();
     }
 
-    // 取消缩略图任务 (新增)
-    if (m_contentHandler) {
-        m_contentHandler->cancelThumbnailTasks();
-    }
-
     // 清空缓存
     if (m_pageCache) {
         m_pageCache->clear();

@@ -25,7 +25,12 @@ ThumbnailManager::ThumbnailManager(MuPDFRenderer* renderer, QObject* parent)
 
 ThumbnailManager::~ThumbnailManager()
 {
+    qInfo() << "ThumbnailManager: Destructor called";
+
     clear();
+
+    m_threadSafeRenderer.reset();  // 重置线程安全渲染器
+
     qInfo() << "ThumbnailManager: Destroyed";
 }
 
@@ -245,8 +250,11 @@ void ThumbnailManager::cancelAllTasks()
 
     qDebug() << "ThumbnailManager: Cancelling" << m_activeTasks.size() << "tasks";
 
+    // 遍历并中断所有任务
     for (ThumbnailBatchTask* task : m_activeTasks) {
-        task->abort();
+        if (task) {
+            task->abort();
+        }
     }
 
     m_activeTasks.clear();
@@ -273,9 +281,8 @@ void ThumbnailManager::waitForCompletion()
 void ThumbnailManager::clear()
 {
     cancelAllTasks();
-    m_threadPool->waitForDone();
+    waitForCompletion();
     m_cache->clear();
-    m_threadSafeRenderer.reset();  // 重置线程安全渲染器
 
     qInfo() << "ThumbnailManager: Cache cleared";
 }

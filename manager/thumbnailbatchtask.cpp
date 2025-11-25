@@ -56,6 +56,11 @@ void ThumbnailBatchTask::run()
             break;
         }
 
+        if (!m_manager) {
+            qWarning() << "ThumbnailBatchTask: Manager destroyed during rendering";
+            break;
+        }
+
         // 检查批大小限制
         if (rendered >= batchLimit) {
             qDebug() << "ThumbnailBatchTask:" << priorityStr
@@ -103,12 +108,13 @@ void ThumbnailBatchTask::run()
             m_cache->setHighRes(pageIndex, thumbnail);
         }
 
-        // 🔥 关键修复: 发送信号通知UI更新
-        QMetaObject::invokeMethod(m_manager, "thumbnailLoaded",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(int, pageIndex),
-                                  Q_ARG(QImage, thumbnail),
-                                  Q_ARG(bool, !m_isLowRes));
+        if (m_manager) {
+            QMetaObject::invokeMethod(m_manager.data(), "thumbnailLoaded",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(int, pageIndex),
+                                      Q_ARG(QImage, thumbnail),
+                                      Q_ARG(bool, !m_isLowRes));
+        }
 
         rendered++;
     }

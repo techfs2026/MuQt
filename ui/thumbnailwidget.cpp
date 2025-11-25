@@ -64,9 +64,25 @@ ThumbnailWidget::ThumbnailWidget(PDFDocumentSession* session,
 
 ThumbnailWidget::~ThumbnailWidget()
 {
+    qDebug() << "ThumbnailWidget: Destructor called";
+
+    // 1. 断开ThumbnailManager的信号（防止收到延迟的thumbnailLoaded信号）
+    if (m_thumbnailManager) {
+        disconnect(m_thumbnailManager, nullptr, this, nullptr);
+    }
+
+    // 2. 停止所有定时器（防止触发槽函数）
+    if (m_throttleTimer) {
+        m_throttleTimer->stop();
+    }
+    if (m_debounceTimer) {
+        m_debounceTimer->stop();
+    }
+
+    // 3. 清理所有缩略图项
     clear();
-    m_throttleTimer->stop();
-    m_debounceTimer->stop();
+
+    qDebug() << "ThumbnailWidget: Destructor finished";
 }
 
 void ThumbnailWidget::clear()
@@ -74,25 +90,45 @@ void ThumbnailWidget::clear()
     if (!m_layout)
         return;
 
-    // 1. 从布局中安全移除所有 widget
-    while (QLayoutItem* item = m_layout->takeAt(0)) {
+    qDebug() << "ThumbnailWidget::clear() - Start";
 
-        if (QWidget* w = item->widget()) {
-            // 标记为稍后删除（不会立刻 delete，避免复杂递归触发）
-            w->deleteLater();
-        }
-
-        delete item; // 删除布局项（不会删除 widget）
+    // 1. 停止定时器（防止清理时触发加载）
+    if (m_throttleTimer && m_throttleTimer->isActive()) {
+        m_throttleTimer->stop();
+    }
+    if (m_debounceTimer && m_debounceTimer->isActive()) {
+        m_debounceTimer->stop();
     }
 
-    // 2. 清空所有存储的指针（避免悬空指针）
+    // 2. 断开所有ThumbnailItem的信号
+    for (auto it = m_thumbnailItems.begin(); it != m_thumbnailItems.end(); ++it) {
+        if (it.value()) {
+            // 断开与this的连接
+            disconnect(it.value(), nullptr, this, nullptr);
+
+            // 断开item内部的所有连接（可选，更彻底）
+            it.value()->disconnect();
+        }
+    }
+
+    // 3. 从布局中移除并标记删除
+    while (QLayoutItem* item = m_layout->takeAt(0)) {
+        if (QWidget* w = item->widget()) {
+            w->deleteLater();  // 使用deleteLater而非delete
+        }
+        delete item;  // 删除布局项本身
+    }
+
+    // 4. 清空存储
     m_thumbnailItems.clear();
     m_itemRects.clear();
     m_scrollHistory.clear();
     m_currentPage = -1;
 
-    // 3. 强制刷新布局，防止“空布局尺寸残留”
+    // 5. 强制刷新布局
     m_layout->invalidate();
+
+    qDebug() << "ThumbnailWidget::clear() - Finished";
 }
 
 

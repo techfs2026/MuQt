@@ -36,6 +36,11 @@ NavigationPanel::NavigationPanel(PDFDocumentSession* session, QWidget* parent)
 
 NavigationPanel::~NavigationPanel()
 {
+    qDebug() << "NavigationPanel: Destructor called";
+
+    clear();
+
+    qDebug() << "NavigationPanel: Destructor finished";
 }
 
 void NavigationPanel::loadDocument(int pageCount)

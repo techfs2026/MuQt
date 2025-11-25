@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QQueue>
 #include <QPair>
+#include <QPointer>
 
 #include "pdfdocumentsession.h"
 
@@ -92,7 +93,7 @@ public slots:
 
 private:
     MuPDFRenderer* m_renderer;
-    ThumbnailManager* m_thumbnailManager;
+    QPointer<ThumbnailManager> m_thumbnailManager;
 
     QWidget* m_container;
     QGridLayout* m_layout;

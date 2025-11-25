@@ -74,20 +74,14 @@ void PDFContentHandler::closeDocument()
         return;
     }
 
-    // 取消正在进行的操作
-    if (m_thumbnailManager) {
-        m_thumbnailManager->cancelAllTasks();
-        m_thumbnailManager->waitForCompletion();
+    // 关闭文档
+    if (m_renderer) {
+        m_renderer->closeDocument();
     }
 
     // 清空数据
     clearOutline();
     clearThumbnails();
-
-    // 关闭文档
-    if (m_renderer) {
-        m_renderer->closeDocument();
-    }
 
     qInfo() << "PDFContentHandler: Document closed";
 

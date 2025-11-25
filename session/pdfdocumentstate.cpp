@@ -67,7 +67,6 @@ void PDFDocumentState::setContinuousScroll(bool continuous)
 {
     if (m_isContinuousScroll != continuous) {
         m_isContinuousScroll = continuous;
-        emit continuousScrollChanged(continuous);
     }
 }
 
@@ -83,14 +82,12 @@ void PDFDocumentState::setPagePositions(const QVector<int>& positions,
 {
     m_pageYPositions = positions;
     m_pageHeights = heights;
-    emit pagePositionsChanged(positions, heights);
 }
 
 void PDFDocumentState::setLinksVisible(bool visible)
 {
     if (m_linksVisible != visible) {
         m_linksVisible = visible;
-        emit linksVisibleChanged(visible);
     }
 }
 
