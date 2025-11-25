@@ -118,9 +118,12 @@ void PDFDocumentTab::setupConnections()
 
     connect(m_session, &PDFDocumentSession::zoomSettingCompleted,
             this, [this](double zoom, ZoomMode mode) {
-                m_pageWidget->onZoomChanged(zoom);
-                m_pageWidget->setZoomMode(mode);
-                emit zoomChanged(zoom);
+                if(zoom < 0) {
+                    m_pageWidget->setZoomMode(mode);
+                } else {
+                    m_pageWidget->onZoomChanged(zoom);
+                    emit zoomChanged(zoom);
+                }
             });
 
     // 显示模式变化

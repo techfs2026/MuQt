@@ -114,7 +114,7 @@ void PDFDocumentState::setSearchState(bool searching, int totalMatches, int curr
 void PDFDocumentState::reset()
 {
     setDocumentLoaded(false, QString(), 0, false);
-    setCurrentPage(0);
+    setCurrentPage(-1);
     setCurrentZoom(AppConfig::DEFAULT_ZOOM);
     setCurrentZoomMode(ZoomMode::FitWidth);
     setCurrentDisplayMode(PageDisplayMode::SinglePage);

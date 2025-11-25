@@ -71,17 +71,6 @@ bool PDFDocumentSession::loadDocument(const QString& filePath, QString* errorMes
         return false;
     }
 
-    // 更新State
-    int pageCount = m_contentHandler->pageCount();
-    bool isTextPDF = m_contentHandler->isTextPDF(5);
-
-    m_state->setDocumentLoaded(true, filePath, pageCount, isTextPDF);
-    m_state->setCurrentPage(0); // 重置到第一页
-
-    qInfo() << "PDFDocumentSession: Document loaded -"
-            << QFileInfo(filePath).fileName()
-            << "Type:" << (isTextPDF ? "Text PDF" : "Scanned PDF");
-
     return true;
 }
 
@@ -576,6 +565,7 @@ void PDFDocumentSession::setupConnections()
                     // 如果zoom为-1，表示需要重新计算
                     if (newZoom < 0) {
                         // 触发重新计算（由UI调用updateZoom）
+                        emit zoomSettingCompleted(newZoom, newMode);
                         return;
                     }
 
@@ -654,7 +644,18 @@ void PDFDocumentSession::setupConnections()
     if (m_contentHandler) {
         // 文档事件直接转发（非状态变化）
         connect(m_contentHandler.get(), &PDFContentHandler::documentLoaded,
-                this, &PDFDocumentSession::documentLoaded);
+                this, [this](const QString& filePath, int pageCount){
+                    // 更新State
+                    bool isTextPDF = m_contentHandler->isTextPDF(5);
+                    m_state->setDocumentLoaded(true, filePath, pageCount, isTextPDF);
+                    m_state->setCurrentPage(0); // 重置到第一页
+
+                    qInfo() << "PDFDocumentSession: Document loaded -"
+                            << QFileInfo(filePath).fileName()
+                            << "Type:" << (isTextPDF ? "Text PDF" : "Scanned PDF");
+
+                    emit documentLoaded(filePath, pageCount);
+                });
         connect(m_contentHandler.get(), &PDFContentHandler::documentError,
                 this, &PDFDocumentSession::documentError);
 

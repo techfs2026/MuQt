@@ -123,9 +123,7 @@ void PDFPageWidget::setZoom(double zoom)
 
 void PDFPageWidget::setZoomMode(ZoomMode mode)
 {
-    m_session->setZoomMode(mode);
-    QSize viewportSize = getViewportSize();
-    m_session->updateZoom(viewportSize);
+    updateZoom();
 }
 
 void PDFPageWidget::zoomIn()
