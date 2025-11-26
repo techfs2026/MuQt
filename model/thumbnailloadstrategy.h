@@ -50,7 +50,7 @@ protected:
 };
 
 /**
- * @brief 小文档策略（<100页）：同步全量加载
+ * @brief 小文档策略（<50页）：同步全量加载
  */
 class SmallDocStrategy : public ThumbnailLoadStrategy
 {
@@ -66,7 +66,7 @@ public:
 };
 
 /**
- * @brief 中文档策略（100-500页）：同步可见区+异步智能分批
+ * @brief 中文档策略（50-300页）：同步可见区+异步智能分批
  */
 class MediumDocStrategy : public ThumbnailLoadStrategy
 {
@@ -81,12 +81,12 @@ public:
     QVector<int> handleVisibleChange(const QSet<int>& visiblePages) const override;
 
 private:
-    static constexpr int BATCH_SIZE = 30;  // 每批30页
-    static constexpr int INITIAL_MARGIN = 20;  // 初始可见区前后20页
+    static constexpr int BATCH_SIZE = 20;  // 每批20页
+    static constexpr int INITIAL_MARGIN = 15;  // 初始可见区前后15页
 };
 
 /**
- * @brief 大文档策略（>500页）：按需分页加载
+ * @brief 大文档策略（>300页）：按需分页加载
  */
 class LargeDocStrategy : public ThumbnailLoadStrategy
 {

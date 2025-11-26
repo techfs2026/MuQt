@@ -40,6 +40,7 @@ public:
     void loadThumbnails();
     void handleVisibleRangeChanged(const QSet<int>& visibleIndices, int margin);
     void startInitialThumbnailLoad(const QSet<int>& initialVisible);
+    void syncLoadUnloadedPages(const QSet<int>& unloadedPages);
 
     QImage getThumbnail(int pageIndex, bool preferHighRes = false) const;
     bool hasThumbnail(int pageIndex) const;

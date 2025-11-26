@@ -267,6 +267,15 @@ void NavigationPanel::setupConnections()
                 }
             });
 
+    connect(m_thumbnailWidget, &ThumbnailWidget::syncLoadRequested,
+            this, [this](const QSet<int>& unloadedVisible) {
+                if (m_session && m_session->contentHandler()) {
+                    qDebug() << "NavigationPanel: Requesting sync load for"
+                             << unloadedVisible.size() << "unloaded pages";
+                    m_session->contentHandler()->syncLoadUnloadedPages(unloadedVisible);
+                }
+            });
+
     connect(m_thumbnailWidget, &ThumbnailWidget::initialVisibleReady,
             this, [this](const QSet<int>& initialVisible) {
                 if (m_session && m_session->contentHandler()) {

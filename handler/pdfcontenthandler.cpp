@@ -185,6 +185,19 @@ void PDFContentHandler::startInitialThumbnailLoad(const QSet<int>& initialVisibl
     m_thumbnailManager->startLoading(initialVisible);
 }
 
+void PDFContentHandler::syncLoadUnloadedPages(const QSet<int>& unloadedPages)
+{
+    if (!m_thumbnailManager || unloadedPages.isEmpty()) {
+        return;
+    }
+
+    qInfo() << "PDFContentHandler: Sync loading" << unloadedPages.size()
+            << "unloaded visible pages after scroll stop";
+
+    // 转换为 QVector 并同步加载
+    QVector<int> pagesToLoad = unloadedPages.values().toVector();
+    m_thumbnailManager->syncLoadPages(pagesToLoad);
+}
 
 QImage PDFContentHandler::getThumbnail(int pageIndex, bool preferHighRes) const
 {

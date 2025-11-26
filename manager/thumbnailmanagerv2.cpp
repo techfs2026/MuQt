@@ -150,6 +150,31 @@ int ThumbnailManagerV2::cachedCount() const
     return m_cache ? m_cache->lowResCount() : 0;
 }
 
+void ThumbnailManagerV2::syncLoadPages(const QVector<int>& pages)
+{
+    if (!m_renderer || pages.isEmpty()) {
+        return;
+    }
+
+    // 过滤已缓存的页面
+    QVector<int> toLoad;
+    for (int pageIndex : pages) {
+        if (!m_cache->hasLowRes(pageIndex)) {
+            toLoad.append(pageIndex);
+        }
+    }
+
+    if (toLoad.isEmpty()) {
+        return;
+    }
+
+    qInfo() << "ThumbnailManagerV2: Sync loading" << toLoad.size()
+            << "unloaded pages after scroll stop";
+
+    // 同步渲染
+    renderPagesSync(toLoad);
+}
+
 // ========== 私有方法 ==========
 
 void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)

@@ -220,6 +220,19 @@ void ThumbnailWidget::onScrollDebounce()
     m_scrollHistory.clear();
 
     qDebug() << "ThumbnailWidget: Scroll stopped";
+
+    // 检查可见区域是否有未加载的占位页
+    QSet<int> unloadedVisible = getUnloadedVisiblePages();
+
+    if (!unloadedVisible.isEmpty()) {
+        qInfo() << "ThumbnailWidget: Found" << unloadedVisible.size()
+        << "unloaded visible pages after scroll stop, triggering sync load";
+
+        // 发送需要同步加载的信号
+        emit syncLoadRequested(unloadedVisible);
+    }
+
+    // 继续正常的可见区域通知（用于预加载周边页面）
     notifyVisibleRange();
 }
 
@@ -336,6 +349,30 @@ void ThumbnailWidget::notifyVisibleRange()
     QSet<int> visible = getVisibleIndices(margin);
 
     emit visibleRangeChanged(visible, margin);
+}
+
+QSet<int> ThumbnailWidget::getUnloadedVisiblePages() const
+{
+    QSet<int> unloaded;
+
+    if (m_itemRects.isEmpty()) {
+        return unloaded;
+    }
+
+    // 获取严格可见区域（不带 margin）
+    QSet<int> visible = getVisibleIndices(0);
+
+    // 检查哪些页面还是占位符
+    for (int pageIndex : visible) {
+        if (m_thumbnailItems.contains(pageIndex)) {
+            ThumbnailItem* item = m_thumbnailItems[pageIndex];
+            if (!item->hasImage()) {  // 判断是否还是占位符
+                unloaded.insert(pageIndex);
+            }
+        }
+    }
+
+    return unloaded;
 }
 
 // ================================================================

@@ -41,6 +41,7 @@ signals:
     void pageJumpRequested(int pageIndex);
     void visibleRangeChanged(const QSet<int>& visibleIndices, int margin);
     void initialVisibleReady(const QSet<int>& initialVisible);
+    void syncLoadRequested(const QSet<int>& unloadedVisible);
 
 public slots:
     void onThumbnailLoaded(int pageIndex, const QImage& thumbnail, bool isHighRes);
@@ -61,6 +62,7 @@ private:
     ScrollState detectScrollState();
     int getPreloadMargin(ScrollState state) const;
     void notifyVisibleRange();
+    QSet<int> getUnloadedVisiblePages() const;
 
 private:
     QWidget* m_container;
@@ -90,6 +92,8 @@ public:
     void setThumbnail(const QImage& image, bool isHighRes);
     void setError(const QString& error);
     void setHighlight(bool highlight);
+
+    bool hasImage() const { return m_hasImage; }
 
 signals:
     void clicked(int pageIndex);

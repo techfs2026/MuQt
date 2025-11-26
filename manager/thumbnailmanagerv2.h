@@ -55,6 +55,8 @@ public:
      */
     void waitForCompletion();
 
+    void syncLoadPages(const QVector<int>& pages);
+
     // ========== 管理 ==========
     void clear();
     QString getStatistics() const;
