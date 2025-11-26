@@ -92,9 +92,10 @@ void ThumbnailWidget::initializeThumbnails(int pageCount)
 
     qInfo() << "ThumbnailWidget: Created" << pageCount << "placeholder items";
 
-    // 通知可见区域变化
+
     QTimer::singleShot(100, this, [this]() {
-        notifyVisibleRange();
+        QSet<int> initialVisible = getVisibleIndices(0);
+        emit initialVisibleReady(initialVisible);  // 新增信号
     });
 }
 

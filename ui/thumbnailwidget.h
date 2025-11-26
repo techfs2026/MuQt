@@ -40,6 +40,7 @@ public:
 signals:
     void pageJumpRequested(int pageIndex);
     void visibleRangeChanged(const QSet<int>& visibleIndices, int margin);
+    void initialVisibleReady(const QSet<int>& initialVisible);
 
 public slots:
     void onThumbnailLoaded(int pageIndex, const QImage& thumbnail, bool isHighRes);

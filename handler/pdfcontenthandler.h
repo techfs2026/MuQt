@@ -8,9 +8,10 @@
 #include <QSet>
 #include <memory>
 
+#include "thumbnailmanagerv2.h"
+
 class MuPDFRenderer;
 class OutlineManager;
-class ThumbnailManager;
 class OutlineItem;
 class OutlineEditor;
 
@@ -63,7 +64,7 @@ public:
 
     // 获取子管理器
     OutlineManager* outlineManager() const { return m_outlineManager.get(); }
-    ThumbnailManager* thumbnailManager() const { return m_thumbnailManager.get(); }
+    ThumbnailManagerV2* thumbnailManager() const { return m_thumbnailManager.get(); }
     OutlineEditor* outlineEditor() const { return m_outlineEditor.get(); }
 
 signals:
@@ -89,7 +90,7 @@ private:
 private:
     MuPDFRenderer* m_renderer;
     std::unique_ptr<OutlineManager> m_outlineManager;
-    std::unique_ptr<ThumbnailManager> m_thumbnailManager;
+    std::unique_ptr<ThumbnailManagerV2> m_thumbnailManager;
     std::unique_ptr<OutlineEditor> m_outlineEditor;
 };
 

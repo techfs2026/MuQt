@@ -9,7 +9,7 @@
 
 class ThreadSafeRenderer;
 class ThumbnailCache;
-class ThumbnailManager;
+class ThumbnailManagerV2;
 
 /**
  * @brief 渲染优先级
@@ -45,7 +45,7 @@ public:
      */
     explicit ThumbnailBatchTask(const QString& docPath,
                                 ThumbnailCache* cache,
-                                ThumbnailManager* manager,
+                                ThumbnailManagerV2* manager,
                                 const QVector<int>& pageIndices,
                                 RenderPriority priority,
                                 bool isLowRes,
@@ -72,7 +72,7 @@ public:
 
 private:
     std::unique_ptr<ThreadSafeRenderer> m_renderer;
-    QPointer<ThumbnailManager> m_manager;
+    QPointer<ThumbnailManagerV2> m_manager;
     ThumbnailCache* m_cache;
     QVector<int> m_pageIndices;
     RenderPriority m_priority;

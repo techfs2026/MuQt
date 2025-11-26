@@ -1,13 +1,13 @@
 #include "thumbnailbatchtask.h"
 #include "threadsaferenderer.h"
 #include "thumbnailcache.h"
-#include "thumbnailmanager.h"
+#include "thumbnailmanagerv2.h"
 #include <QElapsedTimer>
 #include <QDebug>
 
 ThumbnailBatchTask::ThumbnailBatchTask(const QString& docPath,
                                        ThumbnailCache* cache,
-                                       ThumbnailManager* manager,
+                                       ThumbnailManagerV2* manager,
                                        const QVector<int>& pageIndices,
                                        RenderPriority priority,
                                        bool isLowRes,

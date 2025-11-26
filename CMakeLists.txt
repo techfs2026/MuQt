@@ -4,8 +4,7 @@ project(JoPDF LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_PREFIX_PATH "D:/Qt6/6.10.0/msvc2022_64")
-set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
+set(CMAKE_PREFIX_PATH "C:/Qt/6.10.1/msvc2022_64")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -16,7 +15,7 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Concurrent)
 set(MUPDF_DIR "D:/Ext-Lib/mupdf-win-x64")
 
 include_directories("${MUPDF_DIR}/include")
-link_directories("${MUPDF_DIR}/lib")
+link_directories("${MUPDF_DIR}/lib/Debug")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ui")
@@ -40,8 +39,8 @@ set(HANDLER_SOURCES
 set(MANAGER_SOURCES
     manager/thumbnailbatchtask.cpp
     manager/thumbnailbatchtask.h
-    manager/thumbnailmanager.cpp
-    manager/thumbnailmanager.h
+    manager/thumbnailmanagerv2.cpp
+    manager/thumbnailmanagerv2.h
     manager/linkmanager.cpp
     manager/linkmanager.h
     manager/outlinemanager.cpp
@@ -62,6 +61,8 @@ set(MODEL_SOURCES
     model/outlineitem.h
     model/thumbnailcache.cpp
     model/thumbnailcache.h
+    model/thumbnailloadstrategy.cpp
+    model/thumbnailloadstrategy.h
 )
 
 set(CORE_SOURCES

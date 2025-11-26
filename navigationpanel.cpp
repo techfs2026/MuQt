@@ -267,6 +267,13 @@ void NavigationPanel::setupConnections()
                 }
             });
 
+    connect(m_thumbnailWidget, &ThumbnailWidget::initialVisibleReady,
+            this, [this](const QSet<int>& initialVisible) {
+                if (m_session && m_session->contentHandler()) {
+                    m_session->contentHandler()->startInitialThumbnailLoad(initialVisible);
+                }
+            });
+
     // ========== Session信号连接 ==========
     if (m_session) {
         // 大纲加载完成

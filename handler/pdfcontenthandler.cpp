@@ -1,7 +1,7 @@
 #include "pdfcontenthandler.h"
 #include "mupdfrenderer.h"
 #include "outlinemanager.h"
-#include "thumbnailmanager.h"
+
 #include "outlineitem.h"
 #include "outlineeditor.h"
 #include <QDebug>
@@ -20,7 +20,7 @@ PDFContentHandler::PDFContentHandler(MuPDFRenderer* renderer, QObject* parent)
     }
 
     m_outlineManager = std::make_unique<OutlineManager>(m_renderer, this);
-    m_thumbnailManager = std::make_unique<ThumbnailManager>(m_renderer, this);
+    m_thumbnailManager = std::make_unique<ThumbnailManagerV2>(m_renderer, this);
     m_outlineEditor = std::make_unique<OutlineEditor>(m_renderer, this);
 
     setupConnections();
@@ -151,18 +151,11 @@ void PDFContentHandler::clearOutline()
 
 void PDFContentHandler::loadThumbnails()
 {
-    if (!isDocumentLoaded()) {
-        qWarning() << "PDFContentHandler: Cannot load thumbnails - no document loaded";
-        return;
-    }
-
-    if (!m_thumbnailManager) {
-        qWarning() << "PDFContentHandler: Thumbnail manager not initialized";
+    if (!isDocumentLoaded() || !m_thumbnailManager) {
         return;
     }
 
     int pageCount = m_renderer->pageCount();
-
     qInfo() << "PDFContentHandler: Starting thumbnail loading for" << pageCount << "pages";
 
     // 通知UI初始化完成
@@ -171,77 +164,34 @@ void PDFContentHandler::loadThumbnails()
 
 void PDFContentHandler::handleVisibleRangeChanged(const QSet<int>& visibleIndices, int margin)
 {
-    if (!m_thumbnailManager || visibleIndices.isEmpty()) {
+    if (!m_thumbnailManager) {
         return;
     }
 
-    QVector<int> visiblePages = visibleIndices.values().toVector();
-
-    // 区分严格可见区域和预加载区域
-    QSet<int> strictVisible = (margin == 0) ? visibleIndices : QSet<int>();
-
-    if (strictVisible.isEmpty()) {
-        // 这是带margin的可见区域，可能包含预加载
-        // 先渲染立即可见的高清
-        m_thumbnailManager->renderHighResAsync(visiblePages, RenderPriority::HIGH);
-    } else {
-        // 这是严格可见区域
-        // 立即同步渲染低清
-        m_thumbnailManager->renderLowResImmediate(visiblePages);
-        // 然后异步渲染高清
-        m_thumbnailManager->renderHighResAsync(visiblePages, RenderPriority::HIGH);
-    }
+    // 仅对大文档生效
+    m_thumbnailManager->handleVisibleRangeChanged(visibleIndices);
 }
 
 void PDFContentHandler::startInitialThumbnailLoad(const QSet<int>& initialVisible)
 {
-    if (!m_thumbnailManager || initialVisible.isEmpty()) {
+    if (!m_thumbnailManager) {
         return;
     }
 
-    QVector<int> visiblePages = initialVisible.values().toVector();
+    qDebug() << "PDFContentHandler: Starting initial thumbnail load for"
+             << initialVisible.size() << "visible pages";
 
-    qDebug() << "PDFContentHandler: Initial thumbnail load for" << visiblePages.size() << "pages";
-
-    // 1. 立即同步渲染可见区域的低清缩略图
-    m_thumbnailManager->renderLowResImmediate(visiblePages);
-
-    // 2. 异步渲染可见区域的高清缩略图
-    m_thumbnailManager->renderHighResAsync(visiblePages, RenderPriority::HIGH);
-
-    // 3. 延迟启动全文档低清渲染
-    QTimer::singleShot(1000, this, &PDFContentHandler::startBackgroundLowResRendering);
+    // 启动智能加载（自动选择策略）
+    m_thumbnailManager->startLoading(initialVisible);
 }
 
-void PDFContentHandler::startBackgroundLowResRendering()
-{
-    if (!m_thumbnailManager || !m_renderer) {
-        return;
-    }
-
-    int pageCount = m_renderer->pageCount();
-    if (pageCount == 0) {
-        return;
-    }
-
-    QVector<int> allPages;
-    allPages.reserve(pageCount);
-    for (int i = 0; i < pageCount; ++i) {
-        allPages.append(i);
-    }
-
-    qDebug() << "PDFContentHandler: Starting background low-res rendering for"
-             << pageCount << "pages";
-
-    m_thumbnailManager->renderLowResAsync(allPages);
-}
 
 QImage PDFContentHandler::getThumbnail(int pageIndex, bool preferHighRes) const
 {
     if (!m_thumbnailManager) {
         return QImage();
     }
-    return m_thumbnailManager->getThumbnail(pageIndex, preferHighRes);
+    return m_thumbnailManager->getThumbnail(pageIndex);
 }
 
 bool PDFContentHandler::hasThumbnail(int pageIndex) const
@@ -255,8 +205,7 @@ bool PDFContentHandler::hasThumbnail(int pageIndex) const
 void PDFContentHandler::setThumbnailSize(int lowResWidth, int highResWidth)
 {
     if (m_thumbnailManager) {
-        m_thumbnailManager->setLowResWidth(lowResWidth);
-        m_thumbnailManager->setHighResWidth(highResWidth);
+        m_thumbnailManager->setThumbnailWidth(lowResWidth);  // V2只需要一个宽度
     }
 }
 
@@ -316,10 +265,10 @@ void PDFContentHandler::setupConnections()
     }
 
     if (m_thumbnailManager) {
-        connect(m_thumbnailManager.get(), &ThumbnailManager::thumbnailLoaded,
+        connect(m_thumbnailManager.get(), &ThumbnailManagerV2::thumbnailLoaded,  // ← V2
                 this, &PDFContentHandler::thumbnailLoaded);
 
-        connect(m_thumbnailManager.get(), &ThumbnailManager::loadProgress,
+        connect(m_thumbnailManager.get(), &ThumbnailManagerV2::loadProgress,    // ← V2
                 this, &PDFContentHandler::thumbnailLoadProgress);
     }
 
