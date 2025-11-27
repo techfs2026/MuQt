@@ -31,6 +31,9 @@ signals:
 protected:
     void resizeEvent(QResizeEvent* event) override;
 
+private slots:
+    void onTabChanged(int index);
+
 private:
     void setupUI();
     void setupConnections();

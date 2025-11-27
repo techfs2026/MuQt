@@ -30,13 +30,6 @@ PDFPageWidget::PDFPageWidget(PDFDocumentSession* session, QWidget* parent)
     m_renderer = m_session->renderer();
     m_cacheManager = m_session->pageCache();
 
-    // 设置背景色
-    setAutoFillBackground(true);
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, AppConfig::instance().backgroundColor());
-    setPalette(pal);
-
-    setMinimumSize(200, 200);
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -238,14 +231,6 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    const PDFDocumentState* state = m_session->state();
-
-    // 连续滚动模式
-    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
-        paintContinuousMode(painter, event->rect());
-        return;
-    }
-
     // 无文档
     if (m_currentImage.isNull()) {
         painter.setPen(Qt::white);
@@ -257,6 +242,14 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
         if (scrollArea && scrollArea->viewport()) {
             painter.drawText(scrollArea->viewport()->rect(), Qt::AlignCenter, tr("No document loaded"));
         }
+        return;
+    }
+
+    const PDFDocumentState* state = m_session->state();
+
+    // 连续滚动模式
+    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
+        paintContinuousMode(painter, event->rect());
         return;
     }
 

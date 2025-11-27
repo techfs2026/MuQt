@@ -11,6 +11,7 @@
 #include "datastructure.h"
 #include "textcachemanager.h"
 #include "pdfcontenthandler.h"
+#include "pdfdocumentstate.h"
 
 // Forward declarations
 class MuPDFRenderer;

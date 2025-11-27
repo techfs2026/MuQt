@@ -113,6 +113,7 @@ private:
 
     // ========== UI组件 ==========
     QToolBar* m_toolBar;
+    QAction* m_navPanelAction;
     QSpinBox* m_pageSpinBox;
     QComboBox* m_zoomComboBox;
     QLabel* m_statusLabel;

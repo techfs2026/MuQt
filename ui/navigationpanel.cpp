@@ -87,6 +87,10 @@ void NavigationPanel::clear()
     }
 }
 
+void NavigationPanel::onTabChanged(int index) {
+    updateCurrentPage(m_session->state()->currentPage());
+}
+
 void NavigationPanel::updateCurrentPage(int pageIndex)
 {
     if (m_outlineWidget) {
@@ -200,6 +204,9 @@ void NavigationPanel::setupUI()
     m_tabWidget->addTab(thumbnailTab, tr("缩略图"));
 
     mainLayout->addWidget(m_tabWidget, 1);
+
+    connect(m_tabWidget, &QTabWidget::currentChanged,
+            this, &NavigationPanel::onTabChanged);
 
     // 应用样式
     QString style = R"(

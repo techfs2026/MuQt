@@ -72,15 +72,6 @@ void PDFDocumentTab::setupUI()
     m_pageWidget = new PDFPageWidget(m_session, this);
     m_scrollArea->setWidget(m_pageWidget);
 
-    // 初始化时调整大小
-    QTimer::singleShot(0, this, [this]() {
-        const PDFDocumentState* state = m_session->state();
-        if (!state->isDocumentLoaded() && m_scrollArea && m_scrollArea->viewport() && m_pageWidget) {
-            QSize viewportSize = m_scrollArea->viewport()->size();
-            m_pageWidget->resize(viewportSize);
-        }
-    });
-
     // 创建搜索工具栏
     m_searchWidget = new SearchWidget(m_session, this);
     m_searchWidget->setVisible(false);
@@ -492,15 +483,17 @@ void PDFDocumentTab::onDocumentLoaded(const QString& filePath, int pageCount)
         m_session->textCache()->startPreload();
     }
 
-    // 初始化缩放
-    const PDFDocumentState* state = m_session->state();
-    if (state->isDocumentLoaded()) {
-        ZoomMode mode = state->currentZoomMode();
-        if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
-            QSize viewportSize = m_scrollArea->viewport()->size();
-            m_session->updateZoom(viewportSize);
+    QTimer::singleShot(0, this, [this]() {
+        const PDFDocumentState* state = m_session->state();
+        if (state->isDocumentLoaded()) {
+            ZoomMode mode = state->currentZoomMode();
+            if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
+                QSize viewportSize = m_scrollArea->viewport()->size();
+                qDebug() << "onDocumentLoaded 2, viewport:" << viewportSize;
+                m_session->updateZoom(viewportSize);
+            }
         }
-    }
+    });
 
     emit documentLoaded(filePath, pageCount);
 }
@@ -544,9 +537,10 @@ void PDFDocumentTab::onPagePositionsChanged(const QVector<int>& positions, const
     QSize targetSize = m_pageWidget->calculateRequiredSize();
     m_pageWidget->resize(targetSize);
 
-    QTimer::singleShot(0, this, [this]() {
-        refreshVisiblePages();
-    });
+    refreshVisiblePages();
+    // QTimer::singleShot(0, this, [this]() {
+    //     refreshVisiblePages();
+    // });
 }
 
 void PDFDocumentTab::onTextSelectionChanged(bool hasSelection)
@@ -684,7 +678,6 @@ void PDFDocumentTab::renderAndUpdatePages()
     const PDFDocumentState* state = m_session->state();
 
     if (!state->isDocumentLoaded()) {
-        m_pageWidget->setDisplayImages(QImage(), QImage());
         return;
     }
 
@@ -766,13 +759,16 @@ void PDFDocumentTab::refreshVisiblePages()
     double zoom = state->currentZoom();
     int rotation = state->currentRotation();
 
+    bool anyRendered = false;
     for (int pageIndex : visiblePages) {
         if (!cache->contains(pageIndex, zoom, rotation)) {
             renderPage(pageIndex);
         }
     }
 
-    m_pageWidget->update();
+    if (anyRendered) {
+        m_pageWidget->update();
+    }
 }
 
 // ==================== 辅助方法 ====================

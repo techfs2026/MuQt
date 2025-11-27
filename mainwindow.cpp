@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     m_navigationDock = new QDockWidget(tr("Navigation"), this);
     m_navigationDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    m_navigationDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+    m_navigationDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     addDockWidget(Qt::LeftDockWidgetArea, m_navigationDock);
     m_navigationDock->setVisible(false);
 
@@ -698,9 +698,8 @@ void MainWindow::createToolBar()
     QAction* navPanelAction = m_toolBar->addAction(QIcon(":/icons/icons/sidebar.png"),
                                                    tr("Panel"));
     navPanelAction->setToolTip(tr("Navigation Panel (F9)"));
-    navPanelAction->setCheckable(true);
     connect(navPanelAction, &QAction::triggered, this, &MainWindow::toggleNavigationPanel);
-
+    navPanelAction->setCheckable(true);
     m_toolBar->addSeparator();
 
     // 文件操作
@@ -798,6 +797,7 @@ void MainWindow::createToolBar()
     connect(searchAction, &QAction::triggered, this, &MainWindow::showSearchBar);
 
     // 保存action引用
+    m_navPanelAction = navPanelAction;
     m_firstPageAction = firstAction;
     m_previousPageAction = prevAction;
     m_nextPageAction = nextAction;
@@ -901,6 +901,9 @@ void MainWindow::updateUIState()
     m_showLinksAction->setEnabled(hasDocument);
 
     // 工具栏组件
+    m_navPanelAction->setEnabled(hasDocument);
+    m_navPanelAction->setChecked(m_navigationDock->isVisible());
+
     if (m_pageSpinBox) {
         m_pageSpinBox->setEnabled(hasDocument);
         m_pageSpinBox->setMaximum(qMax(1, pageCount));

@@ -572,14 +572,9 @@ void PDFDocumentSession::setupConnections()
 
                     m_state->setCurrentZoom(newZoom);
 
-                    // 如果是连续滚动模式，需要重新计算页面位置
-                    if (m_state->isContinuousScroll()) {
-                        calculatePagePositions();
-                    }
-
                     updateCacheAfterStateChange();
 
-                    emit zoomSettingCompleted(newZoom, newMode);
+                    emit currentZoomChanged(newZoom);
                 });
 
         // 显示模式设置完成 -> 更新State
