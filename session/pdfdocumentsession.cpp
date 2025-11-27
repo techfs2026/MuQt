@@ -81,7 +81,7 @@ void PDFDocumentSession::closeDocument()
     }
 
     // 取消所有正在进行的操作
-    if (m_interactionHandler) {
+    if (m_interactionHandler && m_state->isTextPDF()) {
         m_interactionHandler->cancelSearch();
         m_interactionHandler->clearHoveredLink();
         m_interactionHandler->clearTextSelection();
@@ -509,6 +509,7 @@ void PDFDocumentSession::updateCurrentPageFromScroll(int scrollY, int margin)
 
     if (newPage >= 0 && newPage != m_state->currentPage()) {
         m_state->setCurrentPage(newPage);
+        emit currentPageChanged(newPage);
     }
 }
 

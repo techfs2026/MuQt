@@ -207,9 +207,6 @@ void MainWindow::connectTabSignals(PDFDocumentTab* tab)
     connect(tab, &PDFDocumentTab::documentLoaded,
             this, &MainWindow::onCurrentTabDocumentLoaded);
 
-    connect(tab, &PDFDocumentTab::documentClosed,
-            this, &MainWindow::onCurrentTabDocumentClosed);
-
     // 视图状态变化
     connect(tab, &PDFDocumentTab::pageChanged,
             this, &MainWindow::onCurrentTabPageChanged);
@@ -244,8 +241,7 @@ void MainWindow::onTabChanged(int index)
 
     PDFDocumentTab* tab = currentTab();
 
-    if (tab && tab->isDocumentLoaded() && tab->navigationPanel()) {
-        m_navigationDock->setWidget(tab->navigationPanel());
+    if (tab && tab->isDocumentLoaded()) {
         m_showNavigationAction->setChecked(m_navigationDock->isVisible());
     } else {
         // 无文档或无 tab，隐藏导航面板
@@ -385,21 +381,17 @@ void MainWindow::toggleNavigationPanel()
         return;
     }
 
+    // MainWindow 只需要切换 action 的状态
     bool visible = !m_navigationDock->isVisible();
-
-    if (visible) {
-        if (m_navigationDock->widget() != tab->navigationPanel()) {
-            m_navigationDock->setWidget(tab->navigationPanel());
-        }
-    }
-
     m_navigationDock->setVisible(visible);
     m_showNavigationAction->setChecked(visible);
 
     QTimer::singleShot(0, this, [tab]() {
         ZoomMode mode = tab->zoomMode();
         if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
-            tab->pageWidget()->updateZoom();
+            // ✅ 通过 Tab 触发缩放更新
+            QSize viewportSize = tab->getViewportSize(); // 需要添加这个方法
+            tab->updateZoom(viewportSize);
         }
     });
 }
@@ -424,18 +416,14 @@ void MainWindow::showSearchBar()
 void MainWindow::findNext()
 {
     if (PDFDocumentTab* tab = currentTab()) {
-        if (tab->searchWidget()) {
-            tab->searchWidget()->findNext();
-        }
+        tab->findNext();
     }
 }
 
 void MainWindow::findPrevious()
 {
     if (PDFDocumentTab* tab = currentTab()) {
-        if (tab->searchWidget()) {
-            tab->searchWidget()->findPrevious();
-        }
+        tab->findPrevious();
     }
 }
 
@@ -556,36 +544,15 @@ void MainWindow::onCurrentTabDocumentLoaded(const QString& filePath, int pageCou
         updateWindowTitle();
         updateUIState();
 
-        // ✅ 显示导航面板（文档加载后默认显示）
-        if (tab->navigationPanel()) {
+        if (tab->isDocumentLoaded() && tab->navigationPanel()) {
             m_navigationDock->setWidget(tab->navigationPanel());
             m_navigationDock->setVisible(true);
             m_showNavigationAction->setChecked(true);
-
         }
     }
 }
 
-void MainWindow::onCurrentTabDocumentClosed()
-{
-    PDFDocumentTab* sender = qobject_cast<PDFDocumentTab*>(QObject::sender());
-    if (!sender) {
-        return;
-    }
 
-    // 更新标签页标题
-    int index = m_tabWidget->indexOf(sender);
-    if (index >= 0) {
-        m_tabWidget->setTabText(index, tr("New Tab"));
-        m_tabWidget->setTabToolTip(index, "");
-    }
-
-    // 如果是当前标签页,更新UI
-    if (sender == currentTab()) {
-        updateWindowTitle();
-        updateUIState();
-    }
-}
 
 void MainWindow::onCurrentTabSearchCompleted(const QString& query, int totalMatches)
 {
@@ -881,7 +848,8 @@ void MainWindow::setupConnections()
             ZoomMode mode = tab->zoomMode();
             if (mode == ZoomMode::FitWidth || mode == ZoomMode::FitPage) {
                 // 触发重新计算缩放
-                tab->pageWidget()->updateZoom();
+                QSize viewportSize = tab->getViewportSize(); // 需要添加这个方法
+                tab->updateZoom(viewportSize);
             }
         }
     });

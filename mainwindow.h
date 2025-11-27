@@ -83,7 +83,6 @@ private slots:
     void onCurrentTabContinuousScrollChanged(bool continuous);
     void onCurrentTabTextSelectionChanged();
     void onCurrentTabDocumentLoaded(const QString& filePath, int pageCount);
-    void onCurrentTabDocumentClosed();
     void onCurrentTabSearchCompleted(const QString& query, int totalMatches);
 
 private:

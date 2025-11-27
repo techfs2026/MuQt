@@ -1,19 +1,16 @@
 #include "searchwidget.h"
+#include "pdfdocumentsession.h"
+#include "pdfdocumentstate.h"
 #include "pdfinteractionhandler.h"
-#include "pdfpagewidget.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QKeyEvent>
 #include <QStyle>
 
-// 【修改】构造函数参数改为PDFInteractionHandler
-SearchWidget::SearchWidget(PDFDocumentSession* session,
-                           PDFPageWidget* pageWidget,
-                           QWidget* parent)
+SearchWidget::SearchWidget(PDFDocumentSession* session, QWidget* parent)
     : QWidget(parent)
     , m_session(session)
-    , m_pageWidget(pageWidget)
     , m_isSearching(false)
 {
     setupUI();
@@ -35,7 +32,6 @@ QString SearchWidget::searchText() const
 
 void SearchWidget::setupUI()
 {
-    // UI设置保持不变
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->setSpacing(5);
@@ -104,6 +100,7 @@ void SearchWidget::setupConnections()
     // 关闭按钮
     connect(m_closeButton, &QToolButton::clicked, this, &SearchWidget::closeRequested);
 
+    // Session 信号
     connect(m_session, &PDFDocumentSession::searchCompleted,
             this, &SearchWidget::onSearchCompleted);
     connect(m_session, &PDFDocumentSession::searchProgressUpdated,
@@ -120,8 +117,7 @@ void SearchWidget::performSearch()
     QString query = m_searchCombo->currentText().trimmed();
 
     if (query.isEmpty()) {
-        // 【修改】使用交互处理器
-        // m_session->clearSearchResults();
+        m_session->cancelSearch();
         updateUI();
         return;
     }
@@ -131,32 +127,30 @@ void SearchWidget::performSearch()
         m_session->cancelSearch();
     }
 
-    // 【修改】使用交互处理器启动搜索
+
     if (m_session) {
         bool caseSensitive = m_caseSensitiveCheck->isChecked();
         bool wholeWords = m_wholeWordsCheck->isChecked();
-        int startPage = m_pageWidget->currentPage();
+
+        int startPage = m_session->state()->currentPage();
 
         m_session->startSearch(query, caseSensitive, wholeWords, startPage);
-        // m_session->addSearchHistory(query);
+
+        if (m_session->interactionHandler()) {
+            m_session->interactionHandler()->addSearchHistory(query);
+        }
     }
 
-    // 开始搜索
     m_isSearching = true;
-
-    // 更新UI
     m_matchLabel->setText(tr("Searching..."));
     updateUI();
 }
 
 void SearchWidget::findNext()
 {
-    // if (m_session->totalSearchMatches() == 0) {
-    //     return;
-    // }
-
     SearchResult result = m_session->findNext();
     if (result.isValid()) {
+
         navigateToResult(result);
         updateUI();
     }
@@ -164,10 +158,6 @@ void SearchWidget::findNext()
 
 void SearchWidget::findPrevious()
 {
-    // if (m_session->totalSearchMatches() == 0) {
-    //     return;
-    // }
-
     SearchResult result = m_session->findPrevious();
     if (result.isValid()) {
         navigateToResult(result);
@@ -177,9 +167,10 @@ void SearchWidget::findPrevious()
 
 void SearchWidget::updateUI()
 {
-    // 【修改】从交互处理器获取信息
-    int totalMatches = 0; //m_session->totalSearchMatches();
-    int currentIndex = 0; //m_session->currentSearchMatchIndex();
+
+    const PDFDocumentState* state = m_session->state();
+    int totalMatches = state->searchTotalMatches();
+    int currentIndex = state->searchCurrentMatchIndex();
 
     // 更新按钮状态
     bool hasResults = totalMatches > 0;
@@ -202,8 +193,10 @@ void SearchWidget::updateUI()
                                   .arg(totalMatches));
     }
 
-    // TODO: 更新搜索历史下拉框
-
+    // ✅ TODO: 从 InteractionHandler 获取搜索历史
+    // QStringList history = m_session->interactionHandler()->getSearchHistory(20);
+    // m_searchCombo->clear();
+    // m_searchCombo->addItems(history);
 }
 
 void SearchWidget::onSearchCompleted(const QString& query, int totalMatches)
@@ -213,8 +206,7 @@ void SearchWidget::onSearchCompleted(const QString& query, int totalMatches)
 
     // 如果有结果，自动跳转到第一个
     if (totalMatches > 0) {
-        // 设置当前匹配索引为0
-        SearchResult result = m_session->findNext(); // 这会设置为第0个
+        SearchResult result = m_session->findNext();
         if (result.isValid()) {
             navigateToResult(result);
         }
@@ -235,13 +227,12 @@ void SearchWidget::navigateToResult(const SearchResult& result)
         return;
     }
 
-    // 跳转到结果所在页面
-    if (m_pageWidget->currentPage() != result.pageIndex) {
-        m_pageWidget->setCurrentPage(result.pageIndex);
+    const PDFDocumentState* state = m_session->state();
+    if (state->currentPage() != result.pageIndex) {
+        m_session->goToPage(result.pageIndex);
     }
 
-    // 触发高亮更新
-    m_pageWidget->update();
+    emit searchResultNavigated(result);
 }
 
 void SearchWidget::keyPressEvent(QKeyEvent* event)

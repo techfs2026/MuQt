@@ -4,120 +4,69 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QLabel>
 #include <QComboBox>
-#include <QCheckBox>
 #include <QToolButton>
-#include "pdfdocumentsession.h"
+#include "datastructure.h"
 
-class PDFPageWidget;
+class PDFDocumentSession;
 
 /**
- * @brief 搜索工具栏小部件
+ * @brief 搜索工具栏组件
  *
- * 提供搜索界面，包括：
- * - 搜索输入框（带历史）
- * - 上一个/下一个按钮
- * - 匹配计数显示
- * - 搜索选项（大小写、整词）
- * - 关闭按钮
+ * 职责：
+ * 1. 提供搜索 UI（输入框、按钮、选项）
+ * 2. 与 Session 交互进行搜索
+ * 3. 显示搜索进度和结果
+ *
+ * 注意：不再直接操作 PageWidget，所有导航通过 Session
  */
 class SearchWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    /**
-     * @brief 构造函数
-     * @param searchManager 搜索管理器
-     * @param pageWidget 页面显示组件
-     * @param parent 父窗口
-     */
-    explicit SearchWidget(PDFDocumentSession* session,
-                          PDFPageWidget* pageWidget,
-                          QWidget* parent);
+    explicit SearchWidget(PDFDocumentSession* session, QWidget* parent = nullptr);
 
-    /**
-     * @brief 显示搜索栏并聚焦输入框
-     */
     void showAndFocus();
-
-    /**
-     * @brief 获取当前搜索文本
-     */
     QString searchText() const;
 
-signals:
-    /**
-     * @brief 关闭搜索栏信号
-     */
-    void closeRequested();
-
 public slots:
-    /**
-     * @brief 执行搜索
-     */
-    void performSearch();
-
-    /**
-     * @brief 跳转到下一个匹配
-     */
     void findNext();
-
-    /**
-     * @brief 跳转到上一个匹配
-     */
     void findPrevious();
 
-    /**
-     * @brief 更新UI状态
-     */
-    void updateUI();
+signals:
+    void closeRequested();
 
-    /**
-     * @brief 搜索完成处理
-     */
+    void searchResultNavigated(const SearchResult& result);
+
+private slots:
+    void performSearch();
     void onSearchCompleted(const QString& query, int totalMatches);
-
-    /**
-     * @brief 搜索进度处理
-     */
     void onSearchProgress(int currentPage, int totalPages, int matchCount);
-
-private:
-    /**
-     * @brief 初始化UI
-     */
-    void setupUI();
-
-    /**
-     * @brief 连接信号
-     */
-    void setupConnections();
-
-    /**
-     * @brief 跳转到搜索结果
-     */
-    void navigateToResult(const struct SearchResult& result);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
+    void setupUI();
+    void setupConnections();
+    void updateUI();
+    void navigateToResult(const SearchResult& result);
+
+private:
     PDFDocumentSession* m_session;
 
-    PDFPageWidget* m_pageWidget;            ///< 页面显示组件
+    QComboBox* m_searchCombo;
+    QPushButton* m_previousButton;
+    QPushButton* m_nextButton;
+    QLabel* m_matchLabel;
+    QCheckBox* m_caseSensitiveCheck;
+    QCheckBox* m_wholeWordsCheck;
+    QToolButton* m_closeButton;
 
-    // UI组件
-    QComboBox* m_searchCombo;               ///< 搜索输入框（带历史）
-    QPushButton* m_previousButton;          ///< 上一个按钮
-    QPushButton* m_nextButton;              ///< 下一个按钮
-    QLabel* m_matchLabel;                   ///< 匹配计数标签
-    QCheckBox* m_caseSensitiveCheck;        ///< 大小写敏感选项
-    QCheckBox* m_wholeWordsCheck;           ///< 整词匹配选项
-    QToolButton* m_closeButton;             ///< 关闭按钮
-
-    bool m_isSearching;                     ///< 是否正在搜索
+    bool m_isSearching;
 };
 
 #endif // SEARCHWIDGET_H

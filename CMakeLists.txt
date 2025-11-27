@@ -84,6 +84,10 @@ set(UI_SOURCES
     ui/searchwidget.h
     ui/navigationpanel.cpp
     ui/navigationpanel.h
+    ui/pdfpagewidget.cpp
+    ui/pdfpagewidget.h
+    ui/pdfdocumenttab.cpp
+    ui/pdfdocumenttab.h
 )
 
 set(SESSION_SOURCES
@@ -105,10 +109,6 @@ set(SOURCES
 
     mainwindow.cpp
     mainwindow.h
-    pdfpagewidget.cpp
-    pdfpagewidget.h
-    pdfdocumenttab.cpp
-    pdfdocumenttab.h
 
 
     pagecachemanager.cpp

@@ -152,7 +152,7 @@ PDF的底层是有MuPDF提供渲染能力的，Renderer层封装了MuPDF的API�
 ### Manager层
 
 Handler层只负责处理业务，它不持有状态和数据，状态来自Session的State，数据来自Manager，比如大纲数据由OutlineManager提供，缩略图
-由ThumbnailManagerV2提供。还有一些交互功能也由响应的Manager来提供，比如搜索来自SearchManager。
+由ThumbnailManagerV2提供。还有一些交互功能也由相应的Manager来提供，比如搜索来自SearchManager。
 
 ### Model层/Tool层
 
