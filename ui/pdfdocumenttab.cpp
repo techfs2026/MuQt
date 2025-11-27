@@ -772,6 +772,7 @@ void PDFDocumentTab::refreshVisiblePages()
     for (int pageIndex : visiblePages) {
         if (!cache->contains(pageIndex, zoom, rotation)) {
             renderPage(pageIndex);
+            anyRendered = true;
         }
     }
 

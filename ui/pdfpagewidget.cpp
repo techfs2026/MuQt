@@ -231,6 +231,14 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
+    const PDFDocumentState* state = m_session->state();
+
+    // 连续滚动模式
+    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
+        paintContinuousMode(painter, event->rect());
+        return;
+    }
+
     // 无文档
     if (m_currentImage.isNull()) {
         painter.setPen(Qt::white);
@@ -242,14 +250,6 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
         if (scrollArea && scrollArea->viewport()) {
             painter.drawText(scrollArea->viewport()->rect(), Qt::AlignCenter, tr("No document loaded"));
         }
-        return;
-    }
-
-    const PDFDocumentState* state = m_session->state();
-
-    // 连续滚动模式
-    if (state->isContinuousScroll() && !state->pageYPositions().isEmpty()) {
-        paintContinuousMode(painter, event->rect());
         return;
     }
 

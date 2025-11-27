@@ -10,7 +10,7 @@ PDFDocumentState::PDFDocumentState(QObject* parent)
     , m_currentZoom(AppConfig::DEFAULT_ZOOM)
     , m_currentZoomMode(ZoomMode::FitWidth)
     , m_currentDisplayMode(PageDisplayMode::SinglePage)
-    , m_isContinuousScroll(false)
+    , m_isContinuousScroll(true)
     , m_currentRotation(0)
     , m_linksVisible(true)
     , m_hasTextSelection(false)
@@ -118,7 +118,7 @@ void PDFDocumentState::reset()
     setCurrentZoom(AppConfig::DEFAULT_ZOOM);
     setCurrentZoomMode(ZoomMode::FitWidth);
     setCurrentDisplayMode(PageDisplayMode::SinglePage);
-    setContinuousScroll(false);
+    setContinuousScroll(true);
     setCurrentRotation(0);
     setPagePositions(QVector<int>(), QVector<int>());
     setLinksVisible(true);
