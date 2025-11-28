@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget* parent)
     , m_pageLabel(nullptr)
     , m_zoomLabel(nullptr)
 {
-    setWindowTitle(tr("JoPDF"));
+    setWindowTitle(tr("MuQt"));
     resize(AppConfig::instance().defaultWindowSize());
 
     // 创建标签页容器
@@ -577,63 +577,60 @@ void MainWindow::createMenuBar()
     menuBar()->setNativeMenuBar(false);
 
     // 文件菜单
-    QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
+    QMenu* fileMenu = menuBar()->addMenu(tr("&文件"));
 
-    m_openAction = fileMenu->addAction(tr("&Open..."), this, &MainWindow::openFile);
+    m_openAction = fileMenu->addAction(tr("&打开..."), this, &MainWindow::openFile);
     m_openAction->setShortcut(QKeySequence::Open);
 
-    m_openInNewTabAction = fileMenu->addAction(tr("Open in &New Tab..."),
+    m_openInNewTabAction = fileMenu->addAction(tr("在新Tab页打开..."),
                                                this, &MainWindow::openFileInNewTab);
     m_openInNewTabAction->setShortcut(tr("Ctrl+Shift+O"));
 
-    m_closeAction = fileMenu->addAction(tr("&Close"), this, &MainWindow::closeCurrentTab);
+    m_closeAction = fileMenu->addAction(tr("&关闭"), this, &MainWindow::closeCurrentTab);
     m_closeAction->setShortcut(QKeySequence::Close);
 
     fileMenu->addSeparator();
 
-    m_quitAction = fileMenu->addAction(tr("&Quit"), this, &MainWindow::quit);
+    m_quitAction = fileMenu->addAction(tr("&退出"), this, &MainWindow::quit);
     m_quitAction->setShortcut(QKeySequence::Quit);
 
     // 编辑菜单
-    QMenu* editMenu = menuBar()->addMenu(tr("&Edit"));
+    QMenu* editMenu = menuBar()->addMenu(tr("&编辑"));
 
-    m_copyAction = editMenu->addAction(tr("&Copy"), this, &MainWindow::copySelectedText);
+    m_copyAction = editMenu->addAction(tr("&复制"), this, &MainWindow::copySelectedText);
     m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setEnabled(false);
 
     editMenu->addSeparator();
 
-    m_findAction = editMenu->addAction(tr("&Find..."), this, &MainWindow::showSearchBar);
+    m_findAction = editMenu->addAction(tr("&查找..."), this, &MainWindow::showSearchBar);
     m_findAction->setShortcut(QKeySequence::Find);
 
-    m_findNextAction = editMenu->addAction(tr("Find &Next"), this, &MainWindow::findNext);
+    m_findNextAction = editMenu->addAction(tr("查找 &下一个"), this, &MainWindow::findNext);
     m_findNextAction->setShortcut(QKeySequence::FindNext);
     m_findNextAction->setEnabled(false);
 
-    m_findPreviousAction = editMenu->addAction(tr("Find &Previous"),
+    m_findPreviousAction = editMenu->addAction(tr("查找 &上一个"),
                                                this, &MainWindow::findPrevious);
     m_findPreviousAction->setShortcut(QKeySequence::FindPrevious);
     m_findPreviousAction->setEnabled(false);
 
     // 视图菜单
-    QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
+    QMenu* viewMenu = menuBar()->addMenu(tr("&视图"));
 
-    m_zoomInAction = viewMenu->addAction(tr("Zoom &In"), this, &MainWindow::zoomIn);
+    m_zoomInAction = viewMenu->addAction(tr("&缩小"), this, &MainWindow::zoomIn);
     m_zoomInAction->setShortcut(QKeySequence::ZoomIn);
 
-    m_zoomOutAction = viewMenu->addAction(tr("Zoom &Out"), this, &MainWindow::zoomOut);
+    m_zoomOutAction = viewMenu->addAction(tr("&放大"), this, &MainWindow::zoomOut);
     m_zoomOutAction->setShortcut(QKeySequence::ZoomOut);
-
-    m_actualSizeAction = viewMenu->addAction(tr("&Actual Size"), this, &MainWindow::actualSize);
-    m_actualSizeAction->setShortcut(tr("Ctrl+0"));
 
     viewMenu->addSeparator();
 
-    m_fitPageAction = viewMenu->addAction(tr("Fit &Page"), this, &MainWindow::fitPage);
+    m_fitPageAction = viewMenu->addAction(tr("&适应页面"), this, &MainWindow::fitPage);
     m_fitPageAction->setShortcut(tr("Ctrl+1"));
     m_fitPageAction->setCheckable(true);
 
-    m_fitWidthAction = viewMenu->addAction(tr("Fit &Width"), this, &MainWindow::fitWidth);
+    m_fitWidthAction = viewMenu->addAction(tr("&适应宽度"), this, &MainWindow::fitWidth);
     m_fitWidthAction->setShortcut(tr("Ctrl+2"));
     m_fitWidthAction->setCheckable(true);
 
@@ -642,55 +639,39 @@ void MainWindow::createMenuBar()
     m_pageModeGroup = new QActionGroup(this);
     m_pageModeGroup->setExclusive(true);
 
-    m_singlePageAction = viewMenu->addAction(tr("&Single Page"), this, [this]() {
+    m_singlePageAction = viewMenu->addAction(tr("&单页"), this, [this]() {
         togglePageMode(PageDisplayMode::SinglePage);
     });
     m_singlePageAction->setCheckable(true);
     m_singlePageAction->setChecked(true);
     m_pageModeGroup->addAction(m_singlePageAction);
 
-    m_doublePageAction = viewMenu->addAction(tr("&Double Page"), this, [this]() {
+    m_doublePageAction = viewMenu->addAction(tr("&双页"), this, [this]() {
         togglePageMode(PageDisplayMode::DoublePage);
     });
     m_doublePageAction->setCheckable(true);
     m_pageModeGroup->addAction(m_doublePageAction);
 
-    m_continuousScrollAction = viewMenu->addAction(tr("&Continuous Scroll"),
+    m_continuousScrollAction = viewMenu->addAction(tr("&连续滚动"),
                                                    this, &MainWindow::toggleContinuousScroll);
     m_continuousScrollAction->setCheckable(true);
 
     viewMenu->addSeparator();
 
-    m_showNavigationAction = viewMenu->addAction(tr("Show &Navigation Panel"),
+    m_showNavigationAction = viewMenu->addAction(tr("&显示导航栏"),
                                                  this, &MainWindow::toggleNavigationPanel);
     m_showNavigationAction->setCheckable(true);
     m_showNavigationAction->setShortcut(tr("F9"));
 
-    m_showLinksAction = viewMenu->addAction(tr("Show &Links"),
+    m_showLinksAction = viewMenu->addAction(tr("&显示链接边框"),
                                             this, &MainWindow::toggleLinksVisible);
     m_showLinksAction->setCheckable(true);
     m_showLinksAction->setChecked(true);
-
-    // 导航菜单
-    QMenu* navMenu = menuBar()->addMenu(tr("&Navigation"));
-
-    m_firstPageAction = navMenu->addAction(tr("&First Page"), this, &MainWindow::firstPage);
-    m_firstPageAction->setShortcut(tr("Home"));
-
-    m_previousPageAction = navMenu->addAction(tr("&Previous Page"),
-                                              this, &MainWindow::previousPage);
-    m_previousPageAction->setShortcut(tr("PgUp"));
-
-    m_nextPageAction = navMenu->addAction(tr("&Next Page"), this, &MainWindow::nextPage);
-    m_nextPageAction->setShortcut(tr("PgDown"));
-
-    m_lastPageAction = navMenu->addAction(tr("&Last Page"), this, &MainWindow::lastPage);
-    m_lastPageAction->setShortcut(tr("End"));
 }
 
 void MainWindow::createToolBar()
 {
-    m_toolBar = addToolBar(tr("Main Toolbar"));
+    m_toolBar = addToolBar(tr(""));
     m_toolBar->setMovable(false);
     m_toolBar->setFloatable(false);
     m_toolBar->setIconSize(QSize(20, 20));
@@ -700,7 +681,7 @@ void MainWindow::createToolBar()
 
     // ========== 导航面板按钮 ==========
     m_navPanelAction = m_toolBar->addAction(QIcon(":/icons/icons/sidebar.png"), tr("Panel"));
-    m_navPanelAction->setToolTip(tr("Navigation Panel (F9)"));
+    m_navPanelAction->setToolTip(tr("显示导航栏 (F9)"));
     m_navPanelAction->setCheckable(true);
     connect(m_navPanelAction, &QAction::triggered, this, &MainWindow::toggleNavigationPanel);
 
@@ -708,18 +689,18 @@ void MainWindow::createToolBar()
 
     // ========== 文件操作 ==========
     QAction* openAction = m_toolBar->addAction(QIcon(":/icons/icons/open-file.png"), tr("Open"));
-    openAction->setToolTip(tr("Open PDF (Ctrl+O)"));
+    openAction->setToolTip(tr("打开文件 (Ctrl+O)"));
     connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
 
     m_toolBar->addSeparator();
 
     // ========== 页面导航 ==========
     m_firstPageAction = m_toolBar->addAction(QIcon(":/icons/icons/first-arrow.png"), tr("First"));
-    m_firstPageAction->setToolTip(tr("First Page (Home)"));
+    m_firstPageAction->setToolTip(tr("第一页 (Home)"));
     connect(m_firstPageAction, &QAction::triggered, this, &MainWindow::firstPage);
 
     m_previousPageAction = m_toolBar->addAction(QIcon(":/icons/icons/left-arrow.png"), tr("Previous"));
-    m_previousPageAction->setToolTip(tr("Previous Page (PgUp)"));
+    m_previousPageAction->setToolTip(tr("上一页 (PgUp)"));
     connect(m_previousPageAction, &QAction::triggered, this, &MainWindow::previousPage);
 
     // 页码输入
@@ -738,18 +719,18 @@ void MainWindow::createToolBar()
     m_toolBar->addWidget(m_pageSpinBox);
 
     m_nextPageAction = m_toolBar->addAction(QIcon(":/icons/icons/right-arrow.png"), tr("Next"));
-    m_nextPageAction->setToolTip(tr("Next Page (PgDown)"));
+    m_nextPageAction->setToolTip(tr("下一页 (PgDown)"));
     connect(m_nextPageAction, &QAction::triggered, this, &MainWindow::nextPage);
 
     m_lastPageAction = m_toolBar->addAction(QIcon(":/icons/icons/last-arrow.png"), tr("Last"));
-    m_lastPageAction->setToolTip(tr("Last Page (End)"));
+    m_lastPageAction->setToolTip(tr("最后一页 (End)"));
     connect(m_lastPageAction, &QAction::triggered, this, &MainWindow::lastPage);
 
     m_toolBar->addSeparator();
 
     // ========== 缩放控制 ==========
     m_zoomOutAction = m_toolBar->addAction(QIcon(":/icons/icons/zoom-out.png"), tr("Zoom Out"));
-    m_zoomOutAction->setToolTip(tr("Zoom Out (Ctrl+-)"));
+    m_zoomOutAction->setToolTip(tr("缩小 (Ctrl+-)"));
     connect(m_zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
 
     m_zoomComboBox = new QComboBox(this);
@@ -766,19 +747,19 @@ void MainWindow::createToolBar()
     m_toolBar->addWidget(m_zoomComboBox);
 
     m_zoomInAction = m_toolBar->addAction(QIcon(":/icons/icons/zoom-in.png"), tr("Zoom In"));
-    m_zoomInAction->setToolTip(tr("Zoom In (Ctrl++)"));
+    m_zoomInAction->setToolTip(tr("放大 (Ctrl++)"));
     connect(m_zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
 
     m_toolBar->addSeparator();
 
     // ========== 缩放模式（可检查） ==========
     m_fitPageToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/fit-to-page.png"), tr("Fit Page"));
-    m_fitPageToolbarAction->setToolTip(tr("Fit Page (Ctrl+1)"));
+    m_fitPageToolbarAction->setToolTip(tr("适应页面 (Ctrl+1)"));
     m_fitPageToolbarAction->setCheckable(true);
     connect(m_fitPageToolbarAction, &QAction::triggered, this, &MainWindow::fitPage);
 
     m_fitWidthToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/fit-to-width.png"), tr("Fit Width"));
-    m_fitWidthToolbarAction->setToolTip(tr("Fit Width (Ctrl+2)"));
+    m_fitWidthToolbarAction->setToolTip(tr("适应宽度 (Ctrl+2)"));
     m_fitWidthToolbarAction->setCheckable(true);
     connect(m_fitWidthToolbarAction, &QAction::triggered, this, &MainWindow::fitWidth);
 
@@ -786,7 +767,7 @@ void MainWindow::createToolBar()
 
     // ========== 页面模式（互斥） ==========
     QAction* singlePageToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/single-page-mode.png"), tr("Single"));
-    singlePageToolbarAction->setToolTip(tr("Single Page Mode"));
+    singlePageToolbarAction->setToolTip(tr("单页"));
     singlePageToolbarAction->setCheckable(true);
     singlePageToolbarAction->setChecked(true);
     connect(singlePageToolbarAction, &QAction::triggered, this, [this]() {
@@ -794,7 +775,7 @@ void MainWindow::createToolBar()
     });
 
     QAction* doublePageToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/double-page-mode.png"), tr("Double"));
-    doublePageToolbarAction->setToolTip(tr("Double Page Mode"));
+    doublePageToolbarAction->setToolTip(tr("双页"));
     doublePageToolbarAction->setCheckable(true);
     connect(doublePageToolbarAction, &QAction::triggered, this, [this]() {
         togglePageMode(PageDisplayMode::DoublePage);
@@ -812,7 +793,7 @@ void MainWindow::createToolBar()
 
     // ========== 连续滚动模式（独立可检查） ==========
     QAction* continuousScrollToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/continuous-mode.png"), tr("Continuous"));
-    continuousScrollToolbarAction->setToolTip(tr("Continuous Scroll Mode"));
+    continuousScrollToolbarAction->setToolTip(tr("连续滚动"));
     continuousScrollToolbarAction->setCheckable(true);
     continuousScrollToolbarAction->setChecked(true); // 默认启用
     connect(continuousScrollToolbarAction, &QAction::triggered, this, &MainWindow::toggleContinuousScroll);
@@ -826,7 +807,7 @@ void MainWindow::createToolBar()
 
     // ========== 搜索按钮 ==========
     QAction* searchAction = m_toolBar->addAction(QIcon(":/icons/icons/search.png"), tr("Search"));
-    searchAction->setToolTip(tr("Search (Ctrl+F)"));
+    searchAction->setToolTip(tr("搜索 (Ctrl+F)"));
     connect(searchAction, &QAction::triggered, this, &MainWindow::showSearchBar);
 }
 
@@ -909,7 +890,6 @@ void MainWindow::updateUIState()
     // 缩放操作
     m_zoomInAction->setEnabled(hasDocument);
     m_zoomOutAction->setEnabled(hasDocument);
-    m_actualSizeAction->setEnabled(hasDocument);
     m_fitPageAction->setEnabled(hasDocument);
     m_fitWidthAction->setEnabled(hasDocument);
 
@@ -977,7 +957,7 @@ void MainWindow::updateUIState()
 
 void MainWindow::updateWindowTitle()
 {
-    QString title = tr("JoPDF");
+    QString title = tr("MuQt");
 
     PDFDocumentTab* tab = currentTab();
     if (tab && tab->isDocumentLoaded()) {
@@ -998,7 +978,7 @@ void MainWindow::updateStatusBar()
     if (!tab || !tab->isDocumentLoaded()) {
         m_pageLabel->setText("");
         m_zoomLabel->setText("");
-        m_statusLabel->setText(tr("No document opened. Press Ctrl+O to open a PDF."));
+        m_statusLabel->setText(tr("请打开PDF文件查看"));
         return;
     }
 
@@ -1010,10 +990,10 @@ void MainWindow::updateStatusBar()
     QString zoomMode;
     switch (tab->zoomMode()) {
     case ZoomMode::FitPage:
-        zoomMode = tr(" (Fit Page)");
+        zoomMode = tr(" (适合页面)");
         break;
     case ZoomMode::FitWidth:
-        zoomMode = tr(" (Fit Width)");
+        zoomMode = tr(" (适合宽度)");
         break;
     default:
         break;
@@ -1021,9 +1001,9 @@ void MainWindow::updateStatusBar()
     m_zoomLabel->setText(tr("🔍 %1%%2").arg(qRound(zoom * 100)).arg(zoomMode));
 
     if (tab->hasTextSelection()) {
-        m_statusLabel->setText(tr("Text selected"));
+        m_statusLabel->setText(tr("文本已选择"));
     } else {
-        m_statusLabel->setText(tr("Ready"));
+        m_statusLabel->setText(tr(""));
     }
 }
 

@@ -124,7 +124,6 @@ private:
 
     QAction* m_zoomInAction;
     QAction* m_zoomOutAction;
-    QAction* m_actualSizeAction;
     QAction* m_fitPageAction;
     QAction* m_fitWidthAction;
 
