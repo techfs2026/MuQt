@@ -14,12 +14,13 @@ ThumbnailManagerV2::ThumbnailManagerV2(MuPDFRenderer* renderer, QObject* parent)
     , m_currentBatchIndex(0)
     , m_isLoadingInProgress(false)
 {
-    m_threadPool->setMaxThreadCount(2);
+    int threadCount = qMin(4, QThreadPool::globalInstance()->maxThreadCount() / 2);
+    m_threadPool->setMaxThreadCount(threadCount);
     m_threadPool->setExpiryTimeout(30000);
 
     m_batchTimer = new QTimer(this);
     m_batchTimer->setSingleShot(true);
-    m_batchTimer->setInterval(500);  // 每批间隔500ms
+    m_batchTimer->setInterval(200);
     connect(m_batchTimer, &QTimer::timeout, this, &ThumbnailManagerV2::processNextBatch);
 
     qInfo() << "ThumbnailManagerV2: Initialized with"
@@ -106,9 +107,9 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
             // 中文档：标记为加载中
             m_isLoadingInProgress = true;  // ← 关键：标记批次加载开始
 
-            emit loadingStatusChanged(tr("Loading visible thumbnails..."));
+            emit loadingStatusChanged(tr("加载可见区..."));
             renderPagesSync(initialPages);
-            emit loadingStatusChanged(tr("Loading remaining thumbnails in background..."));
+            emit loadingStatusChanged(tr("后台加载中..."));
 
             setupBackgroundBatches();
 
@@ -306,7 +307,7 @@ void ThumbnailManagerV2::setupBackgroundBatches()
         << "background batches";
 
         // 延迟启动第一批
-        QTimer::singleShot(1000, this, &ThumbnailManagerV2::processNextBatch);
+        QTimer::singleShot(500, this, &ThumbnailManagerV2::processNextBatch);
     }
 }
 
@@ -328,7 +329,7 @@ void ThumbnailManagerV2::processNextBatch()
              << (m_currentBatchIndex + 1) << "/" << m_backgroundBatches.size()
              << "(" << batch.size() << "pages)";
 
-    emit loadingStatusChanged(tr("Loading batch..."));
+    emit loadingStatusChanged(tr("加载中..."));
 
     renderPagesAsync(batch, RenderPriority::LOW);
 
@@ -340,7 +341,6 @@ void ThumbnailManagerV2::processNextBatch()
         m_batchTimer->start();
     } else {
         m_isLoadingInProgress = false;  // ← 关键：标记批次加载完成
-        emit loadingStatusChanged(tr("All thumbnails loaded"));
         emit allCompleted();
     }
 }

@@ -204,6 +204,9 @@ private:
     qint64 m_lastClickTime;     // 上次点击时间（用于多击检测）
     QPoint m_lastClickPos;      // 上次点击位置
     int m_clickCount;           // 连续点击次数
+
+    // 添加标志位：标记是否是用户主动滚动触发的页面变化
+    bool m_isUserScrolling;
 };
 
 #endif // PDFDOCUMENTTAB_H

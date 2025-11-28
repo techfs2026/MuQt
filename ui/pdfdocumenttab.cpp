@@ -36,6 +36,7 @@ PDFDocumentTab::PDFDocumentTab(QWidget* parent)
     , m_textPreloadProgress(nullptr)
     , m_lastClickTime(0)
     , m_clickCount(0)
+    , m_isUserScrolling(false)
 {
     setupUI();
     setupConnections();
@@ -554,14 +555,16 @@ void PDFDocumentTab::onPagePositionsChanged(const QVector<int>& positions, const
     refreshVisiblePages();
 
     if (m_session->state()->isContinuousScroll()) {
-        int currentPage = m_session->state()->currentPage();
-        int targetY = m_session->getScrollPositionForPage(currentPage, AppConfig::PAGE_MARGIN);
+        if (!m_isUserScrolling) {
+            int currentPage = m_session->state()->currentPage();
+            int targetY = m_session->getScrollPositionForPage(currentPage, AppConfig::PAGE_MARGIN);
 
-        if (targetY >= 0) {
-            // 使用 QTimer 延迟执行，确保 widget resize 完成后再滚动
-            QTimer::singleShot(0, this, [this, targetY]() {
-                m_scrollArea->verticalScrollBar()->setValue(targetY);
-            });
+            if (targetY >= 0) {
+                // 使用 QTimer 延迟执行，确保 widget resize 完成后再滚动
+                QTimer::singleShot(0, this, [this, targetY]() {
+                    m_scrollArea->verticalScrollBar()->setValue(targetY);
+                });
+            }
         }
     }
 }
@@ -689,8 +692,12 @@ void PDFDocumentTab::onScrollValueChanged(int value)
 {
     const PDFDocumentState* state = m_session->state();
     if (state->isContinuousScroll()) {
+        m_isUserScrolling = true;
+
         m_session->updateCurrentPageFromScroll(value, AppConfig::PAGE_MARGIN);
         refreshVisiblePages();
+
+        m_isUserScrolling = false;
     }
 }
 

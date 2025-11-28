@@ -428,7 +428,7 @@ void NavigationPanel::setupConnections()
             // 全部完成
             connect(manager, &ThumbnailManagerV2::allCompleted,
                     this, [this]() {
-                        m_thumbnailStatusLabel->setText(tr("All thumbnails loaded"));
+                        m_thumbnailStatusLabel->setText(tr("加载完毕"));
                         m_thumbnailProgressBar->setVisible(false);
 
                         // 3秒后恢复默认状态

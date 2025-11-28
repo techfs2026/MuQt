@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(JoPDF LANGUAGES CXX)
+project(MuQt LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -131,12 +131,12 @@ set(SOURCES
 
 qt_standard_project_setup()
 
-qt_add_executable(JoPDF
+qt_add_executable(MuQt
     WIN32 MACOSX_BUNDLE
     ${SOURCES}
 )
 
-target_link_libraries(JoPDF
+target_link_libraries(MuQt
     PRIVATE
         Qt::Core
         Qt::Widgets
@@ -176,14 +176,14 @@ endif ()
 
 include(GNUInstallDirs)
 
-install(TARGETS JoPDF
+install(TARGETS MuQt
     BUNDLE  DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 qt_generate_deploy_app_script(
-    TARGET JoPDF
+    TARGET MuQt
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
