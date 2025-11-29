@@ -4,7 +4,7 @@
 #include "outlineitem.h"
 #include <QObject>
 
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 
 /**
  * @brief PDF大纲管理器
@@ -22,7 +22,7 @@ public:
      * @param renderer MuPDF渲染器指针
      * @param parent 父对象
      */
-    explicit OutlineManager(MuPDFRenderer* renderer, QObject* parent = nullptr);
+    explicit OutlineManager(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
 
     /**
      * @brief 析构函数
@@ -95,7 +95,7 @@ private:
     int countItems(OutlineItem* item) const;
 
 private:
-    MuPDFRenderer* m_renderer;    ///< MuPDF渲染器
+    ThreadSafeRenderer* m_renderer;    ///< MuPDF渲染器
     OutlineItem* m_root;          ///< 大纲树根节点（拥有所有权）
     int m_totalItems;             ///< 大纲项总数
 };

@@ -10,7 +10,7 @@
 
 #include "datastructure.h"
 
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 
 /**
  * @brief PDF视图处理器 - 处理视图相关的计算和逻辑
@@ -28,7 +28,7 @@ class PDFViewHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit PDFViewHandler(MuPDFRenderer* renderer, QObject* parent = nullptr);
+    explicit PDFViewHandler(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
     ~PDFViewHandler();
 
     // ==================== 导航相关 ====================
@@ -280,7 +280,7 @@ signals:
     void currentPageUpdatedFromScroll(int newPageIndex);
 
 private:
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
 
     // 常量
     static constexpr double DEFAULT_ZOOM = 1.0;

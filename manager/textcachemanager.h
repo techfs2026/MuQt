@@ -10,7 +10,7 @@
 
 #include "datastructure.h"
 
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 class PageExtractTask;
 
 /**
@@ -24,7 +24,7 @@ class TextCacheManager : public QObject
     Q_OBJECT
 
 public:
-    explicit TextCacheManager(MuPDFRenderer* renderer, QObject* parent = nullptr);
+    explicit TextCacheManager(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
     ~TextCacheManager();
 
     // 预加载控制
@@ -59,7 +59,7 @@ private slots:
 private:
     friend class PageExtractTask;
 
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
 
     // 缓存（页索引 -> PageTextData）
     QHash<int, PageTextData> m_cache;

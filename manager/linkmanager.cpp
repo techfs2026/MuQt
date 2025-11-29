@@ -1,11 +1,11 @@
 #include "linkmanager.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 
 #include <mupdf/fitz.h>
 #include <mupdf/pdf.h>
 #include <QDebug>
 
-LinkManager::LinkManager(MuPDFRenderer* renderer, QObject* parent)
+LinkManager::LinkManager(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
 {

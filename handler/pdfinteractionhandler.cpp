@@ -1,5 +1,5 @@
 #include "pdfinteractionhandler.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 #include "textcachemanager.h"
 #include "searchmanager.h"
 #include "linkmanager.h"
@@ -8,7 +8,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-PDFInteractionHandler::PDFInteractionHandler(MuPDFRenderer* renderer,
+PDFInteractionHandler::PDFInteractionHandler(ThreadSafeRenderer* renderer,
                                              TextCacheManager* textCacheManager,
                                              QObject* parent)
     : QObject(parent)

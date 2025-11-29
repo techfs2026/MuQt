@@ -1,5 +1,5 @@
 #include "pdfdocumentsession.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 #include "pagecachemanager.h"
 #include "textcachemanager.h"
 #include "pdfviewhandler.h"
@@ -16,7 +16,7 @@ PDFDocumentSession::PDFDocumentSession(QObject* parent)
     : QObject(parent)
 {
     // 创建核心组件
-    m_renderer = std::make_unique<MuPDFRenderer>();
+    m_renderer = std::make_unique<ThreadSafeRenderer>();
 
     // 创建缓存管理器
     m_pageCache = std::make_unique<PageCacheManager>(

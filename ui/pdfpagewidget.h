@@ -7,7 +7,7 @@
 #include <QRect>
 
 class PDFDocumentSession;
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 class PageCacheManager;
 class QScrollArea;
 
@@ -155,7 +155,7 @@ private:
 private:
     // 核心引用（不拥有所有权）
     PDFDocumentSession* m_session;
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
     PageCacheManager* m_cacheManager;
 
     // 当前显示的图像

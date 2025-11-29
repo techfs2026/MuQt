@@ -10,7 +10,7 @@
 
 #include "thumbnailmanagerv2.h"
 
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 class OutlineManager;
 class OutlineItem;
 class OutlineEditor;
@@ -20,7 +20,7 @@ class PDFContentHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit PDFContentHandler(MuPDFRenderer* renderer, QObject* parent = nullptr);
+    explicit PDFContentHandler(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
     ~PDFContentHandler();
 
     // 文档加载
@@ -89,7 +89,7 @@ private:
     void startBackgroundLowResRendering();
 
 private:
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
     std::unique_ptr<OutlineManager> m_outlineManager;
     std::unique_ptr<ThumbnailManagerV2> m_thumbnailManager;
     std::unique_ptr<OutlineEditor> m_outlineEditor;

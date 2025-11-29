@@ -10,7 +10,7 @@
 #include "thumbnailbatchtask.h"
 #include "thumbnailloadstrategy.h"
 
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 class ThumbnailCache;
 
 /**
@@ -31,7 +31,7 @@ class ThumbnailManagerV2 : public QObject
     Q_OBJECT
 
 public:
-    explicit ThumbnailManagerV2(MuPDFRenderer* renderer, QObject* parent = nullptr);
+    explicit ThumbnailManagerV2(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
     ~ThumbnailManagerV2();
 
     // ========== 配置 ==========
@@ -115,7 +115,7 @@ private:
     void trackTask(ThumbnailBatchTask* task);
 
 private:
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
     std::unique_ptr<ThumbnailCache> m_cache;
     std::unique_ptr<QThreadPool> m_threadPool;
     std::unique_ptr<ThumbnailLoadStrategy> m_strategy;

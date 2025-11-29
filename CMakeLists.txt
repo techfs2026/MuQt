@@ -41,6 +41,8 @@ set(MANAGER_SOURCES
     manager/thumbnailbatchtask.h
     manager/thumbnailmanagerv2.cpp
     manager/thumbnailmanagerv2.h
+    manager/textcachemanager.cpp
+    manager/textcachemanager.h
     manager/linkmanager.cpp
     manager/linkmanager.h
     manager/outlinemanager.cpp
@@ -66,8 +68,6 @@ set(MODEL_SOURCES
 )
 
 set(CORE_SOURCES
-    core/mupdfrenderer.cpp
-    core/mupdfrenderer.h
     core/threadsaferenderer.cpp
     core/threadsaferenderer.h
     core/mupdfrendererutil.h
@@ -113,8 +113,6 @@ set(SOURCES
 
     pagecachemanager.cpp
     pagecachemanager.h
-    textcachemanager.cpp
-    textcachemanager.h
 
 
     ${UI_SOURCES}

@@ -1,5 +1,5 @@
 #include "pdfcontenthandler.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 #include "outlinemanager.h"
 
 #include "outlineitem.h"
@@ -8,7 +8,7 @@
 #include <QFileInfo>
 #include <QTimer>
 
-PDFContentHandler::PDFContentHandler(MuPDFRenderer* renderer, QObject* parent)
+PDFContentHandler::PDFContentHandler(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_outlineManager(nullptr)

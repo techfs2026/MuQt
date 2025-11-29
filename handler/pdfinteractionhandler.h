@@ -8,7 +8,7 @@
 #include <memory>
 
 // Forward declarations
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 class TextCacheManager;
 class SearchManager;
 class LinkManager;
@@ -32,7 +32,7 @@ class PDFInteractionHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit PDFInteractionHandler(MuPDFRenderer* renderer,
+    explicit PDFInteractionHandler(ThreadSafeRenderer* renderer,
                                    TextCacheManager* textCacheManager,
                                    QObject* parent = nullptr);
     ~PDFInteractionHandler();
@@ -260,7 +260,7 @@ private:
     void setupConnections();
 
 private:
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
     TextCacheManager* m_textCacheManager;
 
     // 子管理器

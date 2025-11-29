@@ -71,7 +71,7 @@ void ThumbnailBatchTask::run()
         }
 
         // 计算缩放比例（使用高DPI渲染宽度）
-        QSizeF pageSize = m_renderer->getPageSize(pageIndex);
+        QSizeF pageSize = m_renderer->pageSize(pageIndex);
         if (pageSize.isEmpty()) {
             qWarning() << "ThumbnailBatchTask: Invalid page size for page" << pageIndex;
             continue;
@@ -80,7 +80,9 @@ void ThumbnailBatchTask::run()
         double zoom = m_thumbnailWidth / pageSize.width();
 
         // 渲染页面
-        QImage thumbnail = m_renderer->renderPage(pageIndex, zoom, m_rotation);
+        RenderResult thumbnailRes = m_renderer->renderPage(pageIndex, zoom, m_rotation);
+
+        QImage thumbnail = thumbnailRes.image;
 
         if (thumbnail.isNull()) {
             qWarning() << "ThumbnailBatchTask: Failed to render page" << pageIndex;

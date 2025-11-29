@@ -1,10 +1,10 @@
 #include "pdfviewhandler.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 #include "appconfig.h"
 #include <QDebug>
 #include <algorithm>
 
-PDFViewHandler::PDFViewHandler(MuPDFRenderer* renderer, QObject* parent)
+PDFViewHandler::PDFViewHandler(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
 {

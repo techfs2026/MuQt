@@ -1,7 +1,7 @@
 // outlineeditor.cpp
 #include "outlineeditor.h"
 #include "outlineitem.h"
-#include "mupdfrenderer.h"
+#include "ThreadSafeRenderer.h"
 
 #include <mupdf/fitz.h>
 #include <mupdf/pdf.h>
@@ -13,7 +13,7 @@
 #include <QThread>
 #include <functional>
 
-OutlineEditor::OutlineEditor(MuPDFRenderer* renderer, QObject* parent)
+OutlineEditor::OutlineEditor(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_root(nullptr)
@@ -234,7 +234,7 @@ inline pdf_obj* create_doc_array(fz_context* ctx, pdf_document* doc, int initial
 }
 
 // Validate OutlineItem tree for obvious issues (empty title, invalid page index)
-bool validate_tree(OutlineItem* node, MuPDFRenderer* renderer, QString* reason = nullptr)
+bool validate_tree(OutlineItem* node, ThreadSafeRenderer* renderer, QString* reason = nullptr)
 {
     if (!node) return true;
     for (int i = 0; i < node->childCount(); ++i) {
@@ -264,7 +264,7 @@ bool validate_tree(OutlineItem* node, MuPDFRenderer* renderer, QString* reason =
 // Returns a pdf_obj* that is an indirect (document-owned) object.
 // Caller must drop the returned local reference when appropriate (we do so in callers).
 pdf_obj* buildPdfOutlineRecursive(fz_context* ctx, pdf_document* pdfDoc,
-                                  MuPDFRenderer* renderer, OutlineItem* item)
+                                  ThreadSafeRenderer* renderer, OutlineItem* item)
 {
     if (!item || !item->isValid()) return nullptr;
 
@@ -399,7 +399,7 @@ bool OutlineEditor::saveToDocument(const QString& filePath)
         return false;
     }
 
-    QString savePath = filePath.isEmpty() ? m_renderer->currentFilePath() : filePath;
+    QString savePath = filePath.isEmpty() ? m_renderer->documentPath() : filePath;
     if (savePath.isEmpty()) {
         QString msg = "No file path specified";
         qWarning() << "OutlineEditor:" << msg;

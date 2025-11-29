@@ -17,7 +17,7 @@ extern "C" {
 #include <mupdf/fitz.h>
 }
 
-class MuPDFRenderer;
+class ThreadSafeRenderer;
 class TextCacheManager;
 class SearchManager;
 struct PageTextData;
@@ -64,7 +64,7 @@ class SearchManager : public QObject
     Q_OBJECT
 
 public:
-    explicit SearchManager(MuPDFRenderer* renderer,
+    explicit SearchManager(ThreadSafeRenderer* renderer,
                            TextCacheManager* textCacheManager,
                            QObject* parent = nullptr);
     ~SearchManager();
@@ -116,7 +116,7 @@ private:
                                    int matchPos,
                                    int contextLength);
 
-    MuPDFRenderer* m_renderer;
+    ThreadSafeRenderer* m_renderer;
     TextCacheManager* m_textCacheManager;
 
     // 搜索结果

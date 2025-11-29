@@ -1,7 +1,7 @@
 #include "pdfpagewidget.h"
 #include "pdfdocumentsession.h"
 #include "pdfdocumentstate.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 #include "pagecachemanager.h"
 #include "pdfinteractionhandler.h"
 #include "textselector.h"

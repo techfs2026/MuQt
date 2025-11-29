@@ -1,5 +1,5 @@
-#ifndef MUPDFRENDERERUTIL_H
-#define MUPDFRENDERERUTIL_H
+#ifndef ThreadSafeRendererUTIL_H
+#define ThreadSafeRendererUTIL_H
 
 #include <QDebug>
 #include <QMutex>
@@ -48,4 +48,4 @@ void initializeMuPDFLocks()
 }
 
 
-#endif // MUPDFRENDERERUTIL_H
+#endif // ThreadSafeRendererUTIL_H

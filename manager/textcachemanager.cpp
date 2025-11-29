@@ -1,6 +1,5 @@
 #include "textcachemanager.h"
 #include "threadsaferenderer.h"
-#include "mupdfrenderer.h"
 #include <QDebug>
 #include <QMutexLocker>
 #include <QCoreApplication>
@@ -81,7 +80,9 @@ public:
             }
 
             // 提取文本
-            PageTextData pageData = m_renderer->extractPageText(pageIndex);
+            PageTextData pageData;
+
+            m_renderer->extractText(pageIndex, pageData);
 
             // 区分空白页和真正的错误
             QString error = m_renderer->getLastError();
@@ -136,7 +137,7 @@ private:
 // ========================================
 // TextCacheManager 实现
 // ========================================
-TextCacheManager::TextCacheManager(MuPDFRenderer* renderer, QObject* parent)
+TextCacheManager::TextCacheManager(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_maxCacheSize(-1)

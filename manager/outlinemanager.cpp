@@ -1,11 +1,11 @@
 #include "outlinemanager.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 
 #include <mupdf/fitz.h>
 #include <mupdf/pdf.h>
 #include <QDebug>
 
-OutlineManager::OutlineManager(MuPDFRenderer* renderer, QObject* parent)
+OutlineManager::OutlineManager(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_root(nullptr)
     , m_renderer(renderer)

@@ -1,12 +1,12 @@
 #include "thumbnailmanagerv2.h"
 #include "thumbnailcache.h"
-#include "mupdfrenderer.h"
+#include "threadsaferenderer.h"
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QScreen>
 
-ThumbnailManagerV2::ThumbnailManagerV2(MuPDFRenderer* renderer, QObject* parent)
+ThumbnailManagerV2::ThumbnailManagerV2(ThreadSafeRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_cache(std::make_unique<ThumbnailCache>())
@@ -300,7 +300,7 @@ void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)
         // 按高DPI宽度计算缩放比例
         double zoom = renderWidth / pageSize.width();
 
-        MuPDFRenderer::RenderResult result = m_renderer->renderPage(
+        RenderResult result = m_renderer->renderPage(
             pageIndex, zoom, m_rotation);
 
         if (result.success && !result.image.isNull()) {
