@@ -16,5 +16,6 @@
         <file>icons/continuous-mode.png</file>
         <file>icons/double-page-mode.png</file>
         <file>icons/single-page-mode.png</file>
+        <file>icons/windows.png</file>
     </qresource>
 </RCC>
