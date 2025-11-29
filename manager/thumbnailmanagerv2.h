@@ -14,12 +14,17 @@ class MuPDFRenderer;
 class ThumbnailCache;
 
 /**
- * @brief 智能缩略图管理器 V2 - 简化版
+ * @brief 智能缩略图管理器 V2 - 高DPI支持版
  *
  * 加载策略:
  * - 小文档(<50页): 全量同步加载
  * - 中文档(50-200页): 可见区同步 + 后台批次异步
- * - 大文档(>200页): 仅按需同步加载(滚动停止时)
+ * - 大文档(>200页): 慢速滚动预加载 + 滚动停止同步加载
+ *
+ * 高DPI支持:
+ * - 自动检测屏幕设备像素比（1x, 2x, 3x等）
+ * - 按设备像素比渲染高分辨率缩略图
+ * - 在高DPI屏幕上显示清晰图像
  */
 class ThumbnailManagerV2 : public QObject
 {
@@ -54,9 +59,6 @@ public:
     /**
      * @brief 处理慢速滚动（大文档专用）
      * @param visiblePages 当前可见的页面索引
-     *
-     * 当检测到用户慢速滚动时调用，同步加载可见区域。
-     * 仅对大文档生效，快速滚动时不会调用此方法。
      */
     void handleSlowScroll(const QSet<int>& visiblePages);
 
@@ -77,7 +79,6 @@ public:
 
     /**
      * @brief 是否应该响应滚动事件
-     * @return 仅大文档且未在批次加载中时返回false
      */
     bool shouldRespondToScroll() const;
 
@@ -94,10 +95,16 @@ private slots:
     void processNextBatch();
 
 private:
-    // 同步渲染（小文档、中文档初始可见区、大文档按需加载）
+    // 检测设备像素比
+    void detectDevicePixelRatio();
+
+    // 获取实际渲染宽度（显示宽度 × 设备像素比）
+    int getRenderWidth() const;
+
+    // 同步渲染
     void renderPagesSync(const QVector<int>& pages);
 
-    // 异步渲染（仅中文档后台批次使用）
+    // 异步渲染
     void renderPagesAsync(const QVector<int>& pages, RenderPriority priority);
 
     // 设置中文档后台批次
@@ -111,8 +118,9 @@ private:
     std::unique_ptr<QThreadPool> m_threadPool;
     std::unique_ptr<ThumbnailLoadStrategy> m_strategy;
 
-    int m_thumbnailWidth;
+    int m_thumbnailWidth;      // 显示宽度（逻辑像素）
     int m_rotation;
+    double m_devicePixelRatio; // 设备像素比（1.0, 2.0, 3.0等）
 
     // 批次管理（仅中文档使用）
     QVector<QVector<int>> m_backgroundBatches;
@@ -123,7 +131,7 @@ private:
     QMutex m_taskMutex;
     QVector<ThumbnailBatchTask*> m_activeTasks;
 
-    bool m_isLoadingInProgress;  // 标记中文档是否正在批次加载中
+    bool m_isLoadingInProgress;
 };
 
 #endif // THUMBNAILMANAGER_V2_H

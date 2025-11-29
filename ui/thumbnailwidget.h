@@ -39,7 +39,7 @@ public:
 
     QSet<int> getUnloadedVisiblePages() const;
 
-    static constexpr int DEFAULT_THUMBNAIL_WIDTH = 120;
+    static constexpr int DEFAULT_THUMBNAIL_WIDTH = 150;
     static constexpr int THUMBNAIL_SPACING = 12;
     static constexpr double A4_RATIO = 1.414;
 

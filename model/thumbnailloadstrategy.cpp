@@ -161,9 +161,9 @@ QVector<int> LargeDocStrategy::handleVisibleChange(const QSet<int>& visiblePages
 
 ThumbnailLoadStrategy* StrategyFactory::createStrategy(int pageCount, QObject* parent)
 {
-    if (pageCount < SMALL_DOC_THRESHOLD) {
+    if (pageCount <= SMALL_DOC_THRESHOLD) {
         return new SmallDocStrategy(pageCount, parent);
-    } else if (pageCount < MEDIUM_DOC_THRESHOLD) {
+    } else if (pageCount <= MEDIUM_DOC_THRESHOLD) {
         return new MediumDocStrategy(pageCount, parent);
     } else {
         return new LargeDocStrategy(pageCount, parent);

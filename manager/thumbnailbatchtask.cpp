@@ -6,12 +6,13 @@
 #include <QDebug>
 
 ThumbnailBatchTask::ThumbnailBatchTask(const QString& docPath,
-                       ThumbnailCache* cache,
-                       ThumbnailManagerV2* manager,
-                       const QVector<int>& pageIndices,
-                       RenderPriority priority,
-                       int thumbnailWidth,
-                       int rotation)
+                                       ThumbnailCache* cache,
+                                       ThumbnailManagerV2* manager,
+                                       const QVector<int>& pageIndices,
+                                       RenderPriority priority,
+                                       int thumbnailWidth,
+                                       int rotation,
+                                       double devicePixelRatio)
     : m_renderer(std::make_unique<ThreadSafeRenderer>(docPath))
     , m_cache(cache)
     , m_manager(manager)
@@ -19,6 +20,7 @@ ThumbnailBatchTask::ThumbnailBatchTask(const QString& docPath,
     , m_priority(priority)
     , m_thumbnailWidth(thumbnailWidth)
     , m_rotation(rotation)
+    , m_devicePixelRatio(devicePixelRatio)
     , m_aborted(0)
 {
     setAutoDelete(true);
@@ -68,7 +70,7 @@ void ThumbnailBatchTask::run()
             continue;
         }
 
-        // 计算缩放比例
+        // 计算缩放比例（使用高DPI渲染宽度）
         QSizeF pageSize = m_renderer->getPageSize(pageIndex);
         if (pageSize.isEmpty()) {
             qWarning() << "ThumbnailBatchTask: Invalid page size for page" << pageIndex;
@@ -84,6 +86,9 @@ void ThumbnailBatchTask::run()
             qWarning() << "ThumbnailBatchTask: Failed to render page" << pageIndex;
             continue;
         }
+
+        // 设置设备像素比
+        thumbnail.setDevicePixelRatio(m_devicePixelRatio);
 
         // 保存到缓存
         m_cache->set(pageIndex, thumbnail);
@@ -103,7 +108,8 @@ void ThumbnailBatchTask::run()
     if (rendered > 0) {
         qDebug() << "ThumbnailBatchTask: Rendered" << rendered
                  << "pages in" << elapsed << "ms"
-                 << "(" << (elapsed / rendered) << "ms/page)";
+                 << "(" << (elapsed / rendered) << "ms/page)"
+                 << "at" << m_thumbnailWidth << "px (DPR:" << m_devicePixelRatio << ")";
     }
 }
 
@@ -121,13 +127,13 @@ int ThumbnailBatchTask::getTimeBudget() const
 {
     switch (m_priority) {
     case RenderPriority::IMMEDIATE:
-        return 100;   // 100ms(低清渲染很快)
+        return 100;
     case RenderPriority::HIGH:
-        return 500;   // 500ms(高清可见区)
+        return 500;
     case RenderPriority::MEDIUM:
-        return 2000;  // 2s(高清预加载区)
+        return 2000;
     case RenderPriority::LOW:
-        return 5000;  // 5s(低清全文档)
+        return 5000;
     }
     return 1000;
 }
@@ -136,13 +142,13 @@ int ThumbnailBatchTask::getBatchLimit() const
 {
     switch (m_priority) {
     case RenderPriority::IMMEDIATE:
-        return 10;  // 立即渲染可见区(约 10 页)
+        return 10;
     case RenderPriority::HIGH:
-        return 10;  // 高优先级(可见区)
+        return 10;
     case RenderPriority::MEDIUM:
-        return 20;  // 中优先级(预加载区)
+        return 20;
     case RenderPriority::LOW:
-        return 50;  // 低优先级(大批量)
+        return 50;
     }
     return 10;
 }

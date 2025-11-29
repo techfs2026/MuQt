@@ -100,7 +100,25 @@ void ThumbnailWidget::initializeThumbnails(int pageCount)
 
     // 延迟发送初始可见信号
     QTimer::singleShot(100, this, [this]() {
+        // 强制布局立即计算
+        m_container->adjustSize();
+        m_layout->activate();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
         QSet<int> initialVisible = getVisibleIndices(0);
+
+        qDebug() << "ThumbnailWidget: Initial visible count =" << initialVisible.size();
+        if (initialVisible.isEmpty()) {
+            qWarning() << "ThumbnailWidget: No initial visible items found!";
+            // 打印前几个widget的geometry用于调试
+            for (int i = 0; i < qMin(5, m_thumbnailItems.size()); ++i) {
+                if (m_thumbnailItems.contains(i)) {
+                    qDebug() << "  Widget" << i << "geometry:"
+                             << m_thumbnailItems[i]->geometry();
+                }
+            }
+        }
+
         emit initialVisibleReady(initialVisible);
     });
 }
@@ -168,8 +186,6 @@ void ThumbnailWidget::onThumbnailLoaded(int pageIndex, const QImage& thumbnail)
         return;
     }
 
-    qDebug() << "ThumbnailWidget onThumbnailLoaded:" << pageIndex;
-
     ThumbnailItem* item = m_thumbnailItems[pageIndex];
     item->setThumbnail(thumbnail);
 }
@@ -180,12 +196,10 @@ void ThumbnailWidget::scrollContentsBy(int dx, int dy)
 
     m_scrollState = detectScrollState();
 
-    // 启动 throttle 计时器用于慢速滚动检测
     if (!m_throttleTimer->isActive()) {
         m_throttleTimer->start();
     }
 
-    // 重启 debounce 计时器（用于检测滚动停止）
     m_debounceTimer->start();
 }
 
@@ -219,22 +233,10 @@ void ThumbnailWidget::resizeEvent(QResizeEvent* event)
 
 void ThumbnailWidget::onScrollThrottle()
 {
-    // 慢速滚动检测：仅在 IDLE 或 SLOW_SCROLL 状态时通知
-    if (m_scrollState == ScrollState::IDLE ||
-        m_scrollState == ScrollState::SLOW_SCROLL) {
-
-        // 检查 manager 是否应该响应滚动
-        if (m_manager && m_manager->shouldRespondToScroll()) {
-            QSet<int> visiblePages = getVisibleIndices(0);  // 不带 margin
-
-            if (!visiblePages.isEmpty()) {
-                qDebug() << "ThumbnailWidget: Slow scroll detected, notifying"
-                         << visiblePages.size() << "visible pages";
-                emit slowScrollDetected(visiblePages);
-            }
-        }
+    // 只有在应该响应滚动时才通知
+    if (m_manager && m_manager->shouldRespondToScroll()) {
+        notifyVisibleRange();
     }
-    // 快速滚动和 FLING 状态不触发加载，保证流畅性
 }
 
 void ThumbnailWidget::onScrollDebounce()
@@ -244,7 +246,13 @@ void ThumbnailWidget::onScrollDebounce()
 
     qDebug() << "ThumbnailWidget: Scroll stopped";
 
-    // 检查是否应该响应滚动停止（避免批次加载期间触发）
+    // 检查当前Tab是否可见
+    if (!isVisible()) {
+        qDebug() << "ThumbnailWidget: Not visible, ignoring scroll stop";
+        return;
+    }
+
+    // 检查是否应该响应滚动停止(避免批次加载期间触发)
     if (m_manager && !m_manager->shouldRespondToScroll()) {
         qDebug() << "ThumbnailWidget: Ignoring scroll stop during batch loading";
         return;
@@ -253,13 +261,12 @@ void ThumbnailWidget::onScrollDebounce()
     // 检查可见区域是否有未加载的占位页
     QSet<int> unloadedVisible = getUnloadedVisiblePages();
 
-    qDebug() << "ThumbnailWidget: unloadedVisible count =" << unloadedVisible.size();
+    qDebug() << "onScrollDebounce:" << unloadedVisible;
 
     if (!unloadedVisible.isEmpty()) {
         qInfo() << "ThumbnailWidget: Found" << unloadedVisible.size()
         << "unloaded visible pages after scroll stop, triggering sync load";
 
-        // 发送同步加载请求
         emit syncLoadRequested(unloadedVisible);
     }
 }
@@ -269,66 +276,36 @@ void ThumbnailWidget::onThumbnailClicked(int pageIndex)
     emit pageJumpRequested(pageIndex);
 }
 
-// ========== 修复后的可见性判断方法 ==========
+// ========== 可见性判断方法 ==========
 
 QSet<int> ThumbnailWidget::getVisibleIndices(int margin) const
 {
-    if (!isVisible()) {
-        qDebug() << "ThumbnailWidget hidden, skipping getVisibleIndices";
-        return {};
-    }
-
     QSet<int> visible;
-
-    if (m_thumbnailItems.isEmpty()) {
-        qDebug() << "getVisibleIndices: m_thumbnailItems is empty";
+    if (m_thumbnailItems.isEmpty())
         return visible;
-    }
 
-    // 获取viewport的可见区域(滚动坐标系)
-    int scrollY = verticalScrollBar()->value();
-    QRect viewportRect = viewport()->rect();
+    // 以 viewport 为基准的可见区域，加一点上下 margin 作为预加载区域
+    QRect visibleRect = viewport()->rect();
+    qDebug() << "getVisibleIndices visibleRect 1:" << visibleRect;
+    visibleRect.adjust(0, -margin, 0, margin);
+    qDebug() << "getVisibleIndices visibleRect 2:" << visibleRect;
 
-    qDebug() << "getVisibleIndices: scrollY =" << scrollY
-             << ", viewportRect =" << viewportRect
-             << ", margin =" << margin;
-
-    viewportRect.translate(0, scrollY); // 转换到container坐标系
-
-    // 扩展margin
-    QRect extendedViewport = viewportRect.adjusted(0, -margin, 0, margin);
-
-    qDebug() << "getVisibleIndices: extendedViewport =" << extendedViewport;
-
-    // 遍历所有widget，使用实际位置判断可见性
-    int checkCount = 0;
     for (auto it = m_thumbnailItems.constBegin(); it != m_thumbnailItems.constEnd(); ++it) {
-        int pageIndex = it.key();
-        ThumbnailItem* widget = it.value();
-
-        if (!widget || !widget->isVisible()) {
+        int index = it.key();
+        ThumbnailItem* item = it.value();
+        if (!item)
             continue;
-        }
 
-        // 获取widget在container中的实际位置
-        QRect widgetRect = widget->geometry();
+        // 把 item 的矩形转换到 viewport 坐标系
+        QPoint topLeft = item->mapTo(viewport(), QPoint(0, 0));
+        QRect itemRect(topLeft, item->size());
 
-        checkCount++;
-        if (checkCount <= 5) { // 只打印前5个
-            qDebug() << "  Page" << pageIndex << "geometry =" << widgetRect;
-        }
-
-        // 判断是否与扩展的viewport相交
-        if (widgetRect.intersects(extendedViewport)) {
-            visible.insert(pageIndex);
+        if (itemRect.intersects(visibleRect)) {
+            visible.insert(index);
         }
     }
 
-    qDebug() << "getVisibleIndices: checked" << checkCount << "widgets, found" << visible.size() << "visible";
-    if (!visible.isEmpty() && visible.size() <= 20) {
-        qDebug() << "  Visible pages:" << visible;
-    }
-
+    qDebug() << "ThumbnailWidget::getVisibleIndices" << visible;
     return visible;
 }
 
@@ -336,39 +313,41 @@ QSet<int> ThumbnailWidget::getUnloadedVisiblePages() const
 {
     QSet<int> unloaded;
 
+    // 检查当前Tab是否可见
+    if (!isVisible()) {
+        return unloaded;
+    }
+
     if (m_thumbnailItems.isEmpty()) {
-        qDebug() << "getUnloadedVisiblePages: m_thumbnailItems is empty";
         return unloaded;
     }
 
     // 获取严格可见区域(不带margin)
     QSet<int> visible = getVisibleIndices(0);
 
-    qDebug() << "getUnloadedVisiblePages: visible count =" << visible.size();
-
     // 检查哪些页面还是占位符
     for (int pageIndex : visible) {
         if (m_thumbnailItems.contains(pageIndex)) {
             ThumbnailItem* item = m_thumbnailItems[pageIndex];
-            bool hasImage = item->hasImage();
-
-            qDebug() << "  Page" << pageIndex << "hasImage =" << hasImage;
-
-            if (!hasImage) {
+            qDebug() << "ThumbnailWidget: getUnloadedVisiblePages" << pageIndex << "hasImage=" << item->hasImage();
+            if (!item->hasImage()) {
                 unloaded.insert(pageIndex);
             }
         }
     }
 
-    qDebug() << "getUnloadedVisiblePages: unloaded count =" << unloaded.size();
-    if (!unloaded.isEmpty()) {
-        qDebug() << "  Unloaded pages:" << unloaded;
-    }
-
     return unloaded;
 }
 
-// ========== 其他方法保持不变 ==========
+void ThumbnailWidget::notifyVisibleRange()
+{
+    int margin = getPreloadMargin(m_scrollState);
+    QSet<int> visible = getVisibleIndices(margin);
+
+    emit visibleRangeChanged(visible, margin);
+}
+
+// ========== 辅助方法 ==========
 
 ScrollState ThumbnailWidget::detectScrollState()
 {
@@ -420,14 +399,6 @@ int ThumbnailWidget::getPreloadMargin(ScrollState state) const
         return 0;
     }
     return 800;
-}
-
-void ThumbnailWidget::notifyVisibleRange()
-{
-    int margin = getPreloadMargin(m_scrollState);
-    QSet<int> visible = getVisibleIndices(margin);
-
-    emit visibleRangeChanged(visible, margin);
 }
 
 // ================================================================

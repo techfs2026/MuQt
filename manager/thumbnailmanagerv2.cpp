@@ -3,16 +3,19 @@
 #include "mupdfrenderer.h"
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QGuiApplication>
+#include <QScreen>
 
 ThumbnailManagerV2::ThumbnailManagerV2(MuPDFRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_cache(std::make_unique<ThumbnailCache>())
     , m_threadPool(std::make_unique<QThreadPool>())
-    , m_thumbnailWidth(120)
+    , m_thumbnailWidth(180)  // 提高默认宽度：120 → 180
     , m_rotation(0)
     , m_currentBatchIndex(0)
     , m_isLoadingInProgress(false)
+    , m_devicePixelRatio(1.0)
 {
     int threadCount = qMin(4, QThreadPool::globalInstance()->maxThreadCount() / 2);
     m_threadPool->setMaxThreadCount(threadCount);
@@ -23,8 +26,14 @@ ThumbnailManagerV2::ThumbnailManagerV2(MuPDFRenderer* renderer, QObject* parent)
     m_batchTimer->setInterval(200);
     connect(m_batchTimer, &QTimer::timeout, this, &ThumbnailManagerV2::processNextBatch);
 
+    // 检测设备像素比
+    detectDevicePixelRatio();
+
     qInfo() << "ThumbnailManagerV2: Initialized with"
-            << m_threadPool->maxThreadCount() << "threads (simplified mode)";
+            << m_threadPool->maxThreadCount() << "threads"
+            << "| Display width:" << m_thumbnailWidth
+            << "| Device pixel ratio:" << m_devicePixelRatio
+            << "| Render width:" << getRenderWidth();
 }
 
 ThumbnailManagerV2::~ThumbnailManagerV2()
@@ -38,6 +47,8 @@ void ThumbnailManagerV2::setThumbnailWidth(int width)
 {
     if (width >= 80 && width <= 400) {
         m_thumbnailWidth = width;
+        qInfo() << "ThumbnailManagerV2: Thumbnail width set to" << width
+                << "| Render width:" << getRenderWidth();
     }
 }
 
@@ -50,7 +61,14 @@ void ThumbnailManagerV2::setRotation(int rotation)
 
 QImage ThumbnailManagerV2::getThumbnail(int pageIndex) const
 {
-    return m_cache->get(pageIndex);
+    QImage image = m_cache->get(pageIndex);
+
+    if (!image.isNull() && m_devicePixelRatio > 1.0) {
+        // 设置设备像素比，让 Qt 自动处理高 DPI 显示
+        image.setDevicePixelRatio(m_devicePixelRatio);
+    }
+
+    return image;
 }
 
 bool ThumbnailManagerV2::hasThumbnail(int pageIndex) const
@@ -88,17 +106,18 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
         break;
     }
 
-    qInfo() << "ThumbnailManagerV2: Starting load with strategy:" << strategyName;
+    qInfo() << "ThumbnailManagerV2: Starting load with strategy:" << strategyName
+            << "| Render width:" << getRenderWidth() << "px";
     emit loadingStarted(pageCount, strategyName);
 
     QVector<int> initialPages = m_strategy->getInitialLoadPages(initialVisible);
 
     if (initialPages.isEmpty()) {
+        qDebug() << "startLoading Medium:" << initialVisible << initialPages;
         return;
     }
 
     if (m_strategy->type() == LoadStrategyType::SMALL_DOC) {
-        // 小文档：同步全量加载
         m_isLoadingInProgress = true;
         emit loadingStatusChanged(tr("Loading all thumbnails..."));
         renderPagesSync(initialPages);
@@ -107,7 +126,6 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
         emit allCompleted();
 
     } else if (m_strategy->type() == LoadStrategyType::MEDIUM_DOC) {
-        // 中文档：可见区同步 + 后台批次异步
         m_isLoadingInProgress = true;
         emit loadingStatusChanged(tr("加载可见区..."));
         renderPagesSync(initialPages);
@@ -115,8 +133,7 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
         setupBackgroundBatches();
 
     } else {
-        // 大文档：仅同步加载初始可见区，其余按需加载
-        m_isLoadingInProgress = false;  // 不标记为加载中
+        m_isLoadingInProgress = false;
         emit loadingStatusChanged(tr("Loading visible thumbnails..."));
         renderPagesSync(initialPages);
         emit loadingStatusChanged(tr("Scroll to load more"));
@@ -129,13 +146,11 @@ void ThumbnailManagerV2::syncLoadPages(const QVector<int>& pages)
         return;
     }
 
-    // 中文档批次加载期间，忽略同步加载请求
     if (m_isLoadingInProgress) {
         qDebug() << "ThumbnailManagerV2: Ignoring sync load during batch loading";
         return;
     }
 
-    // 过滤已缓存的页面
     QVector<int> toLoad;
     for (int pageIndex : pages) {
         if (!m_cache->has(pageIndex)) {
@@ -151,7 +166,6 @@ void ThumbnailManagerV2::syncLoadPages(const QVector<int>& pages)
             << "pages (strategy:"
             << (m_strategy ? static_cast<int>(m_strategy->type()) : -1) << ")";
 
-    // 同步渲染
     renderPagesSync(toLoad);
 }
 
@@ -161,7 +175,6 @@ void ThumbnailManagerV2::handleSlowScroll(const QSet<int>& visiblePages)
         return;
     }
 
-    // 仅大文档且未在批次加载中时响应慢速滚动
     if (!m_strategy || m_strategy->type() != LoadStrategyType::LARGE_DOC) {
         return;
     }
@@ -170,7 +183,6 @@ void ThumbnailManagerV2::handleSlowScroll(const QSet<int>& visiblePages)
         return;
     }
 
-    // 过滤未缓存的页面
     QVector<int> toLoad;
     for (int pageIndex : visiblePages) {
         if (!m_cache->has(pageIndex)) {
@@ -185,7 +197,6 @@ void ThumbnailManagerV2::handleSlowScroll(const QSet<int>& visiblePages)
     qDebug() << "ThumbnailManagerV2: Slow scroll detected, loading"
              << toLoad.size() << "visible pages";
 
-    // 同步加载可见区域
     renderPagesSync(toLoad);
 }
 
@@ -225,17 +236,44 @@ void ThumbnailManagerV2::clear()
 
 QString ThumbnailManagerV2::getStatistics() const
 {
-    return m_cache ? m_cache->getStatistics() : QString();
+    QString stats = m_cache ? m_cache->getStatistics() : QString();
+    stats += QString("\nDevice Pixel Ratio: %1x").arg(m_devicePixelRatio);
+    stats += QString("\nDisplay Width: %1px").arg(m_thumbnailWidth);
+    stats += QString("\nRender Width: %1px").arg(getRenderWidth());
+    return stats;
 }
 
 bool ThumbnailManagerV2::shouldRespondToScroll() const
 {
-    // 大文档在批次加载期间不响应滚动
-    // 注意：大文档的m_isLoadingInProgress始终为false，所以会响应
     return !m_isLoadingInProgress;
 }
 
 // ========== 私有方法 ==========
+
+void ThumbnailManagerV2::detectDevicePixelRatio()
+{
+    // 获取主屏幕的设备像素比
+    QScreen* screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        m_devicePixelRatio = screen->devicePixelRatio();
+
+        // 限制最大倍数，避免过大的图片
+        if (m_devicePixelRatio > 3.0) {
+            qInfo() << "ThumbnailManagerV2: Device pixel ratio" << m_devicePixelRatio
+                    << "is very high, capping at 3.0";
+            m_devicePixelRatio = 3.0;
+        }
+    } else {
+        qWarning() << "ThumbnailManagerV2: Could not detect screen, using 1.0";
+        m_devicePixelRatio = 1.0;
+    }
+}
+
+int ThumbnailManagerV2::getRenderWidth() const
+{
+    // 按设备像素比渲染高分辨率图片
+    return static_cast<int>(m_thumbnailWidth * m_devicePixelRatio);
+}
 
 void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)
 {
@@ -248,6 +286,7 @@ void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)
 
     int rendered = 0;
     int total = pages.size();
+    int renderWidth = getRenderWidth();  // 使用高DPI渲染宽度
 
     for (int pageIndex : pages) {
         if (m_cache->has(pageIndex)) {
@@ -259,16 +298,21 @@ void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)
             continue;
         }
 
-        double zoom = m_thumbnailWidth / pageSize.width();
+        // 按高DPI宽度计算缩放比例
+        double zoom = renderWidth / pageSize.width();
+
         MuPDFRenderer::RenderResult result = m_renderer->renderPage(
             pageIndex, zoom, m_rotation);
 
         if (result.success && !result.image.isNull()) {
-            m_cache->set(pageIndex, result.image);
-            emit thumbnailLoaded(pageIndex, result.image);
+            // 设置图片的设备像素比
+            QImage image = result.image;
+            image.setDevicePixelRatio(m_devicePixelRatio);
+
+            m_cache->set(pageIndex, image);
+            emit thumbnailLoaded(pageIndex, image);
             rendered++;
 
-            // 每渲染10页报告一次进度
             if (rendered % 10 == 0 || rendered == total) {
                 emit loadProgress(rendered, total);
             }
@@ -278,7 +322,8 @@ void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)
     qint64 elapsed = timer.elapsed();
     qInfo() << "ThumbnailManagerV2: Sync rendered" << rendered
             << "pages in" << elapsed << "ms"
-            << "(" << (rendered > 0 ? elapsed / rendered : 0) << "ms/page)";
+            << "(" << (rendered > 0 ? elapsed / rendered : 0) << "ms/page)"
+            << "at" << renderWidth << "px width";
 }
 
 void ThumbnailManagerV2::renderPagesAsync(const QVector<int>& pages, RenderPriority priority)
@@ -287,7 +332,6 @@ void ThumbnailManagerV2::renderPagesAsync(const QVector<int>& pages, RenderPrior
         return;
     }
 
-    // 过滤已缓存的页面
     QVector<int> toRender;
     for (int pageIndex : pages) {
         if (!m_cache->has(pageIndex)) {
@@ -308,8 +352,9 @@ void ThumbnailManagerV2::renderPagesAsync(const QVector<int>& pages, RenderPrior
         this,
         toRender,
         priority,
-        m_thumbnailWidth,
-        m_rotation
+        getRenderWidth(),  // 使用高DPI渲染宽度
+        m_rotation,
+        m_devicePixelRatio  // 传递设备像素比
         );
 
     trackTask(task);
@@ -329,7 +374,6 @@ void ThumbnailManagerV2::setupBackgroundBatches()
         qInfo() << "ThumbnailManagerV2: Setup" << m_backgroundBatches.size()
         << "background batches for medium document";
 
-        // 延迟启动第一批
         QTimer::singleShot(500, this, &ThumbnailManagerV2::processNextBatch);
     }
 }
@@ -339,7 +383,7 @@ void ThumbnailManagerV2::processNextBatch()
     if (m_currentBatchIndex >= m_backgroundBatches.size()) {
         qInfo() << "ThumbnailManagerV2: All background batches completed";
 
-        m_isLoadingInProgress = false;  // 标记批次加载完成
+        m_isLoadingInProgress = false;
 
         emit loadingStatusChanged(tr("All thumbnails loaded"));
         emit allCompleted();
@@ -354,7 +398,6 @@ void ThumbnailManagerV2::processNextBatch()
 
     emit loadingStatusChanged(tr("加载中..."));
 
-    // 中文档后台批次使用异步渲染
     renderPagesAsync(batch, RenderPriority::LOW);
 
     emit batchCompleted(m_currentBatchIndex + 1, m_backgroundBatches.size());
@@ -364,7 +407,7 @@ void ThumbnailManagerV2::processNextBatch()
     if (m_currentBatchIndex < m_backgroundBatches.size()) {
         m_batchTimer->start();
     } else {
-        m_isLoadingInProgress = false;  // 标记批次加载完成
+        m_isLoadingInProgress = false;
         emit allCompleted();
     }
 }

@@ -9,9 +9,9 @@
  * @brief 缩略图加载策略类型
  */
 enum class LoadStrategyType {
-    SMALL_DOC,      // <100页：同步全量加载
-    MEDIUM_DOC,     // 100-500页：同步可见区+异步分批
-    LARGE_DOC       // >500页：按需分页加载
+    SMALL_DOC,
+    MEDIUM_DOC,
+    LARGE_DOC
 };
 
 /**
