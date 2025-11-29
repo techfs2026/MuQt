@@ -14,6 +14,67 @@
 #include <QToolButton>
 #include <QTimer>
 #include <QDebug>
+#include <QFile>
+
+class NoRotateTabBar : public QTabBar
+{
+public:
+    NoRotateTabBar(QWidget* parent = nullptr) : QTabBar(parent) {}
+
+    QSize tabSizeHint(int index) const override
+    {
+        Q_UNUSED(index);
+        return QSize(36, 50);  // 宽度36，高度50（可调整）
+    }
+
+protected:
+    void paintEvent(QPaintEvent* event) override
+    {
+        Q_UNUSED(event);
+
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+
+        for (int i = 0; i < count(); i++) {
+            QStyleOptionTab opt;
+            initStyleOption(&opt, i);
+
+            QRect rect = tabRect(i);
+
+            // 绘制背景
+            if (opt.state & QStyle::State_Selected) {
+                painter.fillRect(rect, QColor(255, 255, 255));
+                // 左侧指示线
+                painter.fillRect(rect.left(), rect.top(), 2, rect.height(), QColor(44, 44, 46));
+            } else if (opt.state & QStyle::State_MouseOver) {
+                painter.fillRect(rect, QColor(245, 245, 243));
+            }
+
+            // 绘制文字（不旋转）
+            painter.save();
+            painter.setPen(opt.state & QStyle::State_Selected ? QColor(28, 28, 30) : QColor(107, 107, 105));
+
+            QFont font = painter.font();
+            font.setPixelSize(10);
+            font.setWeight(opt.state & QStyle::State_Selected ? QFont::DemiBold : QFont::Normal);
+            painter.setFont(font);
+
+            // 直接绘制文字，使用换行符会自动换行
+            painter.drawText(rect, Qt::AlignCenter, tabText(i));
+            painter.restore();
+        }
+    }
+};
+
+class CustomTabWidget : public QTabWidget
+{
+public:
+    CustomTabWidget(QWidget* parent = nullptr) : QTabWidget(parent)
+    {
+        // 在构造函数中设置自定义 TabBar
+        setTabBar(new NoRotateTabBar(this));
+    }
+};
 
 NavigationPanel::NavigationPanel(PDFDocumentSession* session, QWidget* parent)
     : QWidget(parent)
@@ -33,6 +94,8 @@ NavigationPanel::NavigationPanel(PDFDocumentSession* session, QWidget* parent)
 
     setupUI();
     setupConnections();
+
+    applyModernStyle();
 }
 
 NavigationPanel::~NavigationPanel()
@@ -122,7 +185,7 @@ void NavigationPanel::setupUI()
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    m_tabWidget = new QTabWidget(this);
+    m_tabWidget = new CustomTabWidget(this);
     m_tabWidget->setObjectName("navigationTabWidget");
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setMinimumWidth(180);
@@ -173,8 +236,6 @@ void NavigationPanel::setupUI()
 
     outlineTab->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    m_tabWidget->addTab(outlineTab, tr("目录"));
-
     // ========== 缩略图标签页 ==========
     QWidget* thumbnailTab = new QWidget(this);
     QVBoxLayout* thumbnailLayout = new QVBoxLayout(thumbnailTab);
@@ -215,97 +276,16 @@ void NavigationPanel::setupUI()
 
     thumbnailTab->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    m_tabWidget->addTab(thumbnailTab, tr("缩略图"));
+    m_tabWidget->addTab(outlineTab, tr("目\n录"));
+    m_tabWidget->addTab(thumbnailTab, tr("缩\n略\n图"));
+
+    m_tabWidget->setTabPosition(QTabWidget::West);
+    m_tabWidget->setUsesScrollButtons(false);
 
     mainLayout->addWidget(m_tabWidget, 1);
 
     connect(m_tabWidget, &QTabWidget::currentChanged,
             this, &NavigationPanel::onTabChanged);
-
-    // 应用样式
-    QString style = R"(
-        #navigationTabWidget {
-            background-color: #FFFFFF;
-            border: none;
-        }
-
-        #navigationTabWidget::pane {
-            border: none;
-            background-color: #FFFFFF;
-        }
-
-        #navigationTabWidget QTabBar {
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #E8E8E8;
-        }
-
-        #navigationTabWidget QTabBar::tab {
-            background-color: transparent;
-            color: #6B6B6B;
-            padding: 10px 20px;
-            border: none;
-            border-bottom: 2px solid transparent;
-            font-size: 13px;
-            font-weight: 500;
-            min-width: 60px;
-        }
-
-        #navigationTabWidget QTabBar::tab:selected {
-            color: #007AFF;
-            border-bottom: 2px solid #007AFF;
-        }
-
-        #navigationTabWidget QTabBar::tab:hover:!selected {
-            color: #000000;
-        }
-
-        #outlineToolbar {
-            background-color: #FAFAFA;
-            border-bottom: 1px solid #E8E8E8;
-        }
-
-        #outlineToolButton {
-            background-color: transparent;
-            border: 1px solid #D1D1D6;
-            border-radius: 6px;
-            color: #3A3A3C;
-            font-size: 14px;
-            padding: 0px;
-        }
-
-        #outlineToolButton:hover {
-            background-color: #E8E8E8;
-            border-color: #007AFF;
-            color: #007AFF;
-        }
-
-        #outlineToolButton:pressed {
-            background-color: #D1D1D6;
-        }
-
-        #thumbnailStatusBar {
-            background-color: #FAFAFA;
-            border-top: 1px solid #E8E8E8;
-        }
-
-        #thumbnailStatusLabel {
-            color: #6B6B6B;
-        }
-
-        #thumbnailProgressBar {
-            border: 1px solid #D1D1D6;
-            border-radius: 4px;
-            text-align: center;
-            background-color: #FFFFFF;
-        }
-
-        #thumbnailProgressBar::chunk {
-            background-color: #007AFF;
-            border-radius: 3px;
-        }
-    )";
-
-    setStyleSheet(style);
 
     setMinimumWidth(180);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -494,5 +474,15 @@ void NavigationPanel::resizeEvent(QResizeEvent* event)
     if (m_outlineWidget) {
         m_outlineWidget->updateGeometry();
         m_outlineWidget->viewport()->update();
+    }
+}
+
+void NavigationPanel::applyModernStyle()
+{
+    QFile styleFile(":/styles/resources/styles/navigation.qss");
+    if (styleFile.open(QFile::ReadOnly)) {
+        QString style = QLatin1String(styleFile.readAll());
+        setStyleSheet(style);
+        styleFile.close();
     }
 }

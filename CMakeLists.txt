@@ -23,6 +23,10 @@ set(CMAKE_AUTOUIC OFF)
 # -----------------------------
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Concurrent)
 
+if(WIN32)
+    set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
+endif()
+
 # -----------------------------
 # Third-party: MuPDF
 # -----------------------------
@@ -55,6 +59,8 @@ qt_standard_project_setup()
 qt_add_executable(MuQt
     WIN32 MACOSX_BUNDLE
     ${PROJECT_SOURCES}
+
+    ${APP_ICON_RESOURCE_WINDOWS}
 )
 
 # -----------------------------

@@ -10,6 +10,7 @@
 #include <QMimeData>
 #include <QDebug>
 #include <QTimer>
+#include <QFile>
 #include <QPainter>
 #include <QElapsedTimer>
 #include <QStyledItemDelegate>
@@ -77,89 +78,12 @@ void OutlineWidget::setupUI()
 
 void OutlineWidget::applyStyleSheet()
 {
-    QString lightStyle = R"(
-        QTreeWidget {
-            background-color: #FFFFFF;
-            color: #1C1C1E;
-            border: none;
-            outline: none;
-            font-size: 10px;
-            padding: 4px 0px;
-        }
-
-        QTreeWidget::item {
-            padding: 4px 0px;
-            border-radius: 6px;
-            margin: 1px 4px;
-            min-height: 26px;
-            border: none;
-        }
-
-        QTreeWidget::branch {
-            background-color: transparent;
-        }
-
-        /* 隐藏默认的展开/折叠图标 */
-        QTreeWidget::branch:has-children:!has-siblings:closed,
-        QTreeWidget::branch:closed:has-children:has-siblings,
-        QTreeWidget::branch:open:has-children:!has-siblings,
-        QTreeWidget::branch:open:has-children:has-siblings {
-            border-image: none;
-            image: none;
-            background: transparent;
-        }
-
-        /* 滚动条样式 */
-        QScrollBar:vertical {
-            background: transparent;
-            width: 8px;
-            margin: 0px;
-        }
-
-        QScrollBar::handle:vertical {
-            background: #C7C7CC;
-            border-radius: 4px;
-            min-height: 30px;
-        }
-
-        QScrollBar::handle:vertical:hover {
-            background: #8E8E93;
-        }
-
-        QScrollBar::add-line:vertical,
-        QScrollBar::sub-line:vertical,
-        QScrollBar::add-page:vertical,
-        QScrollBar::sub-page:vertical {
-            height: 0px;
-            background: transparent;
-        }
-
-        QScrollBar:horizontal {
-            background: transparent;
-            height: 8px;
-            margin: 0px;
-        }
-
-        QScrollBar::handle:horizontal {
-            background: #C7C7CC;
-            border-radius: 4px;
-            min-width: 30px;
-        }
-
-        QScrollBar::handle:horizontal:hover {
-            background: #8E8E93;
-        }
-
-        QScrollBar::add-line:horizontal,
-        QScrollBar::sub-line:horizontal,
-        QScrollBar::add-page:horizontal,
-        QScrollBar::sub-page:horizontal {
-            width: 0px;
-            background: transparent;
-        }
-    )";
-
-    setStyleSheet(lightStyle);
+    QFile styleFile(":/styles/resources/styles/outline.qss");
+    if (styleFile.open(QFile::ReadOnly)) {
+        QString style = QLatin1String(styleFile.readAll());
+        setStyleSheet(style);
+        styleFile.close();
+    }
 }
 
 void OutlineWidget::mousePressEvent(QMouseEvent* event)
