@@ -69,6 +69,7 @@ private:
     ScrollState detectScrollState();
     int getPreloadMargin(ScrollState state) const;
     void notifyVisibleRange();
+    bool isLargeLoadMode();
 
 private:
     QWidget* m_container;

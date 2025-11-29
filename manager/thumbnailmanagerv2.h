@@ -82,6 +82,8 @@ public:
      */
     bool shouldRespondToScroll() const;
 
+    ThumbnailLoadStrategy* thumbnailLoadStrategy() const {return m_strategy.get();}
+
 signals:
     void thumbnailLoaded(int pageIndex, const QImage& thumbnail);
     void loadProgress(int loaded, int total);

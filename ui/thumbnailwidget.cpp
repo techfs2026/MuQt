@@ -62,6 +62,10 @@ void ThumbnailWidget::setThumbnailManager(ThumbnailManagerV2* manager)
     m_manager = manager;
 }
 
+bool ThumbnailWidget::isLargeLoadMode() {
+    return m_manager->thumbnailLoadStrategy()->type() == LoadStrategyType::LARGE_DOC;
+}
+
 void ThumbnailWidget::initializeThumbnails(int pageCount)
 {
     clear();
@@ -194,6 +198,11 @@ void ThumbnailWidget::scrollContentsBy(int dx, int dy)
 {
     QScrollArea::scrollContentsBy(dx, dy);
 
+    if(!isLargeLoadMode()) {
+        m_scrollHistory.clear();
+        return;
+    }
+
     m_scrollState = detectScrollState();
 
     if (!m_throttleTimer->isActive()) {
@@ -227,12 +236,18 @@ void ThumbnailWidget::resizeEvent(QResizeEvent* event)
             }
         }
 
-        m_throttleTimer->start();
+        if(isLargeLoadMode()) {
+            m_throttleTimer->start();
+        }
     }
 }
 
 void ThumbnailWidget::onScrollThrottle()
 {
+    if(!isLargeLoadMode()) {
+        return;
+    }
+
     // 只有在应该响应滚动时才通知
     if (m_manager && m_manager->shouldRespondToScroll()) {
         notifyVisibleRange();
@@ -241,6 +256,10 @@ void ThumbnailWidget::onScrollThrottle()
 
 void ThumbnailWidget::onScrollDebounce()
 {
+    if(!isLargeLoadMode()) {
+        return;
+    }
+
     m_scrollState = ScrollState::IDLE;
     m_scrollHistory.clear();
 
