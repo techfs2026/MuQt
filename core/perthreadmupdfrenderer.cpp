@@ -1,35 +1,26 @@
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include <QDebug>
 #include <QThread>
 #include <cstring>
 
-// ========================================
-// ThreadSafeRenderer 实现
-// 每次 load 时创建 context 和 document
-// 每次 close 时销毁它们
-// ========================================
 
-ThreadSafeRenderer::ThreadSafeRenderer()
+PerThreadMuPDFRenderer::PerThreadMuPDFRenderer()
     : m_context(nullptr)
     , m_document(nullptr)
     , m_pageCount(0)
 {
-    qInfo() << "ThreadSafeRenderer: Created (context will be created on load)"
-            << "Thread:" << QThread::currentThreadId();
 }
 
-ThreadSafeRenderer::ThreadSafeRenderer(const QString& documentPath)
+PerThreadMuPDFRenderer::PerThreadMuPDFRenderer(const QString& documentPath)
     : m_documentPath(documentPath)
     , m_context(nullptr)
     , m_document(nullptr)
     , m_pageCount(0)
 {
-    qDebug() << "ThreadSafeRenderer: Creating for" << documentPath
-             << "Thread:" << QThread::currentThreadId();
 
     // 初始化 context
     if (!createContext()) {
-        qCritical() << "ThreadSafeRenderer: Failed to initialize context";
+        qCritical() << "PerThreadMuPDFRenderer: Failed to initialize context";
         return;
     }
 
@@ -46,7 +37,7 @@ ThreadSafeRenderer::ThreadSafeRenderer(const QString& documentPath)
             m_pageSizeCache[i] = QSizeF();
         }
 
-        qInfo() << "ThreadSafeRenderer: Successfully initialized with"
+        qInfo() << "PerThreadMuPDFRenderer: Successfully initialized with"
                 << m_pageCount << "pages"
                 << "Thread:" << QThread::currentThreadId();
     }
@@ -54,7 +45,7 @@ ThreadSafeRenderer::ThreadSafeRenderer(const QString& documentPath)
         QString err = QString("Failed to open document: %1")
         .arg(fz_caught_message(m_context));
         setLastError(err);
-        qCritical() << "ThreadSafeRenderer:" << err;
+        qCritical() << "PerThreadMuPDFRenderer:" << err;
 
         m_document = nullptr;
         m_pageCount = 0;
@@ -62,13 +53,8 @@ ThreadSafeRenderer::ThreadSafeRenderer(const QString& documentPath)
     }
 }
 
-ThreadSafeRenderer::~ThreadSafeRenderer()
+PerThreadMuPDFRenderer::~PerThreadMuPDFRenderer()
 {
-    QMutexLocker locker(&m_mutex);
-
-    qInfo() << "ThreadSafeRenderer: Starting destruction"
-            << "Thread:" << QThread::currentThreadId();
-
     // 确保文档已关闭
     if (isDocumentLoaded()) {
         // 关闭文档
@@ -88,25 +74,25 @@ ThreadSafeRenderer::~ThreadSafeRenderer()
         m_context = nullptr;
     }
 
-    qInfo() << "ThreadSafeRenderer: Destroyed"
+    qInfo() << "PerThreadMuPDFRenderer: Destroyed"
             << "Thread:" << QThread::currentThreadId();
 }
 
-bool ThreadSafeRenderer::createContext()
+bool PerThreadMuPDFRenderer::createContext()
 {
     if (m_context) {
-        qWarning() << "ThreadSafeRenderer: Context already exists";
+        qWarning() << "PerThreadMuPDFRenderer: Context already exists";
         return true;
     }
 
-    qDebug() << "ThreadSafeRenderer: Creating new context";
+    qDebug() << "PerThreadMuPDFRenderer: Creating new context";
 
     // 创建新的 context (不使用锁，因为每个实例独立)
     m_context = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
 
     if (!m_context) {
         setLastError("Failed to create MuPDF context");
-        qCritical() << "ThreadSafeRenderer: Failed to create context";
+        qCritical() << "PerThreadMuPDFRenderer: Failed to create context";
         return false;
     }
 
@@ -118,7 +104,7 @@ bool ThreadSafeRenderer::createContext()
         QString err = QString("Failed to register document handlers: %1")
         .arg(fz_caught_message(m_context));
         setLastError(err);
-        qCritical() << "ThreadSafeRenderer:" << err;
+        qCritical() << "PerThreadMuPDFRenderer:" << err;
 
         // 创建失败，清理 context
         fz_drop_context(m_context);
@@ -126,34 +112,30 @@ bool ThreadSafeRenderer::createContext()
         return false;
     }
 
-    qDebug() << "ThreadSafeRenderer: Context created successfully";
+    qDebug() << "PerThreadMuPDFRenderer: Context created successfully";
     return true;
 }
 
-void ThreadSafeRenderer::destroyContext()
+void PerThreadMuPDFRenderer::destroyContext()
 {
     if (!m_context) {
         return;
     }
 
-    qDebug() << "ThreadSafeRenderer: Destroying context";
+    qDebug() << "PerThreadMuPDFRenderer: Destroying context";
 
     // 销毁 context
     fz_drop_context(m_context);
     m_context = nullptr;
 
-    qDebug() << "ThreadSafeRenderer: Context destroyed";
+    qDebug() << "PerThreadMuPDFRenderer: Context destroyed";
 }
 
-bool ThreadSafeRenderer::loadDocument(const QString& filePath, QString* errorMsg)
+bool PerThreadMuPDFRenderer::loadDocument(const QString& filePath, QString* errorMsg)
 {
-    QMutexLocker locker(&m_mutex);
-
-    qInfo() << "ThreadSafeRenderer: Loading document:" << filePath;
-
     // 1. 先关闭已有文档
     if (isDocumentLoaded()) {
-        qDebug() << "ThreadSafeRenderer: Closing existing document";
+        qDebug() << "PerThreadMuPDFRenderer: Closing existing document";
 
         // 关闭文档
         if (m_document && m_context) {
@@ -193,7 +175,7 @@ bool ThreadSafeRenderer::loadDocument(const QString& filePath, QString* errorMsg
 
         m_documentPath = filePath;
 
-        qInfo() << "ThreadSafeRenderer: Document loaded successfully -"
+        qInfo() << "PerThreadMuPDFRenderer: Document loaded successfully -"
                 << m_pageCount << "pages";
     }
     fz_catch(m_context) {
@@ -202,7 +184,7 @@ bool ThreadSafeRenderer::loadDocument(const QString& filePath, QString* errorMsg
         setLastError(err);
         if (errorMsg) *errorMsg = err;
 
-        qCritical() << "ThreadSafeRenderer:" << err;
+        qCritical() << "PerThreadMuPDFRenderer:" << err;
 
         // 打开失败，清理资源
         m_document = nullptr;
@@ -219,19 +201,17 @@ bool ThreadSafeRenderer::loadDocument(const QString& filePath, QString* errorMsg
     return true;
 }
 
-void ThreadSafeRenderer::closeDocument()
+void PerThreadMuPDFRenderer::closeDocument()
 {
-    QMutexLocker locker(&m_mutex);
-
     if (!m_document && !m_context) {
         return;
     }
 
-    qInfo() << "ThreadSafeRenderer: Closing document";
+    qInfo() << "PerThreadMuPDFRenderer: Closing document";
 
     // 1. 关闭文档
     if (m_document && m_context) {
-        qDebug() << "ThreadSafeRenderer: Dropping document";
+        qDebug() << "PerThreadMuPDFRenderer: Dropping document";
         fz_drop_document(m_context, m_document);
         m_document = nullptr;
     }
@@ -244,28 +224,26 @@ void ThreadSafeRenderer::closeDocument()
     // 3. 销毁 context
     destroyContext();
 
-    qInfo() << "ThreadSafeRenderer: Document closed";
+    qInfo() << "PerThreadMuPDFRenderer: Document closed";
 }
 
-QString ThreadSafeRenderer::documentPath() const
+QString PerThreadMuPDFRenderer::documentPath() const
 {
-    QMutexLocker locker(&m_mutex);
     return m_documentPath;
 }
 
-bool ThreadSafeRenderer::isDocumentLoaded() const
+bool PerThreadMuPDFRenderer::isDocumentLoaded() const
 {
     return m_document != nullptr && m_context != nullptr;
 }
 
-int ThreadSafeRenderer::pageCount() const
+int PerThreadMuPDFRenderer::pageCount() const
 {
     return m_pageCount;
 }
 
-QSizeF ThreadSafeRenderer::pageSize(int pageIndex) const
+QSizeF PerThreadMuPDFRenderer::pageSize(int pageIndex) const
 {
-    QMutexLocker locker(&m_mutex);
 
     if (!isDocumentLoaded() || pageIndex < 0 || pageIndex >= m_pageCount) {
         return QSizeF();
@@ -293,34 +271,10 @@ QSizeF ThreadSafeRenderer::pageSize(int pageIndex) const
         .arg(pageIndex)
             .arg(fz_caught_message(m_context));
         setLastError(err);
-        qWarning() << "ThreadSafeRenderer:" << err;
+        qWarning() << "PerThreadMuPDFRenderer:" << err;
     }
 
     return size;
-}
-
-QVector<QSizeF> ThreadSafeRenderer::pageSizes(int startPage, int endPage) const
-{
-    QMutexLocker locker(&m_mutex);
-
-    QVector<QSizeF> sizes;
-
-    if (!isDocumentLoaded()) {
-        return sizes;
-    }
-
-    int st = qMax(0, startPage);
-    int en = (endPage < 0) ? m_pageCount : qMin(m_pageCount, endPage);
-
-    sizes.reserve(en - st);
-    for (int i = st; i < en; ++i) {
-        // 临时解锁以调用 pageSize
-        m_mutex.unlock();
-        sizes.append(pageSize(i));
-        m_mutex.lock();
-    }
-
-    return sizes;
 }
 
 static fz_matrix calculateMatrixForMuPDF(double zoom, int rotation)
@@ -353,10 +307,8 @@ static QImage pixmapToQImage(fz_context* ctx, fz_pixmap* pixmap)
     return image;
 }
 
-RenderResult ThreadSafeRenderer::renderPage(int pageIndex, double zoom, int rotation)
+RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int rotation)
 {
-    QMutexLocker locker(&m_mutex);
-
     RenderResult result;
 
     if (!isDocumentLoaded()) {
@@ -410,16 +362,14 @@ RenderResult ThreadSafeRenderer::renderPage(int pageIndex, double zoom, int rota
             .arg(fz_caught_message(m_context));
         setLastError(err);
         result.errorMessage = err;
-        qWarning() << "ThreadSafeRenderer:" << err;
+        qWarning() << "PerThreadMuPDFRenderer:" << err;
     }
 
     return result;
 }
 
-bool ThreadSafeRenderer::extractText(int pageIndex, PageTextData& outData, QString* errorMsg)
+bool PerThreadMuPDFRenderer::extractText(int pageIndex, PageTextData& outData, QString* errorMsg)
 {
-    QMutexLocker locker(&m_mutex);
-
     if (!isDocumentLoaded()) {
         if (errorMsg) *errorMsg = "Document not loaded";
         return false;
@@ -519,10 +469,8 @@ bool ThreadSafeRenderer::extractText(int pageIndex, PageTextData& outData, QStri
     return true;
 }
 
-bool ThreadSafeRenderer::isTextPDF(int samplePages)
+bool PerThreadMuPDFRenderer::isTextPDF(int samplePages)
 {
-    QMutexLocker locker(&m_mutex);
-
     if (!isDocumentLoaded() || m_pageCount == 0) {
         return false;
     }
@@ -578,13 +526,12 @@ bool ThreadSafeRenderer::isTextPDF(int samplePages)
     return ratio >= 0.3;
 }
 
-QString ThreadSafeRenderer::getLastError() const
+QString PerThreadMuPDFRenderer::getLastError() const
 {
-    QMutexLocker locker(&m_mutex);
     return m_lastError;
 }
 
-void ThreadSafeRenderer::setLastError(const QString& error) const
+void PerThreadMuPDFRenderer::setLastError(const QString& error) const
 {
     m_lastError = error;
 }

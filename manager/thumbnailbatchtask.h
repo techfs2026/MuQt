@@ -7,7 +7,7 @@
 #include <QImage>
 #include <QPointer>
 
-class ThreadSafeRenderer;
+class PerThreadMuPDFRenderer;
 class ThumbnailCache;
 class ThumbnailManagerV2;
 
@@ -46,7 +46,7 @@ private:
     int getTimeBudget() const;
     int getBatchLimit() const;
 
-    std::unique_ptr<ThreadSafeRenderer> m_renderer;
+    std::unique_ptr<PerThreadMuPDFRenderer> m_renderer;
     ThumbnailCache* m_cache;
     ThumbnailManagerV2* m_manager;
     QVector<int> m_pageIndices;

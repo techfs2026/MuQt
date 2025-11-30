@@ -14,7 +14,7 @@
 #include "pdfdocumentstate.h"
 
 // Forward declarations
-class ThreadSafeRenderer;
+class PerThreadMuPDFRenderer;
 class PageCacheManager;
 class PDFViewHandler;
 class PDFContentHandler;
@@ -45,7 +45,7 @@ public:
 
     // ==================== 核心组件访问 ====================
 
-    ThreadSafeRenderer* renderer() const { return m_renderer.get(); }
+    PerThreadMuPDFRenderer* renderer() const { return m_renderer.get(); }
     PageCacheManager* pageCache() const { return m_pageCache.get(); }
     TextCacheManager* textCache() const { return m_textCache.get(); }
 
@@ -477,7 +477,7 @@ private:
 
 private:
     // 核心组件
-    std::unique_ptr<ThreadSafeRenderer> m_renderer;
+    std::unique_ptr<PerThreadMuPDFRenderer> m_renderer;
     std::unique_ptr<PageCacheManager> m_pageCache;
     std::unique_ptr<TextCacheManager> m_textCache;
 

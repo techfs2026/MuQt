@@ -1,5 +1,5 @@
 #include "thumbnailbatchtask.h"
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include "thumbnailcache.h"
 #include "thumbnailmanagerv2.h"
 #include <QElapsedTimer>
@@ -13,7 +13,7 @@ ThumbnailBatchTask::ThumbnailBatchTask(const QString& docPath,
                                        int thumbnailWidth,
                                        int rotation,
                                        double devicePixelRatio)
-    : m_renderer(std::make_unique<ThreadSafeRenderer>(docPath))
+    : m_renderer(std::make_unique<PerThreadMuPDFRenderer>(docPath))
     , m_cache(cache)
     , m_manager(manager)
     , m_pageIndices(pageIndices)

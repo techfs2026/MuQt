@@ -7,7 +7,7 @@
 #include <QString>
 #include <QMap>
 
-class ThreadSafeRenderer;
+class PerThreadMuPDFRenderer;
 
 /**
  * @brief PDF链接信息
@@ -45,7 +45,7 @@ public:
      * @param renderer MuPDF渲染器指针
      * @param parent 父对象
      */
-    explicit LinkManager(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
+    explicit LinkManager(PerThreadMuPDFRenderer* renderer, QObject* parent = nullptr);
 
     /**
      * @brief 析构函数
@@ -95,7 +95,7 @@ private:
     int resolveLinkTarget(void* fzLink);
 
 private:
-    ThreadSafeRenderer* m_renderer;                       ///< MuPDF渲染器
+    PerThreadMuPDFRenderer* m_renderer;                       ///< MuPDF渲染器
     QMap<int, QVector<PDFLink>> m_cachedLinks;      ///< 缓存的链接（按页索引）
 };
 

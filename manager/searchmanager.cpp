@@ -1,5 +1,5 @@
 #include "searchmanager.h"
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include "textcachemanager.h"
 #include <QDebug>
 #include <QMutexLocker>
@@ -10,7 +10,7 @@
 
 // ----------------- SearchManager 实现 -----------------
 
-SearchManager::SearchManager(ThreadSafeRenderer* renderer,
+SearchManager::SearchManager(PerThreadMuPDFRenderer* renderer,
                              TextCacheManager* textCacheManager,
                              QObject* parent)
     : QObject(parent)

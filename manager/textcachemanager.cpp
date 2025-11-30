@@ -1,5 +1,5 @@
 #include "textcachemanager.h"
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include <QDebug>
 #include <QMutexLocker>
 #include <QCoreApplication>
@@ -45,7 +45,7 @@ public:
         qDebug() << "PageExtractTask: Creating renderer for batch, pages:" << m_pageIndices.size()
                  << "first:" << m_pageIndices.first() << "last:" << m_pageIndices.last();
 
-        m_renderer = std::make_unique<ThreadSafeRenderer>(m_pdfPath);
+        m_renderer = std::make_unique<PerThreadMuPDFRenderer>(m_pdfPath);
 
         if (!m_renderer->isDocumentLoaded()) {
             qWarning() << "PageExtractTask: Failed to load document, error:"
@@ -131,13 +131,13 @@ private:
     TextCacheManager* m_manager;
     QString m_pdfPath;
     QVector<int> m_pageIndices;
-    std::unique_ptr<ThreadSafeRenderer> m_renderer;
+    std::unique_ptr<PerThreadMuPDFRenderer> m_renderer;
 };
 
 // ========================================
 // TextCacheManager 实现
 // ========================================
-TextCacheManager::TextCacheManager(ThreadSafeRenderer* renderer, QObject* parent)
+TextCacheManager::TextCacheManager(PerThreadMuPDFRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_maxCacheSize(-1)

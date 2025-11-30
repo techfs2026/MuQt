@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    app.setWindowIcon(QIcon(":/icons/icons/windows.png"));
+    app.setWindowIcon(QIcon(":/resources/windows.ico"));
 
     // 创建主窗口
     MainWindow mainWindow;

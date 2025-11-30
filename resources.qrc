@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/styles">
+        <file>resources/styles/main.qss</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>resources/icons/continuous-mode.png</file>
+        <file>resources/icons/double-page-mode.png</file>
+        <file>resources/icons/expand.png</file>
+        <file>resources/icons/first-arrow.png</file>
+        <file>resources/icons/fit-to-page.png</file>
+        <file>resources/icons/fit-to-width.png</file>
+        <file>resources/icons/fold.png</file>
+        <file>resources/icons/last-arrow.png</file>
+        <file>resources/icons/left-arrow.png</file>
+        <file>resources/icons/open-file.png</file>
+        <file>resources/icons/right-arrow.png</file>
+        <file>resources/icons/search.png</file>
+        <file>resources/icons/sidebar.png</file>
+        <file>resources/icons/single-page-mode.png</file>
+        <file>resources/icons/windows.png</file>
+        <file>resources/icons/zoom-in.png</file>
+        <file>resources/icons/zoom-out.png</file>
+        <file>resources/windows.ico</file>
+    </qresource>
+</RCC>

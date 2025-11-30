@@ -703,7 +703,7 @@ void MainWindow::createToolBar()
     m_toolBar->setObjectName("mainToolBar");
 
     // ========== 导航面板按钮 ==========
-    m_navPanelAction = m_toolBar->addAction(QIcon(":/icons/icons/sidebar.png"), tr("Panel"));
+    m_navPanelAction = m_toolBar->addAction(QIcon(":icons/resources/icons/sidebar.png"), tr("Panel"));
     m_navPanelAction->setToolTip(tr("显示导航栏 (F9)"));
     m_navPanelAction->setCheckable(true);
     connect(m_navPanelAction, &QAction::triggered, this, &MainWindow::toggleNavigationPanel);
@@ -711,18 +711,18 @@ void MainWindow::createToolBar()
     m_toolBar->addSeparator();
 
     // ========== 文件操作 ==========
-    QAction* openAction = m_toolBar->addAction(QIcon(":/icons/icons/open-file.png"), tr("Open"));
+    QAction* openAction = m_toolBar->addAction(QIcon(":icons/resources/icons/open-file.png"), tr("Open"));
     openAction->setToolTip(tr("打开文件 (Ctrl+O)"));
     connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
 
     m_toolBar->addSeparator();
 
     // ========== 页面导航 ==========
-    m_firstPageAction = m_toolBar->addAction(QIcon(":/icons/icons/first-arrow.png"), tr("First"));
+    m_firstPageAction = m_toolBar->addAction(QIcon(":icons/resources/icons/first-arrow.png"), tr("First"));
     m_firstPageAction->setToolTip(tr("第一页 (Home)"));
     connect(m_firstPageAction, &QAction::triggered, this, &MainWindow::firstPage);
 
-    m_previousPageAction = m_toolBar->addAction(QIcon(":/icons/icons/left-arrow.png"), tr("Previous"));
+    m_previousPageAction = m_toolBar->addAction(QIcon(":icons/resources/icons/left-arrow.png"), tr("Previous"));
     m_previousPageAction->setToolTip(tr("上一页 (PgUp)"));
     connect(m_previousPageAction, &QAction::triggered, this, &MainWindow::previousPage);
 
@@ -741,18 +741,18 @@ void MainWindow::createToolBar()
             this, &MainWindow::goToPage);
     m_toolBar->addWidget(m_pageSpinBox);
 
-    m_nextPageAction = m_toolBar->addAction(QIcon(":/icons/icons/right-arrow.png"), tr("Next"));
+    m_nextPageAction = m_toolBar->addAction(QIcon(":icons/resources/icons/right-arrow.png"), tr("Next"));
     m_nextPageAction->setToolTip(tr("下一页 (PgDown)"));
     connect(m_nextPageAction, &QAction::triggered, this, &MainWindow::nextPage);
 
-    m_lastPageAction = m_toolBar->addAction(QIcon(":/icons/icons/last-arrow.png"), tr("Last"));
+    m_lastPageAction = m_toolBar->addAction(QIcon(":icons/resources/icons/last-arrow.png"), tr("Last"));
     m_lastPageAction->setToolTip(tr("最后一页 (End)"));
     connect(m_lastPageAction, &QAction::triggered, this, &MainWindow::lastPage);
 
     m_toolBar->addSeparator();
 
     // ========== 缩放控制 ==========
-    m_zoomOutAction = m_toolBar->addAction(QIcon(":/icons/icons/zoom-out.png"), tr("Zoom Out"));
+    m_zoomOutAction = m_toolBar->addAction(QIcon(":icons/resources/icons/zoom-out.png"), tr("Zoom Out"));
     m_zoomOutAction->setToolTip(tr("缩小 (Ctrl+-)"));
     connect(m_zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
 
@@ -769,19 +769,19 @@ void MainWindow::createToolBar()
             this, &MainWindow::onZoomComboChanged);
     m_toolBar->addWidget(m_zoomComboBox);
 
-    m_zoomInAction = m_toolBar->addAction(QIcon(":/icons/icons/zoom-in.png"), tr("Zoom In"));
+    m_zoomInAction = m_toolBar->addAction(QIcon(":icons/resources/icons/zoom-in.png"), tr("Zoom In"));
     m_zoomInAction->setToolTip(tr("放大 (Ctrl++)"));
     connect(m_zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
 
     m_toolBar->addSeparator();
 
     // ========== 缩放模式（可检查） ==========
-    m_fitPageToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/fit-to-page.png"), tr("Fit Page"));
+    m_fitPageToolbarAction = m_toolBar->addAction(QIcon(":icons/resources/icons/fit-to-page.png"), tr("Fit Page"));
     m_fitPageToolbarAction->setToolTip(tr("适应页面 (Ctrl+1)"));
     m_fitPageToolbarAction->setCheckable(true);
     connect(m_fitPageToolbarAction, &QAction::triggered, this, &MainWindow::fitPage);
 
-    m_fitWidthToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/fit-to-width.png"), tr("Fit Width"));
+    m_fitWidthToolbarAction = m_toolBar->addAction(QIcon(":icons/resources/icons/fit-to-width.png"), tr("Fit Width"));
     m_fitWidthToolbarAction->setToolTip(tr("适应宽度 (Ctrl+2)"));
     m_fitWidthToolbarAction->setCheckable(true);
     connect(m_fitWidthToolbarAction, &QAction::triggered, this, &MainWindow::fitWidth);
@@ -789,7 +789,7 @@ void MainWindow::createToolBar()
     m_toolBar->addSeparator();
 
     // ========== 页面模式（互斥） ==========
-    QAction* singlePageToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/single-page-mode.png"), tr("Single"));
+    QAction* singlePageToolbarAction = m_toolBar->addAction(QIcon(":icons/resources/icons/single-page-mode.png"), tr("Single"));
     singlePageToolbarAction->setToolTip(tr("单页"));
     singlePageToolbarAction->setCheckable(true);
     singlePageToolbarAction->setChecked(true);
@@ -797,7 +797,7 @@ void MainWindow::createToolBar()
         togglePageMode(PageDisplayMode::SinglePage);
     });
 
-    QAction* doublePageToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/double-page-mode.png"), tr("Double"));
+    QAction* doublePageToolbarAction = m_toolBar->addAction(QIcon(":icons/resources/icons/double-page-mode.png"), tr("Double"));
     doublePageToolbarAction->setToolTip(tr("双页"));
     doublePageToolbarAction->setCheckable(true);
     connect(doublePageToolbarAction, &QAction::triggered, this, [this]() {
@@ -815,7 +815,7 @@ void MainWindow::createToolBar()
     m_doublePageToolbarAction = doublePageToolbarAction;
 
     // ========== 连续滚动模式（独立可检查） ==========
-    QAction* continuousScrollToolbarAction = m_toolBar->addAction(QIcon(":/icons/icons/continuous-mode.png"), tr("Continuous"));
+    QAction* continuousScrollToolbarAction = m_toolBar->addAction(QIcon(":icons/resources/icons/continuous-mode.png"), tr("Continuous"));
     continuousScrollToolbarAction->setToolTip(tr("连续滚动"));
     continuousScrollToolbarAction->setCheckable(true);
     continuousScrollToolbarAction->setChecked(true); // 默认启用
@@ -829,7 +829,7 @@ void MainWindow::createToolBar()
     m_toolBar->addWidget(spacer);
 
     // ========== 搜索按钮 ==========
-    QAction* searchAction = m_toolBar->addAction(QIcon(":/icons/icons/search.png"), tr("Search"));
+    QAction* searchAction = m_toolBar->addAction(QIcon(":icons/resources/icons/search.png"), tr("Search"));
     searchAction->setToolTip(tr("搜索 (Ctrl+F)"));
     connect(searchAction, &QAction::triggered, this, &MainWindow::showSearchBar);
 }
@@ -1072,7 +1072,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::applyModernStyle()
 {
-    QFile styleFile(":/styles/resources/styles/main.qss");
+    QFile styleFile(":styles/resources/styles/main.qss");
     if (styleFile.open(QFile::ReadOnly)) {
         QString style = QLatin1String(styleFile.readAll());
         setStyleSheet(style);

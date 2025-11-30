@@ -10,21 +10,21 @@
 
 #include "datastructure.h"
 
-class ThreadSafeRenderer;
+class PerThreadMuPDFRenderer;
 class PageExtractTask;
 
 /**
  * @brief 文本缓存管理器
  *
  * 负责管理页面文本数据的缓存和异步预加载
- * 不直接接触 MuPDF API，所有渲染工作委托给 ThreadSafeRenderer
+ * 不直接接触 MuPDF API，所有渲染工作委托给 PerThreadMuPDFRenderer
  */
 class TextCacheManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TextCacheManager(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
+    explicit TextCacheManager(PerThreadMuPDFRenderer* renderer, QObject* parent = nullptr);
     ~TextCacheManager();
 
     // 预加载控制
@@ -59,7 +59,7 @@ private slots:
 private:
     friend class PageExtractTask;
 
-    ThreadSafeRenderer* m_renderer;
+    PerThreadMuPDFRenderer* m_renderer;
 
     // 缓存（页索引 -> PageTextData）
     QHash<int, PageTextData> m_cache;

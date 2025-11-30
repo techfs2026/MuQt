@@ -1,11 +1,11 @@
 #include "textselector.h"
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include "textcachemanager.h"
 #include <QApplication>
 #include <QClipboard>
 #include <QDebug>
 
-TextSelector::TextSelector(ThreadSafeRenderer* renderer,
+TextSelector::TextSelector(PerThreadMuPDFRenderer* renderer,
                            TextCacheManager* textCache,
                            QObject* parent)
     : QObject(parent)

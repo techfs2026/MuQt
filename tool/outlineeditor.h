@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 
-class ThreadSafeRenderer;
+class PerThreadMuPDFRenderer;
 class OutlineItem;
 
 /**
@@ -23,7 +23,7 @@ public:
      * @param renderer MuPDF渲染器指针
      * @param parent 父对象
      */
-    explicit OutlineEditor(ThreadSafeRenderer* renderer, QObject* parent = nullptr);
+    explicit OutlineEditor(PerThreadMuPDFRenderer* renderer, QObject* parent = nullptr);
 
     /**
      * @brief 析构函数
@@ -185,7 +185,7 @@ private:
     QString createBackup(const QString& filePath) const;
 
 private:
-    ThreadSafeRenderer* m_renderer;    ///< MuPDF渲染器
+    PerThreadMuPDFRenderer* m_renderer;    ///< MuPDF渲染器
     OutlineItem* m_root;          ///< 大纲树根节点（不拥有所有权）
     bool m_modified;              ///< 修改标志
 };

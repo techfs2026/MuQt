@@ -8,7 +8,7 @@
 #include <QTimer>
 #include "textcachemanager.h"
 
-class ThreadSafeRenderer;
+class PerThreadMuPDFRenderer;
 class TextCacheManager;
 
 /**
@@ -97,7 +97,7 @@ class TextSelector : public QObject
     Q_OBJECT
 
 public:
-    explicit TextSelector(ThreadSafeRenderer* renderer,
+    explicit TextSelector(PerThreadMuPDFRenderer* renderer,
                           TextCacheManager* textCache,
                           QObject* parent = nullptr);
 
@@ -270,7 +270,7 @@ private:
     CharPosition getCharPositionFromIndex(const PageTextData& pageData, int index) const;
 
 private:
-    ThreadSafeRenderer* m_renderer;
+    PerThreadMuPDFRenderer* m_renderer;
     TextCacheManager* m_textCache;
 
     TextSelection m_selection;              ///< 当前选择

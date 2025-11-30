@@ -4,7 +4,7 @@
 #include "pdfpagewidget.h"
 #include "navigationpanel.h"
 #include "searchwidget.h"
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include "pagecachemanager.h"
 #include "pdfinteractionhandler.h"
 #include "textcachemanager.h"
@@ -754,7 +754,7 @@ QImage PDFDocumentTab::renderPage(int pageIndex)
     int rotation = state->currentRotation();
 
     PageCacheManager* cache = m_session->pageCache();
-    ThreadSafeRenderer* renderer = m_session->renderer();
+    PerThreadMuPDFRenderer* renderer = m_session->renderer();
 
     // 检查缓存
     if (cache->contains(pageIndex, zoom, rotation)) {

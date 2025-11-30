@@ -1,10 +1,17 @@
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef DATASTRUCTURE_H
+#define DATASTRUCTURE_H
 
 #include <QChar>
 #include <QRectF>
 #include <QString>
 #include <QVector>
+#include <QImage>
+
+struct RenderResult {
+    bool success = false;
+    QImage image;
+    QString errorMessage;
+};
 
 // 缩放模式
 enum class ZoomMode {
@@ -69,4 +76,4 @@ struct SearchResult {
     bool isValid() const { return pageIndex >= 0 && !quads.isEmpty(); }
 };
 
-#endif // ENUMS_H
+#endif // DATASTRUCTURE_H

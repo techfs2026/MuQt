@@ -1,5 +1,5 @@
-#ifndef THREADSAFERENDERER_H
-#define THREADSAFERENDERER_H
+#ifndef PERTHREADMUPDFRENDERER_H
+#define PERTHREADMUPDFRENDERER_H
 
 #include <QString>
 #include <QImage>
@@ -12,11 +12,6 @@ extern "C" {
 #include <mupdf/fitz.h>
 }
 
-struct RenderResult {
-    bool success = false;
-    QImage image;
-    QString errorMessage;
-};
 
 /**
  * @brief 线程安全的 PDF 渲染器
@@ -25,28 +20,28 @@ struct RenderResult {
  * closeDocument 时销毁它们
  * 支持多种渲染和文本提取功能
  */
-class ThreadSafeRenderer
+class PerThreadMuPDFRenderer
 {
 public:
     /**
      * @brief 默认构造函数
      */
-    ThreadSafeRenderer();
+    PerThreadMuPDFRenderer();
 
     /**
      * @brief 构造函数 - 创建渲染器并加载文档
      * @param documentPath PDF 文档路径
      */
-    explicit ThreadSafeRenderer(const QString& documentPath);
+    explicit PerThreadMuPDFRenderer(const QString& documentPath);
 
     /**
      * @brief 析构函数 - 自动清理资源
      */
-    ~ThreadSafeRenderer();
+    ~PerThreadMuPDFRenderer();
 
     // 禁止拷贝
-    ThreadSafeRenderer(const ThreadSafeRenderer&) = delete;
-    ThreadSafeRenderer& operator=(const ThreadSafeRenderer&) = delete;
+    PerThreadMuPDFRenderer(const PerThreadMuPDFRenderer&) = delete;
+    PerThreadMuPDFRenderer& operator=(const PerThreadMuPDFRenderer&) = delete;
 
     /**
      * @brief 加载 PDF 文档
@@ -80,11 +75,6 @@ public:
      * @brief 获取指定页面的尺寸
      */
     QSizeF pageSize(int pageIndex) const;
-
-    /**
-     * @brief 获取多个页面的尺寸
-     */
-    QVector<QSizeF> pageSizes(int startPage = 0, int endPage = -1) const;
 
     /**
      * @brief 渲染指定页面
@@ -151,7 +141,6 @@ private:
     int m_pageCount;                            // 文档页数
     mutable QVector<QSizeF> m_pageSizeCache;    // 页面尺寸缓存
     mutable QString m_lastError;                // 最后的错误信息
-    mutable QMutex m_mutex;                     // 保护并发访问
 };
 
-#endif // THREADSAFERENDERER_H
+#endif // PERTHREADMUPDFRENDERER_H

@@ -1,12 +1,12 @@
 #include "thumbnailmanagerv2.h"
 #include "thumbnailcache.h"
-#include "threadsaferenderer.h"
+#include "perthreadmupdfrenderer.h"
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QScreen>
 
-ThumbnailManagerV2::ThumbnailManagerV2(ThreadSafeRenderer* renderer, QObject* parent)
+ThumbnailManagerV2::ThumbnailManagerV2(PerThreadMuPDFRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_cache(std::make_unique<ThumbnailCache>())

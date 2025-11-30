@@ -78,7 +78,7 @@ void OutlineWidget::setupUI()
 
 void OutlineWidget::applyStyleSheet()
 {
-    QFile styleFile(":/styles/resources/styles/outline.qss");
+    QFile styleFile(":styles/resources/styles/outline.qss");
     if (styleFile.open(QFile::ReadOnly)) {
         QString style = QLatin1String(styleFile.readAll());
         setStyleSheet(style);
