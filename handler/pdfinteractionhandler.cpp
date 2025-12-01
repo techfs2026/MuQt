@@ -17,21 +17,17 @@ PDFInteractionHandler::PDFInteractionHandler(PerThreadMuPDFRenderer* renderer,
     , m_hoveredLink(nullptr)
 {
     if (!m_renderer) {
-        qWarning() << "PDFInteractionHandler: renderer is null!";
         return;
     }
 
     if (!m_textCacheManager) {
-        qWarning() << "PDFInteractionHandler: textCacheManager is null!";
         return;
     }
 
-    // 创建子管理器
     m_searchManager = std::make_unique<SearchManager>(m_renderer, m_textCacheManager, this);
     m_linkManager = std::make_unique<LinkManager>(m_renderer, this);
     m_textSelector = std::make_unique<TextSelector>(m_renderer, m_textCacheManager, this);
 
-    // 连接信号
     setupConnections();
 }
 
@@ -39,15 +35,12 @@ PDFInteractionHandler::~PDFInteractionHandler()
 {
 }
 
-// ==================== 搜索相关 ====================
-
 void PDFInteractionHandler::startSearch(const QString& query,
                                         bool caseSensitive,
                                         bool wholeWords,
                                         int startPage)
 {
     if (!m_searchManager) {
-        qWarning() << "PDFInteractionHandler: searchManager not initialized";
         return;
     }
 
@@ -137,8 +130,6 @@ QStringList PDFInteractionHandler::getSearchHistory(int maxCount) const
     return m_searchManager->getHistory(maxCount);
 }
 
-// ==================== 链接相关 ====================
-
 void PDFInteractionHandler::requestSetLinksVisible(bool visible)
 {
     if (!visible) {
@@ -192,12 +183,12 @@ bool PDFInteractionHandler::handleLinkClick(const PDFLink* link)
     if (link->isExternal()) {
         QUrl url(link->uri);
         if (!url.isValid()) {
-            emit linkError(tr("Invalid link URI: %1").arg(link->uri));
+            emit linkError(tr("无效链接: %1").arg(link->uri));
             return false;
         }
 
         if (!QDesktopServices::openUrl(url)) {
-            emit linkError(tr("Failed to open link: %1").arg(link->uri));
+            emit linkError(tr("链接打开失败: %1").arg(link->uri));
             return false;
         }
 
@@ -215,8 +206,6 @@ QVector<PDFLink> PDFInteractionHandler::loadPageLinks(int pageIndex)
     }
     return m_linkManager->loadPageLinks(pageIndex);
 }
-
-// ==================== 文本选择相关 ====================
 
 void PDFInteractionHandler::startTextSelection(int pageIndex,
                                                const QPointF& pagePos,
@@ -312,8 +301,6 @@ bool PDFInteractionHandler::isTextSelecting() const
 {
     return m_textSelector && m_textSelector->isSelecting();
 }
-
-// ==================== 私有方法 ====================
 
 void PDFInteractionHandler::setupConnections()
 {

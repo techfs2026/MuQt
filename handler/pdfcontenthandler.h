@@ -44,8 +44,6 @@ public:
 
     QImage getThumbnail(int pageIndex, bool preferHighRes = false) const;
     bool hasThumbnail(int pageIndex) const;
-    void setThumbnailSize(int lowResWidth, int highResWidth);
-    void setThumbnailRotation(int rotation);
     void cancelThumbnailTasks();
     void clearThumbnails();
     QString getThumbnailStatistics() const;

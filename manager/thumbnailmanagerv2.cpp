@@ -119,9 +119,9 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
 
     if (m_strategy->type() == LoadStrategyType::SMALL_DOC) {
         m_isLoadingInProgress = true;
-        emit loadingStatusChanged(tr("Loading all thumbnails..."));
+        emit loadingStatusChanged(tr("加载中..."));
         renderPagesSync(initialPages);
-        emit loadingStatusChanged(tr("All thumbnails loaded"));
+        emit loadingStatusChanged(tr("加载完毕！"));
         m_isLoadingInProgress = false;
         emit allCompleted();
 
@@ -134,9 +134,9 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
 
     } else {
         m_isLoadingInProgress = false;
-        emit loadingStatusChanged(tr("Loading visible thumbnails..."));
+        emit loadingStatusChanged(tr("加载中..."));
         renderPagesSync(initialPages);
-        emit loadingStatusChanged(tr("Scroll to load more"));
+        emit loadingStatusChanged(tr("滚动以触发分页加载"));
     }
 }
 
@@ -147,7 +147,6 @@ void ThumbnailManagerV2::syncLoadPages(const QVector<int>& pages)
     }
 
     if (m_isLoadingInProgress) {
-        qDebug() << "ThumbnailManagerV2: Ignoring sync load during batch loading";
         return;
     }
 
@@ -193,9 +192,6 @@ void ThumbnailManagerV2::handleSlowScroll(const QSet<int>& visiblePages)
     if (toLoad.isEmpty()) {
         return;
     }
-
-    qDebug() << "ThumbnailManagerV2: Slow scroll detected, loading"
-             << toLoad.size() << "visible pages";
 
     renderPagesSync(toLoad);
 }
@@ -263,8 +259,7 @@ void ThumbnailManagerV2::detectDevicePixelRatio()
             m_devicePixelRatio = 3.0;
         }
     } else {
-        qWarning() << "ThumbnailManagerV2: Could not detect screen, using 1.0";
-        m_devicePixelRatio = 1.0;
+        m_devicePixelRatio = 1.6;
     }
 }
 
@@ -342,9 +337,6 @@ void ThumbnailManagerV2::renderPagesAsync(const QVector<int>& pages, RenderPrior
         return;
     }
 
-    qDebug() << "ThumbnailManagerV2: Async rendering" << toRender.size()
-             << "pages (priority:" << static_cast<int>(priority) << ")";
-
     auto* task = new ThumbnailBatchTask(
         m_renderer->documentPath(),
         m_cache.get(),
@@ -383,16 +375,12 @@ void ThumbnailManagerV2::processNextBatch()
 
         m_isLoadingInProgress = false;
 
-        emit loadingStatusChanged(tr("All thumbnails loaded"));
+        emit loadingStatusChanged(tr("加载完毕"));
         emit allCompleted();
         return;
     }
 
     const QVector<int>& batch = m_backgroundBatches[m_currentBatchIndex];
-
-    qDebug() << "ThumbnailManagerV2: Processing batch"
-             << (m_currentBatchIndex + 1) << "/" << m_backgroundBatches.size()
-             << "(" << batch.size() << "pages)";
 
     emit loadingStatusChanged(tr("加载中..."));
 

@@ -6,21 +6,6 @@
 #include <QVector>
 #include "datastructure.h"
 
-struct ViewportRestoreState {
-    int pageIndex;
-    double pageOffsetRatio;  // 页面内的垂直偏移百分比 [0.0, 1.0]
-    bool needRestore;
-
-    ViewportRestoreState()
-        : pageIndex(-1), pageOffsetRatio(0.0), needRestore(false) {}
-
-    void reset() {
-        pageIndex = -1;
-        pageOffsetRatio = 0.0;
-        needRestore = false;
-    }
-};
-
 /**
  * @brief PDF文档状态对象 - 集中管理文档的所有状态
  *
@@ -39,8 +24,6 @@ class PDFDocumentState : public QObject
 public:
     explicit PDFDocumentState(QObject* parent = nullptr);
     ~PDFDocumentState();
-
-    // ==================== 文档基本信息 ====================
 
     /**
      * @brief 是否已加载文档
@@ -62,14 +45,11 @@ public:
      */
     bool isTextPDF() const { return m_isTextPDF; }
 
-    // ==================== 导航状态 ====================
-
     /**
      * @brief 获取当前页码（0-based）
      */
     int currentPage() const { return m_currentPage; }
 
-    // ==================== 缩放状态 ====================
 
     /**
      * @brief 获取当前缩放比例
@@ -81,7 +61,6 @@ public:
      */
     ZoomMode currentZoomMode() const { return m_currentZoomMode; }
 
-    // ==================== 显示模式状态 ====================
 
     /**
      * @brief 获取显示模式
@@ -98,7 +77,6 @@ public:
      */
     int currentRotation() const { return m_currentRotation; }
 
-    // ==================== 连续滚动状态 ====================
 
     /**
      * @brief 获取页面Y位置列表
@@ -109,8 +87,6 @@ public:
      * @brief 获取页面高度列表
      */
     const QVector<int>& pageHeights() const { return m_pageHeights; }
-
-    // ==================== 交互状态 ====================
 
     /**
      * @brief 链接是否可见
@@ -136,8 +112,6 @@ public:
      * @brief 当前搜索匹配索引
      */
     int searchCurrentMatchIndex() const { return m_searchCurrentMatchIndex; }
-
-    // ==================== 状态更新方法（由Session调用）====================
 
     void setDocumentLoaded(bool loaded, const QString& path = QString(),
                            int pageCount = 0, bool isTextPDF = false);
@@ -188,6 +162,7 @@ private:
     PageDisplayMode m_currentDisplayMode;
     bool m_isContinuousScroll;
     int m_currentRotation;
+    ViewportRestoreState m_viewportRestore;
 
     // 连续滚动状态
     QVector<int> m_pageYPositions;
@@ -199,8 +174,6 @@ private:
     bool m_isSearching;
     int m_searchTotalMatches;
     int m_searchCurrentMatchIndex;
-
-    ViewportRestoreState m_viewportRestore;
 };
 
 #endif // PDFDOCUMENTSTATE_H

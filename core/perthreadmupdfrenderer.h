@@ -14,29 +14,15 @@ extern "C" {
 
 
 /**
- * @brief 线程安全的 PDF 渲染器
+ * @brief 线程隔离的MuPDF渲染器
  *
- * 每次 loadDocument 时创建新的 context 和 document
- * closeDocument 时销毁它们
- * 支持多种渲染和文本提取功能
+ * 每个渲染器有自己 context 和 document，不共享
  */
 class PerThreadMuPDFRenderer
 {
 public:
-    /**
-     * @brief 默认构造函数
-     */
     PerThreadMuPDFRenderer();
-
-    /**
-     * @brief 构造函数 - 创建渲染器并加载文档
-     * @param documentPath PDF 文档路径
-     */
     explicit PerThreadMuPDFRenderer(const QString& documentPath);
-
-    /**
-     * @brief 析构函数 - 自动清理资源
-     */
     ~PerThreadMuPDFRenderer();
 
     // 禁止拷贝
@@ -106,14 +92,7 @@ public:
      */
     QString getLastError() const;
 
-    /**
-     * @brief 获取 MuPDF context（仅用于调试）
-     */
     fz_context* context() const { return m_context; }
-
-    /**
-     * @brief 获取 MuPDF document（仅用于调试）
-     */
     fz_document* document() const { return m_document; }
 
 

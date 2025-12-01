@@ -36,7 +36,7 @@ void SearchWidget::setupUI()
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->setSpacing(5);
 
-    QLabel* searchLabel = new QLabel(tr("Find:"), this);
+    QLabel* searchLabel = new QLabel(tr("查找:"), this);
     mainLayout->addWidget(searchLabel);
 
     m_searchCombo = new QComboBox(this);
@@ -47,24 +47,24 @@ void SearchWidget::setupUI()
     m_searchCombo->setDuplicatesEnabled(false);
     mainLayout->addWidget(m_searchCombo);
 
-    m_previousButton = new QPushButton(tr("Previous"), this);
+    m_previousButton = new QPushButton(tr("前一个"), this);
     m_previousButton->setEnabled(false);
     mainLayout->addWidget(m_previousButton);
 
-    m_nextButton = new QPushButton(tr("Next"), this);
+    m_nextButton = new QPushButton(tr("下一个"), this);
     m_nextButton->setEnabled(false);
     mainLayout->addWidget(m_nextButton);
 
-    m_matchLabel = new QLabel(tr("No matches"), this);
+    m_matchLabel = new QLabel(tr("无匹配"), this);
     m_matchLabel->setMinimumWidth(100);
     mainLayout->addWidget(m_matchLabel);
 
     mainLayout->addSpacing(10);
 
-    m_caseSensitiveCheck = new QCheckBox(tr("Case sensitive"), this);
+    m_caseSensitiveCheck = new QCheckBox(tr("大小写敏感"), this);
     mainLayout->addWidget(m_caseSensitiveCheck);
 
-    m_wholeWordsCheck = new QCheckBox(tr("Whole words"), this);
+    m_wholeWordsCheck = new QCheckBox(tr("整个单词"), this);
     mainLayout->addWidget(m_wholeWordsCheck);
 
     mainLayout->addStretch();
@@ -72,7 +72,7 @@ void SearchWidget::setupUI()
     m_closeButton = new QToolButton(this);
     m_closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
     m_closeButton->setAutoRaise(true);
-    m_closeButton->setToolTip(tr("Close search bar (Esc)"));
+    m_closeButton->setToolTip(tr("关闭 (Esc)"));
     mainLayout->addWidget(m_closeButton);
 
     setStyleSheet(R"(
@@ -142,7 +142,7 @@ void SearchWidget::performSearch()
     }
 
     m_isSearching = true;
-    m_matchLabel->setText(tr("Searching..."));
+    m_matchLabel->setText(tr("搜索中..."));
     updateUI();
 }
 
@@ -179,16 +179,11 @@ void SearchWidget::updateUI()
 
     // 更新匹配计数
     if (m_isSearching) {
-        m_matchLabel->setText(tr("Searching..."));
+        m_matchLabel->setText(tr("搜索中..."));
     } else if (totalMatches == 0) {
-        QString query = m_searchCombo->currentText();
-        if (query.isEmpty()) {
-            m_matchLabel->setText(tr("No matches"));
-        } else {
-            m_matchLabel->setText(tr("No matches found"));
-        }
+        m_matchLabel->setText(tr("无匹配"));
     } else {
-        m_matchLabel->setText(tr("%1 of %2")
+        m_matchLabel->setText(tr("%1/%2")
                                   .arg(currentIndex + 1)
                                   .arg(totalMatches));
     }
@@ -215,7 +210,7 @@ void SearchWidget::onSearchCompleted(const QString& query, int totalMatches)
 
 void SearchWidget::onSearchProgress(int currentPage, int totalPages, int matchCount)
 {
-    m_matchLabel->setText(tr("Searching... %1/%2 pages, %3 matches")
+    m_matchLabel->setText(tr("搜索中... 在%1/%2页面中, %3匹配")
                               .arg(currentPage)
                               .arg(totalPages)
                               .arg(matchCount));

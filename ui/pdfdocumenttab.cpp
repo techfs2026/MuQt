@@ -270,7 +270,7 @@ QString PDFDocumentTab::documentPath() const
 QString PDFDocumentTab::documentTitle() const
 {
     if (documentPath().isEmpty()) {
-        return tr("New Tab");
+        return tr("新标签页");
     }
     return QFileInfo(documentPath()).fileName();
 }
@@ -355,9 +355,8 @@ void PDFDocumentTab::setContinuousScroll(bool continuous)
 void PDFDocumentTab::showSearchBar()
 {
     if (!m_session->state()->isTextPDF()) {
-        QMessageBox::information(this, tr("Search Unavailable"),
-                                 tr("This PDF is a scanned document and does not contain searchable text.\n\n"
-                                    "To search this document, you would need to use OCR (Optical Character Recognition)."));
+        QMessageBox::information(this, tr("搜索不可用"),
+                                 tr("扫描文件不包含文本"));
         return;
     }
 
@@ -366,10 +365,10 @@ void PDFDocumentTab::showSearchBar()
 
         QMessageBox::StandardButton reply = QMessageBox::question(
             this,
-            tr("Text Extraction in Progress"),
-            tr("Text extraction is in progress (%1%).\n\n"
-               "You can search now, but only extracted pages will be searchable.\n\n"
-               "Continue with search?").arg(progress),
+            tr("文本正在提取中..."),
+            tr("文本正在提取中...(%1%).\n\n"
+               "你只能搜索提取好文本的页面\n\n"
+               "继续搜索?").arg(progress),
             QMessageBox::Yes | QMessageBox::No);
 
         if (reply == QMessageBox::No) {
@@ -877,9 +876,9 @@ void PDFDocumentTab::updateCursorForPage(int pageIndex, const QPointF& pagePos)
 
             QString tooltip;
             if (link->isInternal()) {
-                tooltip = tr("Go to page %1").arg(link->targetPage + 1);
+                tooltip = tr("跳转到%1页").arg(link->targetPage + 1);
             } else if (link->isExternal()) {
-                tooltip = tr("Open: %1").arg(link->uri);
+                tooltip = tr("打开%1").arg(link->uri);
             }
             QToolTip::showText(QCursor::pos(), tooltip, m_pageWidget);
             return;
@@ -908,7 +907,7 @@ void PDFDocumentTab::showContextMenu(int pageIndex, const QPointF& pagePos, cons
 
     // 如果有选中的文本
     if (state->hasTextSelection()) {
-        QAction* copyAction = menu.addAction(tr("Copy"));
+        QAction* copyAction = menu.addAction(tr("复制"));
         copyAction->setShortcut(QKeySequence::Copy);
         connect(copyAction, &QAction::triggered, this, &PDFDocumentTab::copySelectedText);
 
@@ -920,12 +919,12 @@ void PDFDocumentTab::showContextMenu(int pageIndex, const QPointF& pagePos, cons
         if (!state->hasTextSelection()) {
             double zoom = state->currentZoom();
 
-            QAction* selectWordAction = menu.addAction(tr("Select Word"));
+            QAction* selectWordAction = menu.addAction(tr("选择单词"));
             connect(selectWordAction, &QAction::triggered, this, [=]() {
                 m_session->selectWord(pageIndex, pagePos, zoom);
             });
 
-            QAction* selectLineAction = menu.addAction(tr("Select Line"));
+            QAction* selectLineAction = menu.addAction(tr("选择行"));
             connect(selectLineAction, &QAction::triggered, this, [=]() {
                 m_session->selectLine(pageIndex, pagePos, zoom);
             });
@@ -933,7 +932,7 @@ void PDFDocumentTab::showContextMenu(int pageIndex, const QPointF& pagePos, cons
             menu.addSeparator();
         }
 
-        QAction* selectAllAction = menu.addAction(tr("Select All"));
+        QAction* selectAllAction = menu.addAction(tr("全选"));
         selectAllAction->setShortcut(QKeySequence::SelectAll);
         connect(selectAllAction, &QAction::triggered, this, &PDFDocumentTab::selectAll);
     }

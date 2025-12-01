@@ -29,7 +29,6 @@ protected:
 private slots:
     // 文件操作
     void openFile();
-    void openFileInNewTab();
     void closeCurrentTab();
     void quit();
 
@@ -113,7 +112,6 @@ private:
 
     // 菜单Actions
     QAction* m_openAction;
-    QAction* m_openInNewTabAction;
     QAction* m_closeAction;
     QAction* m_quitAction;
 

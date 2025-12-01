@@ -24,8 +24,6 @@ PDFDocumentState::~PDFDocumentState()
 {
 }
 
-// ==================== 状态更新方法 ====================
-
 void PDFDocumentState::setDocumentLoaded(bool loaded, const QString& path,
                                          int pageCount, bool isTextPDF)
 {
@@ -123,8 +121,7 @@ void PDFDocumentState::saveViewportState(int scrollY)
         return;
     }
 
-    // 使用当前（旧的）positions计算相对位置
-    int pageTop = m_pageYPositions[m_currentPage];  // 这里不加margin，因为scrollY也不含margin
+    int pageTop = m_pageYPositions[m_currentPage];
     int pageHeight = m_pageHeights[m_currentPage];
 
     if (pageHeight > 0) {
@@ -133,12 +130,6 @@ void PDFDocumentState::saveViewportState(int scrollY)
         m_viewportRestore.pageIndex = m_currentPage;
         m_viewportRestore.pageOffsetRatio = qBound(0.0, offsetRatio, 1.0);
         m_viewportRestore.needRestore = true;
-
-        qDebug() << "State: Saved viewport - page" << m_currentPage
-                 << "offset" << offsetRatio
-                 << "scrollY" << scrollY
-                 << "pageTop" << pageTop
-                 << "pageHeight" << pageHeight;
     }
 }
 
@@ -158,12 +149,6 @@ int PDFDocumentState::getRestoredScrollPosition(int margin) const
     int pageHeight = m_pageHeights[m_viewportRestore.pageIndex];
 
     int targetY = pageTop + (int)(pageHeight * m_viewportRestore.pageOffsetRatio);
-
-    qDebug() << "State: Restore viewport - page" << m_viewportRestore.pageIndex
-             << "offset" << m_viewportRestore.pageOffsetRatio
-             << "targetY" << targetY
-             << "pageTop" << pageTop
-             << "pageHeight" << pageHeight;
 
     return targetY;
 }

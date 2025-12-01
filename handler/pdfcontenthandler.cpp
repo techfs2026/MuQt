@@ -11,18 +11,10 @@
 PDFContentHandler::PDFContentHandler(PerThreadMuPDFRenderer* renderer, QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
-    , m_outlineManager(nullptr)
-    , m_thumbnailManager(nullptr)
+    , m_outlineManager(std::make_unique<OutlineManager>(m_renderer, this))
+    , m_thumbnailManager(std::make_unique<ThumbnailManagerV2>(m_renderer, this))
+    , m_outlineEditor(std::make_unique<OutlineEditor>(m_renderer, this))
 {
-    if (!m_renderer) {
-        qWarning() << "PDFContentHandler: renderer is null!";
-        return;
-    }
-
-    m_outlineManager = std::make_unique<OutlineManager>(m_renderer, this);
-    m_thumbnailManager = std::make_unique<ThumbnailManagerV2>(m_renderer, this);
-    m_outlineEditor = std::make_unique<OutlineEditor>(m_renderer, this);
-
     setupConnections();
 }
 
@@ -30,13 +22,11 @@ PDFContentHandler::~PDFContentHandler()
 {
 }
 
-// ========== 文档加载 ==========
-
 bool PDFContentHandler::loadDocument(const QString& filePath, QString* errorMessage)
 {
     if (!m_renderer) {
         if (errorMessage) {
-            *errorMessage = tr("Renderer not initialized");
+            *errorMessage = tr("未初始化Renderer");
         }
         return false;
     }
@@ -96,17 +86,13 @@ int PDFContentHandler::pageCount() const
     return m_renderer->pageCount();
 }
 
-// ========== 大纲管理 ==========
-
 bool PDFContentHandler::loadOutline()
 {
     if (!isDocumentLoaded()) {
-        qWarning() << "PDFContentHandler: Cannot load outline - no document loaded";
         return false;
     }
 
     if (!m_outlineManager) {
-        qWarning() << "PDFContentHandler: Outline manager not initialized";
         return false;
     }
 
@@ -147,8 +133,6 @@ void PDFContentHandler::clearOutline()
     }
 }
 
-// ========== 缩略图管理 (新版智能管理器) ==========
-
 void PDFContentHandler::loadThumbnails()
 {
     if (!isDocumentLoaded() || !m_thumbnailManager) {
@@ -179,9 +163,6 @@ void PDFContentHandler::startInitialThumbnailLoad(const QSet<int>& initialVisibl
     if (!m_thumbnailManager) {
         return;
     }
-
-    qDebug() << "PDFContentHandler: Starting initial thumbnail load for"
-             << initialVisible.size() << "visible pages";
 
     // 启动智能加载（自动选择策略）
     m_thumbnailManager->startLoading(initialVisible);
@@ -218,20 +199,6 @@ bool PDFContentHandler::hasThumbnail(int pageIndex) const
     return m_thumbnailManager->hasThumbnail(pageIndex);
 }
 
-void PDFContentHandler::setThumbnailSize(int lowResWidth, int highResWidth)
-{
-    if (m_thumbnailManager) {
-        m_thumbnailManager->setThumbnailWidth(lowResWidth);  // V2只需要一个宽度
-    }
-}
-
-void PDFContentHandler::setThumbnailRotation(int rotation)
-{
-    if (m_thumbnailManager) {
-        m_thumbnailManager->setRotation(rotation);
-    }
-}
-
 void PDFContentHandler::cancelThumbnailTasks()
 {
     if (m_thumbnailManager) {
@@ -256,8 +223,6 @@ int PDFContentHandler::cachedThumbnailCount() const
     return m_thumbnailManager ? m_thumbnailManager->cachedCount() : 0;
 }
 
-// ========== 工具方法 ==========
-
 bool PDFContentHandler::isTextPDF(int samplePages) const
 {
     if (!isDocumentLoaded()) {
@@ -271,8 +236,6 @@ void PDFContentHandler::reset()
     closeDocument();
 }
 
-// ========== 私有方法 ==========
-
 void PDFContentHandler::setupConnections()
 {
     if (m_outlineManager) {
@@ -281,10 +244,10 @@ void PDFContentHandler::setupConnections()
     }
 
     if (m_thumbnailManager) {
-        connect(m_thumbnailManager.get(), &ThumbnailManagerV2::thumbnailLoaded,  // ← V2
+        connect(m_thumbnailManager.get(), &ThumbnailManagerV2::thumbnailLoaded,
                 this, &PDFContentHandler::thumbnailLoaded);
 
-        connect(m_thumbnailManager.get(), &ThumbnailManagerV2::loadProgress,    // ← V2
+        connect(m_thumbnailManager.get(), &ThumbnailManagerV2::loadProgress,
                 this, &PDFContentHandler::thumbnailLoadProgress);
     }
 
@@ -295,8 +258,6 @@ void PDFContentHandler::setupConnections()
                 this, &PDFContentHandler::outlineSaveCompleted);
     }
 }
-
-// ========== 大纲编辑 ==========
 
 OutlineItem* PDFContentHandler::addOutlineItem(OutlineItem* parent,
                                                const QString& title,
@@ -335,5 +296,8 @@ bool PDFContentHandler::saveOutlineChanges(const QString& savePath)
 
 bool PDFContentHandler::hasUnsavedOutlineChanges() const
 {
-    return m_outlineEditor ? m_outlineEditor->hasUnsavedChanges() : false;
+    if (!m_outlineEditor) {
+        return false;
+    }
+    return m_outlineEditor->hasUnsavedChanges();
 }

@@ -13,6 +13,21 @@ struct RenderResult {
     QString errorMessage;
 };
 
+struct ViewportRestoreState {
+    int pageIndex;
+    double pageOffsetRatio;  // 页面内的垂直偏移百分比 [0.0, 1.0]
+    bool needRestore;
+
+    ViewportRestoreState()
+        : pageIndex(-1), pageOffsetRatio(0.0), needRestore(false) {}
+
+    void reset() {
+        pageIndex = -1;
+        pageOffsetRatio = 0.0;
+        needRestore = false;
+    }
+};
+
 // 缩放模式
 enum class ZoomMode {
     Custom,

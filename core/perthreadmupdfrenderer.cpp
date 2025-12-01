@@ -17,21 +17,17 @@ PerThreadMuPDFRenderer::PerThreadMuPDFRenderer(const QString& documentPath)
     , m_document(nullptr)
     , m_pageCount(0)
 {
-
-    // 初始化 context
     if (!createContext()) {
         qCritical() << "PerThreadMuPDFRenderer: Failed to initialize context";
         return;
     }
 
-    // 加载文档
     QByteArray pathUtf8 = m_documentPath.toUtf8();
 
     fz_try(m_context) {
         m_document = fz_open_document(m_context, pathUtf8.constData());
         m_pageCount = fz_count_pages(m_context, m_document);
 
-        // 初始化页面尺寸缓存
         m_pageSizeCache.resize(m_pageCount);
         for (int i = 0; i < m_pageCount; ++i) {
             m_pageSizeCache[i] = QSizeF();
@@ -55,9 +51,7 @@ PerThreadMuPDFRenderer::PerThreadMuPDFRenderer(const QString& documentPath)
 
 PerThreadMuPDFRenderer::~PerThreadMuPDFRenderer()
 {
-    // 确保文档已关闭
     if (isDocumentLoaded()) {
-        // 关闭文档
         if (m_document && m_context) {
             fz_drop_document(m_context, m_document);
             m_document = nullptr;
@@ -68,7 +62,6 @@ PerThreadMuPDFRenderer::~PerThreadMuPDFRenderer()
         m_documentPath.clear();
     }
 
-    // 销毁 context
     if (m_context) {
         fz_drop_context(m_context);
         m_context = nullptr;
@@ -84,8 +77,6 @@ bool PerThreadMuPDFRenderer::createContext()
         qWarning() << "PerThreadMuPDFRenderer: Context already exists";
         return true;
     }
-
-    qDebug() << "PerThreadMuPDFRenderer: Creating new context";
 
     // 创建新的 context (不使用锁，因为每个实例独立)
     m_context = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
@@ -112,7 +103,6 @@ bool PerThreadMuPDFRenderer::createContext()
         return false;
     }
 
-    qDebug() << "PerThreadMuPDFRenderer: Context created successfully";
     return true;
 }
 
@@ -122,37 +112,25 @@ void PerThreadMuPDFRenderer::destroyContext()
         return;
     }
 
-    qDebug() << "PerThreadMuPDFRenderer: Destroying context";
-
     // 销毁 context
     fz_drop_context(m_context);
     m_context = nullptr;
-
-    qDebug() << "PerThreadMuPDFRenderer: Context destroyed";
 }
 
 bool PerThreadMuPDFRenderer::loadDocument(const QString& filePath, QString* errorMsg)
 {
-    // 1. 先关闭已有文档
     if (isDocumentLoaded()) {
-        qDebug() << "PerThreadMuPDFRenderer: Closing existing document";
-
-        // 关闭文档
         if (m_document && m_context) {
             fz_drop_document(m_context, m_document);
             m_document = nullptr;
         }
-
-        // 清理状态
         m_pageCount = 0;
         m_pageSizeCache.clear();
         m_documentPath.clear();
 
-        // 销毁 context
         destroyContext();
     }
 
-    // 2. 创建新的 context
     if (!createContext()) {
         QString err = "Failed to create context";
         setLastError(err);
@@ -160,14 +138,12 @@ bool PerThreadMuPDFRenderer::loadDocument(const QString& filePath, QString* erro
         return false;
     }
 
-    // 3. 打开文档
     QByteArray pathUtf8 = filePath.toUtf8();
 
     fz_try(m_context) {
         m_document = fz_open_document(m_context, pathUtf8.constData());
         m_pageCount = fz_count_pages(m_context, m_document);
 
-        // 初始化页面尺寸缓存
         m_pageSizeCache.resize(m_pageCount);
         for (int i = 0; i < m_pageCount; ++i) {
             m_pageSizeCache[i] = QSizeF();
@@ -186,13 +162,11 @@ bool PerThreadMuPDFRenderer::loadDocument(const QString& filePath, QString* erro
 
         qCritical() << "PerThreadMuPDFRenderer:" << err;
 
-        // 打开失败，清理资源
         m_document = nullptr;
         m_pageCount = 0;
         m_pageSizeCache.clear();
         m_documentPath.clear();
 
-        // 销毁 context
         destroyContext();
 
         return false;
@@ -209,19 +183,16 @@ void PerThreadMuPDFRenderer::closeDocument()
 
     qInfo() << "PerThreadMuPDFRenderer: Closing document";
 
-    // 1. 关闭文档
     if (m_document && m_context) {
         qDebug() << "PerThreadMuPDFRenderer: Dropping document";
         fz_drop_document(m_context, m_document);
         m_document = nullptr;
     }
 
-    // 2. 清理状态
     m_pageCount = 0;
     m_pageSizeCache.clear();
     m_documentPath.clear();
 
-    // 3. 销毁 context
     destroyContext();
 
     qInfo() << "PerThreadMuPDFRenderer: Document closed";
@@ -249,7 +220,6 @@ QSizeF PerThreadMuPDFRenderer::pageSize(int pageIndex) const
         return QSizeF();
     }
 
-    // 检查缓存
     if (!m_pageSizeCache[pageIndex].isEmpty()) {
         return m_pageSizeCache[pageIndex];
     }
@@ -263,7 +233,6 @@ QSizeF PerThreadMuPDFRenderer::pageSize(int pageIndex) const
         size.setHeight(bounds.y1 - bounds.y0);
         fz_drop_page(m_context, page);
 
-        // 缓存结果
         m_pageSizeCache[pageIndex] = size;
     }
     fz_catch(m_context) {
@@ -449,12 +418,10 @@ bool PerThreadMuPDFRenderer::extractText(int pageIndex, PageTextData& outData, Q
             outData.fullText.append("\n\n");
         }
 
-        // 清理
         if (stext) fz_drop_stext_page(m_context, stext);
         if (page) fz_drop_page(m_context, page);
     }
     fz_catch(m_context) {
-        // 清理
         if (stext) fz_drop_stext_page(m_context, stext);
         if (page) fz_drop_page(m_context, page);
 

@@ -126,64 +126,6 @@
     border-radius: 4px;
 }
 
-/* ==================== 大纲树形控件 ==================== */
-QTreeView {
-    background-color: #FFFFFF;
-    border: none;
-    outline: none;
-    color: #1C1C1E;
-    font-size: 13px;
-    padding: 4px;
-}
-
-QTreeView::item {
-    padding: 6px 8px;
-    border-radius: 5px;
-    color: #1C1C1E;
-}
-
-QTreeView::item:hover {
-    background-color: #F5F5F3;
-}
-
-QTreeView::item:selected {
-    background-color: #2C2C2E;
-    color: #FFFFFF;
-}
-
-QTreeView::item:selected:!active {
-    background-color: #E8E8E6;
-    color: #1C1C1E;
-}
-
-QTreeView::branch {
-    background-color: transparent;
-}
-
-QTreeView::branch:has-siblings:!adjoins-item {
-    border-image: none;
-}
-
-QTreeView::branch:has-siblings:adjoins-item {
-    border-image: none;
-}
-
-QTreeView::branch:!has-children:!has-siblings:adjoins-item {
-    border-image: none;
-}
-
-QTreeView::branch:has-children:!has-siblings:closed,
-QTreeView::branch:closed:has-children:has-siblings {
-    border-image: none;
-    image: url(:/icons/icons/right-arrow.png);
-}
-
-QTreeView::branch:open:has-children:!has-siblings,
-QTreeView::branch:open:has-children:has-siblings {
-    border-image: none;
-    image: url(:/icons/icons/expand.png);
-}
-
 /* ==================== 缩略图列表 ==================== */
 QListView {
     background-color: #FFFFFF;

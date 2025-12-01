@@ -14,8 +14,6 @@ PDFViewHandler::~PDFViewHandler()
 {
 }
 
-// ==================== 导航相关 ====================
-
 void PDFViewHandler::requestGoToPage(int pageIndex,
                                      bool adjustForDoublePageMode,
                                      PageDisplayMode currentDisplayMode,
@@ -120,8 +118,6 @@ int PDFViewHandler::getDoublePageStartIndex(int pageIndex) const
     // 双页模式：返回偶数页起始位置（0,2,4,6...）
     return (pageIndex / 2) * 2;
 }
-
-// ==================== 缩放相关 ====================
 
 void PDFViewHandler::requestSetZoom(double zoom)
 {
@@ -263,8 +259,6 @@ void PDFViewHandler::requestUpdateZoom(const QSize& viewportSize,
     }
 }
 
-// ==================== 显示模式相关 ====================
-
 void PDFViewHandler::requestSetDisplayMode(PageDisplayMode mode,
                                            bool currentContinuousScroll,
                                            int currentPage)
@@ -283,8 +277,6 @@ void PDFViewHandler::requestSetContinuousScroll(bool continuous)
 {
     emit continuousScrollSettingCompleted(continuous);
 }
-
-// ==================== 连续滚动相关 ====================
 
 bool PDFViewHandler::calculatePagePositions(double zoom,
                                             int rotation,
@@ -388,8 +380,6 @@ QSet<int> PDFViewHandler::getVisiblePages(const QRect& visibleRect,
     return visiblePages;
 }
 
-// ==================== 旋转相关 ====================
-
 void PDFViewHandler::requestSetRotation(int rotation)
 {
     // 规范化旋转角度
@@ -404,7 +394,6 @@ void PDFViewHandler::requestSetRotation(int rotation)
     emit rotationSettingCompleted(rotation);
 }
 
-// ==================== 工具方法 ====================
 
 double PDFViewHandler::clampZoom(double zoom) const
 {

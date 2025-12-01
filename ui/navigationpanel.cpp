@@ -24,7 +24,7 @@ public:
     QSize tabSizeHint(int index) const override
     {
         Q_UNUSED(index);
-        return QSize(36, 50);  // 宽度36，高度50（可调整）
+        return QSize(36, 64);
     }
 
 protected:
@@ -100,9 +100,7 @@ NavigationPanel::NavigationPanel(PDFDocumentSession* session, QWidget* parent)
 
 NavigationPanel::~NavigationPanel()
 {
-    qDebug() << "NavigationPanel: Destructor called";
     clear();
-    qDebug() << "NavigationPanel: Destructor finished";
 }
 
 void NavigationPanel::loadDocument(int pageCount)
@@ -143,7 +141,7 @@ void NavigationPanel::clear()
         m_thumbnailWidget->clear();
     }
     if (m_thumbnailStatusLabel) {
-        m_thumbnailStatusLabel->setText(tr("Ready"));
+        m_thumbnailStatusLabel->setText(tr(""));
     }
     if (m_thumbnailProgressBar) {
         m_thumbnailProgressBar->setVisible(false);
@@ -188,7 +186,7 @@ void NavigationPanel::setupUI()
     m_tabWidget = new CustomTabWidget(this);
     m_tabWidget->setObjectName("navigationTabWidget");
     m_tabWidget->setDocumentMode(true);
-    m_tabWidget->setMinimumWidth(180);
+    m_tabWidget->setMinimumWidth(200);
     m_tabWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     // ========== 大纲标签页 ==========
@@ -255,7 +253,7 @@ void NavigationPanel::setupUI()
     statusLayout->setContentsMargins(12, 4, 12, 4);
     statusLayout->setSpacing(8);
 
-    m_thumbnailStatusLabel = new QLabel(tr("Ready"), this);
+    m_thumbnailStatusLabel = new QLabel(tr(""), this);
     m_thumbnailStatusLabel->setObjectName("thumbnailStatusLabel");
     QFont statusFont = m_thumbnailStatusLabel->font();
     statusFont.setPointSize(9);
@@ -302,12 +300,12 @@ void NavigationPanel::setupConnections()
                 QUrl url(uri);
                 if (url.isValid()) {
                     if (!QDesktopServices::openUrl(url)) {
-                        QMessageBox::warning(this, tr("Open Link Failed"),
-                                             tr("Failed to open link:\n%1").arg(uri));
+                        QMessageBox::warning(this, tr("打开链接失败"),
+                                             tr("打开链接失败:\n%1").arg(uri));
                     }
                 } else {
-                    QMessageBox::warning(this, tr("Invalid Link"),
-                                         tr("Invalid link URI:\n%1").arg(uri));
+                    QMessageBox::warning(this, tr("无效链接"),
+                                         tr("无效链接:\n%1").arg(uri));
                 }
                 emit externalLinkRequested(uri);
             });
@@ -344,8 +342,6 @@ void NavigationPanel::setupConnections()
     connect(m_thumbnailWidget, &ThumbnailWidget::slowScrollDetected,
             this, [this](const QSet<int>& visiblePages) {
                 if (m_session && m_session->contentHandler()) {
-                    qDebug() << "NavigationPanel: Slow scroll detected, loading"
-                             << visiblePages.size() << "visible pages";
                     m_session->contentHandler()->handleVisibleRangeChanged(visiblePages, 0);
                 }
             });
@@ -354,8 +350,6 @@ void NavigationPanel::setupConnections()
     connect(m_thumbnailWidget, &ThumbnailWidget::syncLoadRequested,
             this, [this](const QSet<int>& unloadedVisible) {
                 if (m_session && m_session->contentHandler()) {
-                    qDebug() << "NavigationPanel: Requesting sync load for"
-                             << unloadedVisible.size() << "unloaded pages";
                     m_session->contentHandler()->syncLoadUnloadedPages(unloadedVisible);
                 }
             });
@@ -412,7 +406,7 @@ void NavigationPanel::setupConnections()
             connect(manager, &ThumbnailManagerV2::loadingStarted,
                     this, [this](int totalPages, const QString& strategy) {
                         qInfo() << "Thumbnail loading started:" << strategy << "for" << totalPages << "pages";
-                        m_thumbnailStatusLabel->setText(tr("Initializing..."));
+                        m_thumbnailStatusLabel->setText(tr("加载开始..."));
                     });
 
             // 状态变化
@@ -433,13 +427,13 @@ void NavigationPanel::setupConnections()
             // 全部完成
             connect(manager, &ThumbnailManagerV2::allCompleted,
                     this, [this]() {
-                        m_thumbnailStatusLabel->setText(tr("加载完毕"));
+                        m_thumbnailStatusLabel->setText(tr("加载完毕！"));
                         m_thumbnailProgressBar->setVisible(false);
 
                         // 3秒后恢复默认状态
                         QTimer::singleShot(3000, this, [this]() {
                             if (m_thumbnailStatusLabel) {
-                                m_thumbnailStatusLabel->setText(tr("Ready"));
+                                m_thumbnailStatusLabel->setText(tr("加载成功！"));
                             }
                         });
                     });
@@ -450,7 +444,7 @@ void NavigationPanel::setupConnections()
                         if (total > 0) {
                             int percentage = current * 100 / total;
                             m_thumbnailStatusLabel->setText(
-                                tr("Loading: %1/%2 (%3%)")
+                                tr("加载中: %1/%2 (%3%)")
                                     .arg(current)
                                     .arg(total)
                                     .arg(percentage)

@@ -252,7 +252,6 @@ public:
     bool loadOutline();
     void clear();
     void highlightCurrentPage(int pageIndex);
-    bool isDarkMode() const { return m_darkMode; }
     void setEditEnabled(bool enabled) { m_editEnabled = enabled; }
     bool isEditEnabled() const { return m_editEnabled; }
     void expandAll();
@@ -283,7 +282,6 @@ private slots:
 
 private:
     void setupUI();
-    void applyModernStyle();
     QMenu* createContextMenu(QTreeWidgetItem* item);
     void buildTree(OutlineItem* outlineItem, QTreeWidgetItem* treeItem);
     QTreeWidgetItem* createTreeItem(OutlineItem* outlineItem);
@@ -299,7 +297,6 @@ private:
     PDFContentHandler* m_contentHandler;
     OutlineEditor* m_outlineEditor;
     QTreeWidgetItem* m_currentHighlight;
-    bool m_darkMode;
     bool m_allExpanded;
     bool m_editEnabled;
     int m_currentPageIndex;

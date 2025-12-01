@@ -31,8 +31,6 @@ public:
     explicit PDFViewHandler(PerThreadMuPDFRenderer* renderer, QObject* parent = nullptr);
     ~PDFViewHandler();
 
-    // ==================== 导航相关 ====================
-
     /**
      * @brief 请求跳转到指定页码
      * @param pageIndex 目标页码（0-based）
@@ -88,8 +86,6 @@ public:
      * @brief 获取双页模式的起始页索引（偶数页）
      */
     int getDoublePageStartIndex(int pageIndex) const;
-
-    // ==================== 缩放相关 ====================
 
     /**
      * @brief 请求设置缩放比例
@@ -148,8 +144,6 @@ public:
                            PageDisplayMode displayMode,
                            int rotation);
 
-    // ==================== 显示模式相关 ====================
-
     /**
      * @brief 请求设置显示模式
      */
@@ -161,8 +155,6 @@ public:
      * @brief 请求设置连续滚动模式
      */
     void requestSetContinuousScroll(bool continuous);
-
-    // ==================== 连续滚动相关 ====================
 
     /**
      * @brief 计算连续滚动模式下的页面位置
@@ -197,14 +189,11 @@ public:
                               const QVector<int>& pageYPositions,
                               const QVector<int>& pageHeights) const;
 
-    // ==================== 旋转相关 ====================
 
     /**
      * @brief 请求设置旋转角度（0, 90, 180, 270）
      */
     void requestSetRotation(int rotation);
-
-    // ==================== 工具方法 ====================
 
     /**
      * @brief 限制缩放比例在有效范围内
@@ -217,7 +206,6 @@ public:
     bool isValidPageIndex(int pageIndex, int pageCount) const;
 
 signals:
-    // ==================== 导航完成信号 ====================
 
     /**
      * @brief 页面导航完成
@@ -225,7 +213,6 @@ signals:
      */
     void pageNavigationCompleted(int newPageIndex);
 
-    // ==================== 缩放完成信号 ====================
 
     /**
      * @brief 缩放设置完成
@@ -234,7 +221,6 @@ signals:
      */
     void zoomSettingCompleted(double newZoom, ZoomMode newMode);
 
-    // ==================== 显示模式完成信号 ====================
 
     /**
      * @brief 显示模式设置完成
@@ -249,15 +235,12 @@ signals:
      */
     void continuousScrollSettingCompleted(bool continuous);
 
-    // ==================== 旋转完成信号 ====================
-
     /**
      * @brief 旋转设置完成
      * @param newRotation 新的旋转角度
      */
     void rotationSettingCompleted(int newRotation);
 
-    // ==================== 页面位置计算完成信号 ====================
 
     /**
      * @brief 页面位置计算完成

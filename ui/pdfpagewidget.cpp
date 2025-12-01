@@ -248,7 +248,7 @@ void PDFPageWidget::paintEvent(QPaintEvent* event)
 
         QScrollArea* scrollArea = getScrollArea();
         if (scrollArea && scrollArea->viewport()) {
-            painter.drawText(scrollArea->viewport()->rect(), Qt::AlignCenter, tr("No document loaded"));
+            painter.drawText(scrollArea->viewport()->rect(), Qt::AlignCenter, tr("未加载文档"));
         }
         return;
     }
@@ -373,7 +373,7 @@ void PDFPageWidget::drawPageImage(QPainter& painter, const QImage& image, int x,
 void PDFPageWidget::drawPagePlaceholder(QPainter& painter, const QRect& rect, int pageIndex)
 {
     painter.fillRect(rect, QColor(80, 80, 80));
-    painter.drawText(rect, Qt::AlignCenter, tr("Loading page %1...").arg(pageIndex + 1));
+    painter.drawText(rect, Qt::AlignCenter, tr("加载页面%1中...").arg(pageIndex + 1));
 }
 
 void PDFPageWidget::drawOverlays(QPainter& painter, int pageIndex, int pageX, int pageY, double zoom)

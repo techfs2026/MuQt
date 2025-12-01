@@ -13,7 +13,6 @@
 #include "pdfcontenthandler.h"
 #include "pdfdocumentstate.h"
 
-// Forward declarations
 class PerThreadMuPDFRenderer;
 class PageCacheManager;
 class PDFViewHandler;
@@ -28,12 +27,6 @@ struct PDFLink;
 /**
  * @brief PDF文档会话 - 协调所有Handler和State
  *
- * 架构说明：
- * 1. Handler负责业务逻辑，发出xxxCompleted信号
- * 2. Session监听Handler信号，更新State，发出xxxChanged信号
- * 3. UI监听Session的xxxChanged信号进行界面更新
- *
- * 信号流向：Handler → Session → State → UI
  */
 class PDFDocumentSession : public QObject
 {
@@ -57,8 +50,6 @@ public:
      * @brief 获取文档状态对象（只读）
      */
     const PDFDocumentState* state() const { return m_state.get(); }
-
-    // ==================== 文档生命周期 ====================
 
     /**
      * @brief 加载PDF文档
@@ -90,7 +81,6 @@ public:
      */
     bool isTextPDF(int samplePages = 5) const;
 
-    // ==================== 便捷方法 - 导航 ====================
 
     /**
      * @brief 跳转到指定页
@@ -116,8 +106,6 @@ public:
      * @brief 最后一页
      */
     void lastPage();
-
-    // ==================== 便捷方法 - 缩放 ====================
 
     /**
      * @brief 设置缩放比例
@@ -159,8 +147,6 @@ public:
      */
     void updateZoom(const QSize& viewportSize);
 
-    // ==================== 便捷方法 - 显示模式 ====================
-
     /**
      * @brief 设置显示模式
      */
@@ -175,8 +161,6 @@ public:
      * @brief 设置旋转角度
      */
     void setRotation(int rotation);
-
-    // ==================== 便捷方法 - 内容管理 ====================
 
     /**
      * @brief 加载文档大纲
@@ -193,18 +177,11 @@ public:
      */
     OutlineEditor* outlineEditor() const;
 
-    void loadThumbnails();  // 新增：启动缩略图加载流程
+    void loadThumbnails();
 
     QImage getThumbnail(int pageIndex, bool preferHighRes = false) const;
     bool hasThumbnail(int pageIndex) const;
-    void setThumbnailSize(int lowResWidth, int highResWidth);
-    void setThumbnailRotation(int rotation);
-    void cancelThumbnailTasks();
-    void clearThumbnails();
     QString getThumbnailStatistics() const;
-    int cachedThumbnailCount() const;
-
-    // ==================== 便捷方法 - 搜索 ====================
 
     /**
      * @brief 开始搜索
@@ -228,8 +205,6 @@ public:
      * @brief 查找上一个
      */
     SearchResult findPrevious();
-
-    // ==================== 便捷方法 - 文本选择 ====================
 
     /**
      * @brief 开始文本选择
@@ -276,8 +251,6 @@ public:
      */
     void copySelectedText();
 
-    // ==================== 便捷方法 - 链接 ====================
-
     /**
      * @brief 设置链接可见性
      */
@@ -298,8 +271,6 @@ public:
      */
     bool handleLinkClick(const PDFLink* link);
 
-    // ==================== 连续滚动辅助方法 ====================
-
     /**
      * @brief 计算页面位置
      */
@@ -315,8 +286,6 @@ public:
      */
     int getScrollPositionForPage(int pageIndex, int margin = 0) const;
 
-    // ==================== 统计信息 ====================
-
     QString getCacheStatistics() const;
     QString getTextCacheStatistics() const;
 
@@ -324,8 +293,6 @@ public:
     void clearViewportRestore();
 
 signals:
-    // ==================== 文档状态变化信号 ====================
-
     /**
      * @brief 文档加载状态变化
      */
@@ -341,14 +308,11 @@ signals:
      */
     void documentError(const QString& error);
 
-    // ==================== 导航状态变化信号 ====================
-
     /**
      * @brief 当前页码变化
      */
     void currentPageChanged(int pageIndex);
 
-    // ==================== 缩放状态变化信号 ====================
     void zoomSettingCompleted(double zoom, ZoomMode mode);
     /**
      * @brief 当前缩放比例变化
@@ -361,8 +325,6 @@ signals:
      * @brief 缩放模式变化
      */
     void currentZoomModeChanged(ZoomMode mode);
-
-    // ==================== 显示模式状态变化信号 ====================
 
     /**
      * @brief 显示模式变化
@@ -379,8 +341,6 @@ signals:
      */
     void currentRotationChanged(int rotation);
 
-    // ==================== 连续滚动状态变化信号 ====================
-
     /**
      * @brief 页面位置计算完成
      */
@@ -390,8 +350,6 @@ signals:
      * @brief 需要滚动到指定位置
      */
     void scrollToPositionRequested(int scrollY);
-
-    // ==================== 交互状态变化信号 ====================
 
     /**
      * @brief 链接可见性变化
@@ -407,8 +365,6 @@ signals:
      * @brief 搜索状态变化
      */
     void searchStateChanged(bool searching, int totalMatches, int currentIndex);
-
-    // ==================== 内容事件信号（非状态变化）====================
 
     /**
      * @brief 大纲加载完成
@@ -433,8 +389,6 @@ signals:
      * @brief 搜索取消
      */
     void searchCancelled();
-
-    // ==================== 用户交互事件信号 ====================
 
     /**
      * @brief 链接悬停

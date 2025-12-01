@@ -15,10 +15,8 @@
 PDFDocumentSession::PDFDocumentSession(QObject* parent)
     : QObject(parent)
 {
-    // 创建核心组件
     m_renderer = std::make_unique<PerThreadMuPDFRenderer>();
 
-    // 创建缓存管理器
     m_pageCache = std::make_unique<PageCacheManager>(
         AppConfig::instance().maxCacheSize(),
         PageCacheManager::CacheStrategy::NearCurrent
@@ -26,7 +24,6 @@ PDFDocumentSession::PDFDocumentSession(QObject* parent)
 
     m_textCache = std::make_unique<TextCacheManager>(m_renderer.get(), this);
 
-    // 创建Handler
     m_viewHandler = std::make_unique<PDFViewHandler>(m_renderer.get(), this);
     m_contentHandler = std::make_unique<PDFContentHandler>(m_renderer.get(), this);
     m_interactionHandler = std::make_unique<PDFInteractionHandler>(
@@ -35,13 +32,9 @@ PDFDocumentSession::PDFDocumentSession(QObject* parent)
         this
         );
 
-    // 创建State
     m_state = std::make_unique<PDFDocumentState>(this);
 
-    // 连接信号
     setupConnections();
-
-    qInfo() << "PDFDocumentSession: Initialized";
 }
 
 PDFDocumentSession::~PDFDocumentSession()
@@ -51,21 +44,17 @@ PDFDocumentSession::~PDFDocumentSession()
     qInfo() << "PDFDocumentSession: Destroyed";
 }
 
-// ==================== 文档生命周期 ====================
-
 bool PDFDocumentSession::loadDocument(const QString& filePath, QString* errorMessage)
 {
     if (filePath.isEmpty()) {
-        if (errorMessage) *errorMessage = tr("Empty file path");
+        if (errorMessage) *errorMessage = tr("空路径");
         return false;
     }
 
-    // 关闭当前文档
     if (isDocumentLoaded()) {
         closeDocument();
     }
 
-    // 使用ContentHandler加载
     QString error;
     if (!m_contentHandler->loadDocument(filePath, &error)) {
         if (errorMessage) *errorMessage = error;
@@ -81,7 +70,6 @@ void PDFDocumentSession::closeDocument()
         return;
     }
 
-    // 取消所有正在进行的操作
     if (m_interactionHandler && m_state->isTextPDF()) {
         m_interactionHandler->cancelSearch();
         m_interactionHandler->clearHoveredLink();
@@ -92,7 +80,6 @@ void PDFDocumentSession::closeDocument()
         m_textCache->cancelPreload();
     }
 
-    // 清空缓存
     if (m_pageCache) {
         m_pageCache->clear();
     }
@@ -101,12 +88,10 @@ void PDFDocumentSession::closeDocument()
         m_textCache->clear();
     }
 
-    // 关闭文档
     if (m_contentHandler) {
         m_contentHandler->closeDocument();
     }
 
-    // 重置State
     m_state->reset();
 
     qInfo() << "PDFDocumentSession: Document closed";
@@ -129,10 +114,8 @@ int PDFDocumentSession::pageCount() const
 
 bool PDFDocumentSession::isTextPDF(int samplePages) const
 {
-    return m_contentHandler ? m_contentHandler->isTextPDF(samplePages) : false;
+    return m_contentHandler->isTextPDF(samplePages);
 }
-
-// ==================== 便捷方法 - 导航 ====================
 
 void PDFDocumentSession::goToPage(int pageIndex, bool adjustForDoublePageMode)
 {
@@ -185,8 +168,6 @@ void PDFDocumentSession::lastPage()
             );
     }
 }
-
-// ==================== 便捷方法 - 缩放 ====================
 
 void PDFDocumentSession::setZoom(double zoom)
 {
@@ -247,8 +228,6 @@ void PDFDocumentSession::updateZoom(const QSize& viewportSize)
     }
 }
 
-// ==================== 便捷方法 - 显示模式 ====================
-
 void PDFDocumentSession::setDisplayMode(PageDisplayMode mode)
 {
     if (m_viewHandler) {
@@ -274,21 +253,19 @@ void PDFDocumentSession::setRotation(int rotation)
     }
 }
 
-// ==================== 便捷方法 - 内容管理 ====================
-
 bool PDFDocumentSession::loadOutline()
 {
-    return m_contentHandler ? m_contentHandler->loadOutline() : false;
+    return m_contentHandler->loadOutline();
 }
 
 OutlineItem* PDFDocumentSession::outlineRoot() const
 {
-    return m_contentHandler ? m_contentHandler->outlineRoot() : nullptr;
+    return m_contentHandler->outlineRoot();
 }
 
 OutlineEditor* PDFDocumentSession::outlineEditor() const
 {
-    return m_contentHandler ? m_contentHandler->outlineEditor() : nullptr;
+    return m_contentHandler->outlineEditor();
 }
 
 void PDFDocumentSession::loadThumbnails()
@@ -312,33 +289,6 @@ bool PDFDocumentSession::hasThumbnail(int pageIndex) const
                false;
 }
 
-void PDFDocumentSession::setThumbnailSize(int lowResWidth, int highResWidth)
-{
-    if (m_contentHandler) {
-        m_contentHandler->setThumbnailSize(lowResWidth, highResWidth);
-    }
-}
-
-void PDFDocumentSession::setThumbnailRotation(int rotation)
-{
-    if (m_contentHandler) {
-        m_contentHandler->setThumbnailRotation(rotation);
-    }
-}
-
-void PDFDocumentSession::cancelThumbnailTasks()
-{
-    if (m_contentHandler) {
-        m_contentHandler->cancelThumbnailTasks();
-    }
-}
-
-void PDFDocumentSession::clearThumbnails()
-{
-    if (m_contentHandler) {
-        m_contentHandler->clearThumbnails();
-    }
-}
 
 QString PDFDocumentSession::getThumbnailStatistics() const
 {
@@ -346,15 +296,6 @@ QString PDFDocumentSession::getThumbnailStatistics() const
                m_contentHandler->getThumbnailStatistics() :
                QString();
 }
-
-int PDFDocumentSession::cachedThumbnailCount() const
-{
-    return m_contentHandler ?
-               m_contentHandler->cachedThumbnailCount() :
-               0;
-}
-
-// ==================== 便捷方法 - 搜索 ====================
 
 void PDFDocumentSession::startSearch(const QString& query,
                                      bool caseSensitive,
@@ -382,8 +323,6 @@ SearchResult PDFDocumentSession::findPrevious()
 {
     return m_interactionHandler ? m_interactionHandler->findPrevious() : SearchResult();
 }
-
-// ==================== 便捷方法 - 文本选择 ====================
 
 void PDFDocumentSession::startTextSelection(int pageIndex, const QPointF& pagePos, double zoom)
 {
@@ -448,8 +387,6 @@ void PDFDocumentSession::copySelectedText()
     }
 }
 
-// ==================== 便捷方法 - 链接 ====================
-
 void PDFDocumentSession::setLinksVisible(bool visible)
 {
     if (m_interactionHandler) {
@@ -475,8 +412,6 @@ bool PDFDocumentSession::handleLinkClick(const PDFLink* link)
 {
     return m_interactionHandler ? m_interactionHandler->handleLinkClick(link) : false;
 }
-
-// ==================== 连续滚动辅助方法 ====================
 
 void PDFDocumentSession::calculatePagePositions()
 {
@@ -527,8 +462,6 @@ int PDFDocumentSession::getScrollPositionForPage(int pageIndex, int margin) cons
         );
 }
 
-// ==================== 统计信息 ====================
-
 QString PDFDocumentSession::getCacheStatistics() const
 {
     return m_pageCache ? m_pageCache->getStatistics() : QString();
@@ -547,11 +480,9 @@ void PDFDocumentSession::clearViewportRestore() {
     m_state->clearViewportRestore();
 }
 
-// ==================== 私有方法 ====================
 
 void PDFDocumentSession::setupConnections()
 {
-    // ========== ViewHandler信号连接 ==========
 
     if (m_viewHandler) {
         // 页面导航完成 -> 更新State
@@ -615,14 +546,12 @@ void PDFDocumentSession::setupConnections()
         // 连续滚动设置完成 -> 更新State
         connect(m_viewHandler.get(), &PDFViewHandler::continuousScrollSettingCompleted,
                 this, [this](bool continuous) {
-                    qDebug() << "m_state->setContinuousScroll(continuous);";
                     m_state->setContinuousScroll(continuous);
                     emit continuousScrollChanged(continuous);
                 });
 
         connect(m_viewHandler.get(), &PDFViewHandler::pagePositionsCalculated,
                 this, [this](const QVector<int>& positions,const QVector<int>& heights) {
-                    qDebug() << "m_state->setPagePositions(positions, heights);";
                     m_state->setPagePositions(positions, heights);
                     emit pagePositionsChanged(positions, heights);
                 });
@@ -651,8 +580,6 @@ void PDFDocumentSession::setupConnections()
                 this, &PDFDocumentSession::scrollToPositionRequested);
     }
 
-    // ========== ContentHandler信号连接 ==========
-
     if (m_contentHandler) {
         // 文档事件直接转发（非状态变化）
         connect(m_contentHandler.get(), &PDFContentHandler::documentLoaded,
@@ -680,8 +607,6 @@ void PDFDocumentSession::setupConnections()
         connect(m_contentHandler.get(), &PDFContentHandler::thumbnailLoadProgress,
                 this, &PDFDocumentSession::thumbnailLoadProgress);
     }
-
-    // ========== InteractionHandler信号连接 ==========
 
     if (m_interactionHandler) {
         // 搜索事件
@@ -731,8 +656,6 @@ void PDFDocumentSession::setupConnections()
         connect(m_interactionHandler.get(), &PDFInteractionHandler::textCopied,
                 this, &PDFDocumentSession::textCopied);
     }
-
-    // ========== TextCacheManager信号连接 ==========
 
     if (m_textCache) {
         connect(m_textCache.get(), &TextCacheManager::preloadProgress,

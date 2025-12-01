@@ -21,22 +21,12 @@ OutlineWidget::OutlineWidget(PDFContentHandler* contentHandler, QWidget* parent)
     , m_contentHandler(contentHandler)
     , m_outlineEditor(contentHandler->outlineEditor())
     , m_currentHighlight(nullptr)
-    , m_darkMode(false)
     , m_allExpanded(false)
     , m_editEnabled(true)
     , m_currentPageIndex(0)
     , m_draggedItem(nullptr)
 {
     setupUI();
-    applyModernStyle();
-
-    m_overlay = new DragOverlayWidget(viewport());
-    m_overlay->resize(viewport()->size());
-    m_overlay->show();
-
-    // 设置自定义代理 - 传递 this 指针
-    m_itemDelegate = new OutlineItemDelegate(this, this);
-    setItemDelegate(m_itemDelegate);
 
     // 启用拖拽
     setDragEnabled(true);
@@ -44,6 +34,9 @@ OutlineWidget::OutlineWidget(PDFContentHandler* contentHandler, QWidget* parent)
     setDropIndicatorShown(false);
     setDragDropMode(QAbstractItemView::DragDrop);
 
+
+    connect(this, &QTreeWidget::itemClicked,
+            this, &OutlineWidget::onItemClicked);
     connect(m_contentHandler, &PDFContentHandler::outlineModified,
             this, &OutlineWidget::refreshTree);
 }
@@ -71,19 +64,15 @@ void OutlineWidget::setupUI()
     setFrameShape(QFrame::NoFrame);
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
-    // 连接信号
-    connect(this, &QTreeWidget::itemClicked,
-            this, &OutlineWidget::onItemClicked);
-}
+    setStyleSheet("QTreeView::branch { image: none; }");
 
-void OutlineWidget::applyModernStyle()
-{
-    QFile styleFile(":styles/resources/styles/outline.qss");
-    if (styleFile.open(QFile::ReadOnly)) {
-        QString style = QLatin1String(styleFile.readAll());
-        setStyleSheet(style);
-        styleFile.close();
-    }
+    m_overlay = new DragOverlayWidget(viewport());
+    m_overlay->resize(viewport()->size());
+    m_overlay->show();
+
+    // 设置自定义代理 - 传递 this 指针
+    m_itemDelegate = new OutlineItemDelegate(this, this);
+    setItemDelegate(m_itemDelegate);
 }
 
 void OutlineWidget::mousePressEvent(QMouseEvent* event)
@@ -721,12 +710,7 @@ void OutlineWidget::setItemDefaultColor(QTreeWidgetItem* item)
         return;
     }
 
-    // 恢复为默认蓝色
-    if (m_darkMode) {
-        item->setForeground(0, QBrush(QColor("#0A84FF")));
-    } else {
-        item->setForeground(0, QBrush(QColor("#007AFF")));
-    }
+    item->setForeground(0, QBrush(QColor("#007AFF")));
 
     QFont font = item->font(0);
     font.setBold(false);
@@ -825,9 +809,7 @@ void OutlineWidget::dragMoveEvent(QDragMoveEvent* event)
         m_overlay->ghost.valid = true;
         m_overlay->ghost.rect = QRect(0, viewport()->height() - 32, viewport()->width(), 28);
         m_overlay->ghost.text = m_draggedItem->text(0);
-        m_overlay->ghost.color = m_darkMode ?
-                                     QColor(10,132,255,40) :
-                                     QColor(0,122,255,40);
+        m_overlay->ghost.color = QColor(0,122,255,40);
 
         m_overlay->update();
         event->acceptProposedAction();
@@ -872,13 +854,13 @@ void OutlineWidget::dragMoveEvent(QDragMoveEvent* event)
         m_overlay->line.valid = true;
         m_overlay->line.lineRect =
             QRect(rect.left() + 8, rect.top(), rect.width() - 16, 2);
-        m_overlay->line.color = m_darkMode ? QColor("#0A84FF") : QColor("#007AFF");
+        m_overlay->line.color = QColor("#007AFF");
     }
     else if (m_dropIndicator == DI_Below) {
         m_overlay->line.valid = true;
         m_overlay->line.lineRect =
             QRect(rect.left() + 8, rect.bottom() - 1, rect.width() - 16, 2);
-        m_overlay->line.color = m_darkMode ? QColor("#0A84FF") : QColor("#007AFF");
+        m_overlay->line.color = QColor("#007AFF");
     }
     else if (m_dropIndicator == DI_Inside) {
         QRect r = rect.adjusted(6,3,-6,-3);
@@ -886,9 +868,7 @@ void OutlineWidget::dragMoveEvent(QDragMoveEvent* event)
         m_overlay->ghost.valid = true;
         m_overlay->ghost.rect = r;
         m_overlay->ghost.text = m_draggedItem->text(0);
-        m_overlay->ghost.color = m_darkMode ?
-                                     QColor(10,132,255,50) :
-                                     QColor(0,122,255,50);
+        m_overlay->ghost.color = QColor(0,122,255,50);
     }
 
     m_overlay->update();

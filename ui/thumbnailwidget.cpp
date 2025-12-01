@@ -493,7 +493,7 @@ void ThumbnailItem::setPlaceholder(const QString& text)
 void ThumbnailItem::setThumbnail(const QImage& image)
 {
     if (image.isNull()) {
-        setError(tr("Load failed"));
+        setError(tr("加载失败"));
         return;
     }
 

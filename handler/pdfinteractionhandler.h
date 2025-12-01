@@ -7,7 +7,6 @@
 #include <QString>
 #include <memory>
 
-// Forward declarations
 class PerThreadMuPDFRenderer;
 class TextCacheManager;
 class SearchManager;
@@ -36,8 +35,6 @@ public:
                                    TextCacheManager* textCacheManager,
                                    QObject* parent = nullptr);
     ~PDFInteractionHandler();
-
-    // ==================== 搜索相关 ====================
 
     /**
      * @brief 开始搜索
@@ -82,8 +79,6 @@ public:
      */
     QStringList getSearchHistory(int maxCount = 10) const;
 
-    // ==================== 链接相关 ====================
-
     /**
      * @brief 请求设置链接可见性
      */
@@ -109,7 +104,6 @@ public:
      */
     QVector<PDFLink> loadPageLinks(int pageIndex);
 
-    // ==================== 文本选择相关 ====================
 
     /**
      * @brief 开始文本选择
@@ -171,14 +165,12 @@ public:
      */
     bool isTextSelecting() const;
 
-    // ==================== 访问器 ====================
 
     SearchManager* searchManager() const { return m_searchManager.get(); }
     LinkManager* linkManager() const { return m_linkManager.get(); }
     TextSelector* textSelector() const { return m_textSelector.get(); }
 
 signals:
-    // ==================== 搜索完成信号 ====================
 
     /**
      * @brief 搜索进度更新
@@ -210,8 +202,6 @@ signals:
                                    int currentIndex,
                                    int totalMatches);
 
-    // ==================== 链接完成信号 ====================
-
     /**
      * @brief 链接可见性设置完成
      */
@@ -241,8 +231,6 @@ signals:
      * @brief 链接处理错误
      */
     void linkError(const QString& error);
-
-    // ==================== 文本选择完成信号 ====================
 
     /**
      * @brief 文本选择状态变化
