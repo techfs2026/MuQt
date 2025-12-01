@@ -6,6 +6,7 @@
 #include <QSizeF>
 #include <QVector>
 #include <QMutex>
+#include "papereffectenhancer.h"
 #include "datastructure.h"
 
 extern "C" {
@@ -92,6 +93,9 @@ public:
      */
     QString getLastError() const;
 
+    void setPaperEffectEnabled(bool enabled);
+    bool paperEffectEnabled() const { return m_paperEffectEnabled; }
+
     fz_context* context() const { return m_context; }
     fz_document* document() const { return m_document; }
 
@@ -120,6 +124,9 @@ private:
     int m_pageCount;                            // 文档页数
     mutable QVector<QSizeF> m_pageSizeCache;    // 页面尺寸缓存
     mutable QString m_lastError;                // 最后的错误信息
+
+    PaperEffectEnhancer m_paperEffectEnhancer;
+    bool m_paperEffectEnabled;
 };
 
 #endif // PERTHREADMUPDFRENDERER_H

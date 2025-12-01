@@ -38,6 +38,16 @@ set(MUPDF_LIB_DEBUG   "${MUPDF_DIR}/lib/Debug")
 set(MUPDF_LIB_RELEASE "${MUPDF_DIR}/lib/Release")
 
 # -----------------------------
+# Third-party: OpenCV
+# -----------------------------
+set(OPENCV_DIR "D:/Ext-Lib/opencv-win-x64")
+set(OPENCV_INCLUDE_DIR "${OPENCV_DIR}/include")
+
+# Multi-config Debug/Release lib directories
+set(OPENCV_LIB_DEBUG   "${OPENCV_DIR}/lib/Debug")
+set(OPENCV_LIB_RELEASE "${OPENCV_DIR}/lib/Release")
+
+# -----------------------------
 # Collect all source files automatically
 # -----------------------------
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
@@ -78,6 +88,7 @@ target_include_directories(MuQt PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/handler
 
     ${MUPDF_INCLUDE_DIR}
+    ${OPENCV_INCLUDE_DIR}
 )
 
 # -----------------------------
@@ -86,6 +97,9 @@ target_include_directories(MuQt PRIVATE
 target_link_directories(MuQt PRIVATE
     "$<$<CONFIG:Debug>:${MUPDF_LIB_DEBUG}>"
     "$<$<CONFIG:Release>:${MUPDF_LIB_RELEASE}>"
+
+    "$<$<CONFIG:Debug>:${OPENCV_LIB_DEBUG}>"
+    "$<$<CONFIG:Release>:${OPENCV_LIB_RELEASE}>"
 )
 
 # -----------------------------
@@ -97,8 +111,8 @@ target_link_libraries(MuQt PRIVATE
     Qt6::Concurrent
 
 
-    "$<$<CONFIG:Debug>:libmupdf.lib;libthirdparty.lib>"
-    "$<$<CONFIG:Release>:libmupdf.lib;libthirdparty.lib>"
+    "$<$<CONFIG:Debug>:libmupdf.lib;libthirdparty.lib;opencv_world4120d.dll>"
+    "$<$<CONFIG:Release>:libmupdf.lib;libthirdparty.lib;opencv_world4120.dll>"
 )
 
 # -----------------------------

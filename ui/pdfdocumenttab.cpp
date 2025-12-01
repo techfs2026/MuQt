@@ -119,7 +119,6 @@ void PDFDocumentTab::applyModernStyle()
 
 void PDFDocumentTab::setupConnections()
 {
-    // ==================== Session状态变化信号 ====================
 
     connect(m_session, &PDFDocumentSession::documentLoaded,
             this, [this](const QString& path, int pageCount) {
@@ -195,8 +194,6 @@ void PDFDocumentTab::setupConnections()
     connect(m_session, &PDFDocumentSession::searchCompleted,
             this, &PDFDocumentTab::onSearchCompleted);
 
-    // ==================== PageWidget用户交互信号 ====================
-
     connect(m_pageWidget, &PDFPageWidget::pageClicked,
             this, &PDFDocumentTab::onPageClicked);
 
@@ -218,12 +215,9 @@ void PDFDocumentTab::setupConnections()
     connect(m_pageWidget, &PDFPageWidget::visibleAreaChanged,
             this, &PDFDocumentTab::onVisibleAreaChanged);
 
-    // ==================== 滚动条信号 ====================
 
     connect(m_scrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
             this, &PDFDocumentTab::onScrollValueChanged);
-
-    // ==================== 搜索相关 ====================
 
     connect(m_searchWidget, &SearchWidget::closeRequested,
             this, &PDFDocumentTab::hideSearchBar);
@@ -234,12 +228,13 @@ void PDFDocumentTab::setupConnections()
                 m_pageWidget->update();
             });
 
-    // ==================== 导航面板 ====================
-
     connect(m_navigationPanel, &NavigationPanel::pageJumpRequested,
             this, [this](int pageIndex) {
                 m_session->goToPage(pageIndex);
             });
+
+    connect(m_session, &PDFDocumentSession::paperEffectChanged,
+            this, &PDFDocumentTab::paperEffectChanged);
 }
 
 // ==================== 文档操作 ====================
@@ -940,4 +935,18 @@ void PDFDocumentTab::showContextMenu(int pageIndex, const QPointF& pagePos, cons
     if (!menu.isEmpty()) {
         menu.exec(globalPos);
     }
+}
+
+void PDFDocumentTab::setPaperEffectEnabled(bool enabled)
+{
+    if (m_session) {
+        m_session->setPaperEffectEnabled(enabled);
+        renderAndUpdatePages();
+        emit paperEffectChanged(enabled);
+    }
+}
+
+bool PDFDocumentTab::paperEffectEnabled() const
+{
+    return m_session ? m_session->paperEffectEnabled() : false;
 }

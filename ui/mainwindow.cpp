@@ -214,15 +214,21 @@ void MainWindow::onTabChanged(int index)
     if (tab && tab->isDocumentLoaded()) {
         // 切换到已加载文档的标签页
 
-        // 1. 设置导航面板为当前标签页的导航面板
         if (tab->navigationPanel()) {
             m_navigationDock->setWidget(tab->navigationPanel());
 
-            // 2. 恢复该标签页的导航面板可见性状态
-            // 如果之前是显示的,保持显示;如果之前是隐藏的,保持隐藏
             bool shouldShow = m_showNavigationAction->isChecked();
             m_navigationDock->setVisible(shouldShow);
             m_navPanelAction->setChecked(shouldShow);
+        }
+
+        bool canEnhance = !tab->isTextPDF();
+        m_paperEffectAction->setEnabled(canEnhance);
+        m_paperEffectAction->setChecked(canEnhance && tab->paperEffectEnabled());
+        if (tab->isTextPDF()) {
+            m_paperEffectAction->setToolTip(tr("纸质书印刷效果增强（仅适用于扫描版 PDF）"));
+        } else {
+            m_paperEffectAction->setToolTip(tr("纸质书印刷效果增强"));
         }
     } else {
         // 无文档或无 tab,隐藏导航面板
@@ -230,6 +236,10 @@ void MainWindow::onTabChanged(int index)
         m_navigationDock->setVisible(false);
         m_showNavigationAction->setChecked(false);
         m_navPanelAction->setChecked(false);
+    }
+
+    if (tab && tab->isDocumentLoaded()) {
+        m_paperEffectAction->setChecked(tab->paperEffectEnabled());
     }
 
     updateUIState();
@@ -571,6 +581,14 @@ void MainWindow::onCurrentTabDocumentLoaded(const QString& filePath, int pageCou
             m_showNavigationAction->setChecked(true);
             m_navPanelAction->setChecked(true);
         }
+
+        bool canEnhance = !tab->isTextPDF();
+        m_paperEffectAction->setEnabled(canEnhance);
+
+        // 如果是文本 PDF，确保增强功能关闭
+        if (tab->isTextPDF()) {
+            m_paperEffectAction->setChecked(false);
+        }
     }
     // 如果不是当前标签页,但该标签页的文档已加载
     // 不做任何操作,等待用户切换到该标签页时再更新导航面板
@@ -811,6 +829,19 @@ void MainWindow::createToolBar()
 
     m_continuousScrollToolbarAction = continuousScrollToolbarAction;
 
+    m_toolBar->addSeparator();
+
+    // 添加纸质增强按钮
+    m_paperEffectAction = m_toolBar->addAction(
+        QIcon(":icons/resources/icons/paper-effect.png"),
+        tr("纸质增强")
+        );
+    m_paperEffectAction->setToolTip(tr("纸质书印刷效果增强"));
+    m_paperEffectAction->setCheckable(true);
+    m_paperEffectAction->setChecked(false);
+    connect(m_paperEffectAction, &QAction::triggered,
+            this, &MainWindow::togglePaperEffect);
+
     // 弹性空间
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -820,6 +851,8 @@ void MainWindow::createToolBar()
     QAction* searchAction = m_toolBar->addAction(QIcon(":icons/resources/icons/search.png"), tr("搜索"));
     searchAction->setToolTip(tr("搜索 (Ctrl+F)"));
     connect(searchAction, &QAction::triggered, this, &MainWindow::showSearchBar);
+
+
 }
 
 void MainWindow::createStatusBar()
@@ -880,6 +913,7 @@ void MainWindow::updateUIState()
     bool continuousScroll = hasDocument ? tab->isContinuousScroll() : true;
     PageDisplayMode displayMode = hasDocument ? tab->displayMode() : PageDisplayMode::SinglePage;
     ZoomMode zoomMode = hasDocument ? tab->zoomMode() : ZoomMode::FitWidth;
+    bool canEnhance = hasDocument && !tab->isTextPDF();
 
     // 文件操作
     m_closeAction->setEnabled(hasDocument);
@@ -931,6 +965,28 @@ void MainWindow::updateUIState()
     if (m_continuousScrollToolbarAction) {
         m_continuousScrollToolbarAction->setEnabled(hasDocument && displayMode == PageDisplayMode::SinglePage);
         m_continuousScrollToolbarAction->setChecked(hasDocument && continuousScroll);
+    }
+
+    // 纸质增强按钮
+    m_paperEffectAction->setEnabled(canEnhance);
+    // 修改图标或样式以提示不可用原因
+    if (hasDocument && !canEnhance) {
+        m_paperEffectAction->setToolTip(
+            tr("纸质书印刷效果增强\n"
+               "（当前是原生文本 PDF，此功能不适用）")
+            );
+    } else if (canEnhance) {
+        m_paperEffectAction->setToolTip(tr("纸质书印刷效果增强"));
+    } else {
+        m_paperEffectAction->setToolTip(tr("纸质书印刷效果增强（需要打开文档）"));
+    }
+    if (hasDocument) {
+        m_paperEffectAction->setChecked(tab->paperEffectEnabled());
+
+        // 如果切换到文本 PDF，自动禁用增强
+        if (tab->isTextPDF() && tab->paperEffectEnabled()) {
+            tab->setPaperEffectEnabled(false);
+        }
     }
 
     // 导航面板
@@ -1066,4 +1122,24 @@ void MainWindow::applyModernStyle()
         setStyleSheet(style);
         styleFile.close();
     }
+}
+
+void MainWindow::togglePaperEffect()
+{
+    PDFDocumentTab* tab = currentTab();
+    if (!tab || !tab->isDocumentLoaded()) {
+        return;
+    }
+
+    // 添加文本 PDF 检查
+    if (tab->isTextPDF()) {
+        QMessageBox::information(this, tr("功能不可用"),
+                                 tr("纸质增强效果仅适用于扫描版 PDF。\n"
+                                    "当前文档是原生文本 PDF，不需要此功能。"));
+        m_paperEffectAction->setChecked(false);
+        return;
+    }
+
+    bool enabled = m_paperEffectAction->isChecked();
+    tab->setPaperEffectEnabled(enabled);
 }

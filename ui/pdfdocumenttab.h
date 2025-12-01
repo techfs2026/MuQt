@@ -121,8 +121,10 @@ public:
 
     void applyModernStyle();
 
+    void setPaperEffectEnabled(bool enabled);
+    bool paperEffectEnabled() const;
+
 signals:
-    // ==================== 状态通知信号（给外部） ====================
 
     void documentLoaded(const QString& filePath, int pageCount);
     void documentError(const QString& errorMessage);
@@ -132,9 +134,9 @@ signals:
     void continuousScrollChanged(bool continuous);
     void searchCompleted(const QString& query, int totalMatches);
     void textSelectionChanged();
+    void paperEffectChanged(bool enabled);
 
 private slots:
-    // ==================== Session状态变化响应 ====================
 
     void onDocumentLoaded(const QString& filePath, int pageCount);
     void onPageChanged(int pageIndex);
@@ -147,8 +149,6 @@ private slots:
     void onTextPreloadCompleted();
     void onSearchCompleted(const QString& query, int totalMatches);
 
-    // ==================== PageWidget用户交互响应 ====================
-
     void onPageClicked(int pageIndex, const QPointF& pagePos, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void onMouseMovedOnPage(int pageIndex, const QPointF& pagePos);
     void onMouseLeftAllPages();
@@ -157,17 +157,12 @@ private slots:
     void onContextMenuRequested(int pageIndex, const QPointF& pagePos, const QPoint& globalPos);
     void onVisibleAreaChanged();
 
-    // ==================== 其他 ====================
-
     void onScrollValueChanged(int value);
 
 private:
-    // ==================== 初始化 ====================
 
     void setupUI();
     void setupConnections();
-
-    // ==================== 渲染协调 ====================
 
     /**
      * @brief 渲染当前页面并更新PageWidget
@@ -183,8 +178,6 @@ private:
      * @brief 刷新连续滚动模式的可见页面
      */
     void refreshVisiblePages();
-
-    // ==================== 辅助方法 ====================
 
     void updateScrollBarPolicy();
     void updateCursorForPage(int pageIndex, const QPointF& pagePos);

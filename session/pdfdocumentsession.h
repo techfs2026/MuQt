@@ -292,6 +292,9 @@ public:
     void saveViewportState(int scrollY);
     void clearViewportRestore();
 
+    void setPaperEffectEnabled(bool enabled);
+    bool paperEffectEnabled() const;
+
 signals:
     /**
      * @brief 文档加载状态变化
@@ -424,6 +427,8 @@ signals:
      * @brief 文本预加载取消
      */
     void textPreloadCancelled();
+
+    void paperEffectChanged(bool enabled);
 
 private:
     void setupConnections();

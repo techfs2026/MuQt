@@ -8,6 +8,7 @@ PerThreadMuPDFRenderer::PerThreadMuPDFRenderer()
     : m_context(nullptr)
     , m_document(nullptr)
     , m_pageCount(0)
+    , m_paperEffectEnabled(false)
 {
 }
 
@@ -16,6 +17,7 @@ PerThreadMuPDFRenderer::PerThreadMuPDFRenderer(const QString& documentPath)
     , m_context(nullptr)
     , m_document(nullptr)
     , m_pageCount(0)
+    , m_paperEffectEnabled(false)
 {
     if (!createContext()) {
         qCritical() << "PerThreadMuPDFRenderer: Failed to initialize context";
@@ -291,17 +293,11 @@ RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int 
     }
 
     fz_try(m_context) {
-        // 加载页面
         fz_page* page = fz_load_page(m_context, m_document, pageIndex);
-
-        // 计算变换矩阵
         fz_matrix matrix = calculateMatrixForMuPDF(zoom, rotation);
-
-        // 计算边界
         fz_rect bounds = fz_bound_page(m_context, page);
         bounds = fz_transform_rect(bounds, matrix);
 
-        // 创建 pixmap
         fz_pixmap* pixmap = fz_new_pixmap_with_bbox(
             m_context,
             fz_device_rgb(m_context),
@@ -311,15 +307,19 @@ RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int 
             );
         fz_clear_pixmap_with_value(m_context, pixmap, 0xff);
 
-        // 渲染
         fz_device* device = fz_new_draw_device(m_context, fz_identity, pixmap);
         fz_run_page(m_context, page, device, matrix, nullptr);
 
-        // 转换为 QImage
         result.image = pixmapToQImage(m_context, pixmap);
+
+        // ============ 添加纸质增强处理 ============
+        if (m_paperEffectEnabled && !result.image.isNull()) {
+            result.image = m_paperEffectEnhancer.enhance(result.image);
+        }
+        // ========================================
+
         result.success = true;
 
-        // 清理
         fz_close_device(m_context, device);
         fz_drop_device(m_context, device);
         fz_drop_pixmap(m_context, pixmap);
@@ -335,6 +335,10 @@ RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int 
     }
 
     return result;
+}
+void PerThreadMuPDFRenderer::setPaperEffectEnabled(bool enabled)
+{
+    m_paperEffectEnabled = enabled;
 }
 
 bool PerThreadMuPDFRenderer::extractText(int pageIndex, PageTextData& outData, QString* errorMsg)

@@ -74,6 +74,8 @@ private slots:
     void onCurrentTabDocumentLoaded(const QString& filePath, int pageCount);
     void onCurrentTabSearchCompleted(const QString& query, int totalMatches);
 
+    void togglePaperEffect();
+
 private:
     void createMenuBar();
     void createToolBar();
@@ -145,6 +147,7 @@ private:
     QAction* m_continuousScrollToolbarAction;
     QAction* m_fitPageToolbarAction;
     QAction* m_fitWidthToolbarAction;
+    QAction* m_paperEffectAction;
 
     // 防抖定时器
     QTimer m_resizeDebounceTimer;

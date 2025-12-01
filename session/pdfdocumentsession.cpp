@@ -680,3 +680,22 @@ void PDFDocumentSession::updateCacheAfterStateChange()
         m_state->currentRotation()
         );
 }
+
+void PDFDocumentSession::setPaperEffectEnabled(bool enabled)
+{
+    if (m_renderer) {
+        m_renderer->setPaperEffectEnabled(enabled);
+
+        // 清空缓存以便重新渲染
+        if (m_pageCache) {
+            m_pageCache->clear();
+        }
+
+        emit paperEffectChanged(enabled);
+    }
+}
+
+bool PDFDocumentSession::paperEffectEnabled() const
+{
+    return m_renderer ? m_renderer->paperEffectEnabled() : false;
+}
