@@ -48,6 +48,15 @@ set(OPENCV_LIB_DEBUG   "${OPENCV_DIR}/lib/Debug")
 set(OPENCV_LIB_RELEASE "${OPENCV_DIR}/lib/Release")
 
 # -----------------------------
+# Third-party: onnxruntime
+# -----------------------------
+set(ONNXRUNTIME_DIR "D:/Ext-Lib/onnxruntime-win-x64")
+set(ONNXRUNTIME_INCLUDE_DIR "${ONNXRUNTIME_DIR}/include")
+
+set(ONNXRUNTIME_LIB   "${ONNXRUNTIME_DIR}/lib")
+
+
+# -----------------------------
 # Collect all source files automatically
 # -----------------------------
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
@@ -86,9 +95,11 @@ target_include_directories(MuQt PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/tool
     ${CMAKE_CURRENT_SOURCE_DIR}/manager
     ${CMAKE_CURRENT_SOURCE_DIR}/handler
+    ${CMAKE_CURRENT_SOURCE_DIR}/ocr
 
     ${MUPDF_INCLUDE_DIR}
     ${OPENCV_INCLUDE_DIR}
+    ${ONNXRUNTIME_INCLUDE_DIR}
 )
 
 # -----------------------------
@@ -100,6 +111,9 @@ target_link_directories(MuQt PRIVATE
 
     "$<$<CONFIG:Debug>:${OPENCV_LIB_DEBUG}>"
     "$<$<CONFIG:Release>:${OPENCV_LIB_RELEASE}>"
+
+    "$<$<CONFIG:Debug>:${ONNXRUNTIME_LIB}>"
+    "$<$<CONFIG:Release>:${ONNXRUNTIME_LIB}>"
 )
 
 # -----------------------------
@@ -111,8 +125,8 @@ target_link_libraries(MuQt PRIVATE
     Qt6::Concurrent
 
 
-    "$<$<CONFIG:Debug>:libmupdf.lib;libthirdparty.lib;opencv_world4120d.dll>"
-    "$<$<CONFIG:Release>:libmupdf.lib;libthirdparty.lib;opencv_world4120.dll>"
+    "$<$<CONFIG:Debug>:libmupdf.lib;libthirdparty.lib;opencv_world4120d.dll;onnxruntime.dll>"
+    "$<$<CONFIG:Release>:libmupdf.lib;libthirdparty.lib;opencv_world4120.dll;onnxruntime.dll>"
 )
 
 # -----------------------------

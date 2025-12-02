@@ -831,12 +831,11 @@ void MainWindow::createToolBar()
 
     m_toolBar->addSeparator();
 
-    // 添加纸质增强按钮
     m_paperEffectAction = m_toolBar->addAction(
         QIcon(":icons/resources/icons/paper-effect.png"),
         tr("纸质增强")
         );
-    m_paperEffectAction->setToolTip(tr("纸质书印刷效果增强"));
+    m_paperEffectAction->setToolTip(tr("魔法！护眼纸质感效果增强"));
     m_paperEffectAction->setCheckable(true);
     m_paperEffectAction->setChecked(false);
     connect(m_paperEffectAction, &QAction::triggered,

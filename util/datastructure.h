@@ -91,4 +91,27 @@ struct SearchResult {
     bool isValid() const { return pageIndex >= 0 && !quads.isEmpty(); }
 };
 
+/**
+ * @brief OCR识别结果
+ */
+struct OCRResult {
+    QString text;           // 识别的文字
+    float confidence;       // 置信度 (0.0-1.0)
+    bool success;           // 是否成功
+    QString error;          // 错误信息
+
+    OCRResult() : confidence(0.0f), success(false) {}
+    bool isValid() const { return success && !text.isEmpty(); }
+};
+
+/**
+ * @brief OCR引擎状态
+ */
+enum class OCREngineState {
+    Uninitialized,    // 未初始化
+    Loading,          // 加载中
+    Ready,            // 就绪
+    Error             // 错误
+};
+
 #endif // DATASTRUCTURE_H
