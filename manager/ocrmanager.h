@@ -16,6 +16,7 @@
  * 1. 管理全局唯一的OCREngine
  * 2. 处理防抖逻辑
  * 3. 异步OCR识别
+ * 4. 管理全局OCR悬停开关状态
  *
  * 特点：
  * - 单例模式，整个应用共享一个实例
@@ -49,9 +50,20 @@ public:
     OCREngineState engineState() const;
 
     /**
+     * @brief 启用/禁用OCR悬停功能
+     */
+    void setOCRHoverEnabled(bool enabled);
+
+    /**
+     * @brief 检查OCR悬停是否已启用
+     */
+    bool isOCRHoverEnabled() const { return m_ocrHoverEnabled; }
+
+    /**
      * @brief 请求OCR识别（带防抖）
      * @param image 待识别的图像区域
      * @param regionRect 区域在屏幕上的位置（用于定位浮层）
+     * @param lastHoverPos 鼠标最后位置
      */
     void requestOCR(const QImage& image, const QRect& regionRect, const QPoint& lastHoverPos);
 
@@ -75,6 +87,7 @@ signals:
      * @brief OCR识别完成
      * @param result 识别结果
      * @param regionRect 识别区域（用于定位浮层）
+     * @param lastHoverPos 鼠标最后位置
      */
     void ocrCompleted(const OCRResult& result, const QRect& regionRect, const QPoint& lastHoverPos);
 
@@ -87,6 +100,11 @@ signals:
      * @brief 引擎状态改变
      */
     void engineStateChanged(OCREngineState state);
+
+    /**
+     * @brief OCR悬停状态改变
+     */
+    void ocrHoverEnabledChanged(bool enabled);
 
 private:
     OCRManager();
@@ -112,6 +130,7 @@ private:
     } m_pending;
 
     int m_debounceDelay;
+    bool m_ocrHoverEnabled;  // OCR悬停功能是否启用
 };
 
 #endif // OCRMANAGER_H

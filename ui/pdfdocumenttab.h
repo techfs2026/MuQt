@@ -6,6 +6,7 @@
 
 #include "datastructure.h"
 #include "ocrengine.h"
+#include "ocrmanager.h"
 #include "navigationpanel.h"
 
 class PDFDocumentSession;
@@ -115,8 +116,8 @@ public:
     bool paperEffectEnabled() const;
 
     // OCR
-    void setOCRHoverEnabled(bool enabled);
-    bool isOCRHoverEnabled() const { return m_ocrHoverEnabled; }
+    bool isOCRHoverEnabled() const { return OCRManager::instance().isOCRHoverEnabled(); }
+    void updateOCRHoverState();
 
 signals:
 
@@ -203,7 +204,6 @@ private:
     bool m_isUserScrolling;
 
     OCRFloatingWidget* m_ocrFloatingWidget;  // OCR浮层
-    bool m_ocrHoverEnabled;
     QImage m_lastOCRImage;
     QRect m_lastOCRRegion;
 };

@@ -42,7 +42,6 @@ PDFDocumentTab::PDFDocumentTab(QWidget* parent)
     , m_clickCount(0)
     , m_isUserScrolling(false)
     , m_ocrFloatingWidget(nullptr)
-    , m_ocrHoverEnabled(false)
 {
     setupUI();
     setupConnections();
@@ -961,41 +960,13 @@ bool PDFDocumentTab::paperEffectEnabled() const
     return m_session ? m_session->paperEffectEnabled() : false;
 }
 
-void PDFDocumentTab::setOCRHoverEnabled(bool enabled)
+void PDFDocumentTab::updateOCRHoverState()
 {
-    if (!isDocumentLoaded()) {
-        qWarning() << "Cannot enable OCR: No document loaded";
-        return;
-    }
+    bool enabled = OCRManager::instance().isOCRHoverEnabled();
 
-    // 只对扫描版PDF可用
-    if (enabled && isTextPDF()) {
-        QMessageBox::information(this, tr("功能不可用"),
-                                 tr("OCR悬停取词仅适用于扫描版PDF。\n"
-                                    "当前文档是原生文本PDF,请直接选择文字。"));
-        return;
-    }
-
-    m_ocrHoverEnabled = enabled;
-
-    // 等待OCR就绪
-    if (enabled && !OCRManager::instance().isReady()) {
-        OCREngineState state = OCRManager::instance().engineState();
-
-        if (state == OCREngineState::Loading) {
-            QMessageBox::information(this, tr("请稍候"),
-                                     tr("OCR模型正在加载中,请稍候...\n\n"
-                                        "加载完成后会自动启用悬停取词功能。"));
-            m_ocrHoverEnabled = false;
-            return;
-        } else if (state == OCREngineState::Error) {
-            QMessageBox::critical(this, tr("OCR初始化失败"),
-                                  tr("OCR引擎初始化失败:\n%1\n\n"
-                                     "请检查模型文件是否存在于 models 目录。")
-                                      .arg(OCRManager::instance().lastError()));
-            m_ocrHoverEnabled = false;
-            return;
-        }
+    // 如果不是扫描版PDF，强制禁用
+    if (!isDocumentLoaded() || isTextPDF()) {
+        enabled = false;
     }
 
     // 通知PageWidget
@@ -1007,23 +978,11 @@ void PDFDocumentTab::setOCRHoverEnabled(bool enabled)
     if (!enabled && m_ocrFloatingWidget) {
         m_ocrFloatingWidget->hideFloating();
     }
-
-    // 显示使用提示
-    if (enabled) {
-        QMessageBox::information(this, tr("OCR取词已启用"),
-                                 tr("OCR悬停取词已启用!\n\n"
-                                    "使用方法:\n"
-                                    "1. 将鼠标移动到要识别的文字位置\n"
-                                    "2. 按下 Ctrl+Q 快捷键触发识别\n"
-                                    "3. 识别结果会在浮窗中显示\n"
-                                    "4. 点击浮窗可查询词典\n\n"
-                                    "提示: 可在状态栏查看OCR引擎状态"));
-    }
 }
 
 void PDFDocumentTab::onOCRHoverTriggered(const QImage& image, const QRect& regionRect, const QPoint& lastHoverPos)
 {
-    if (!m_ocrHoverEnabled) {
+    if (!OCRManager::instance().isOCRHoverEnabled()) {
         return;
     }
 
@@ -1042,7 +1001,7 @@ void PDFDocumentTab::onOCRHoverTriggered(const QImage& image, const QRect& regio
 
 void PDFDocumentTab::onOCRCompleted(const OCRResult& result, const QRect& regionRect, const QPoint& lastHoverPos)
 {
-    if (!m_ocrHoverEnabled) {
+    if (!OCRManager::instance().isOCRHoverEnabled()) {
         return;
     }
 
@@ -1100,7 +1059,7 @@ void PDFDocumentTab::onOCRCompleted(const OCRResult& result, const QRect& region
 
 void PDFDocumentTab::onOCRFailed(const QString& error)
 {
-    if (!m_ocrHoverEnabled) {
+    if (!OCRManager::instance().isOCRHoverEnabled()) {
         return;
     }
 

@@ -245,7 +245,7 @@ void MainWindow::onTabChanged(int index)
 
         if (m_ocrHoverAction) {
             m_ocrHoverAction->setEnabled(isScannedPDF && ocrReady);
-            m_ocrHoverAction->setChecked(tab->isOCRHoverEnabled());
+            m_ocrHoverAction->setChecked(OCRManager::instance().isOCRHoverEnabled());
         }
     } else {
         // 无文档或无 tab,隐藏导航面板
@@ -969,6 +969,9 @@ void MainWindow::createStatusBar()
     connect(&OCRManager::instance(), &OCRManager::engineStateChanged,
             this, &MainWindow::onOCREngineStateChanged);
 
+    connect(&OCRManager::instance(), &OCRManager::ocrHoverEnabledChanged,
+            this, &MainWindow::onOCRHoverEnabledChanged);
+
     updateStatusBar();
 }
 
@@ -1095,7 +1098,7 @@ void MainWindow::updateUIState()
 
     // 同步勾选状态
     if (hasDocument) {
-        m_ocrHoverAction->setChecked(tab->isOCRHoverEnabled());
+        m_ocrHoverAction->setChecked(OCRManager::instance().isOCRHoverEnabled());  // 修改
     } else {
         m_ocrHoverAction->setChecked(false);
     }
@@ -1292,9 +1295,23 @@ void MainWindow::toggleOCRHover()
         }
     }
 
-    // 设置当前Tab的OCR状态
-    tab->setOCRHoverEnabled(enabled);
+    // 使用全局OCRManager设置状态 (修改)
+    OCRManager::instance().setOCRHoverEnabled(enabled);
+
+    // 显示使用提示
+    if (enabled) {
+        QMessageBox::information(this, tr("OCR取词已启用"),
+                                 tr("OCR悬停取词已启用!\n\n"
+                                    "使用方法:\n"
+                                    "1. 将鼠标移动到要识别的文字位置\n"
+                                    "2. 按下 Ctrl+Q 快捷键触发识别\n"
+                                    "3. 识别结果会在浮窗中显示\n"
+                                    "4. 点击浮窗可查询词典\n"
+                                    "5. 再次点击工具栏按钮可关闭OCR\n\n"
+                                    "提示: 可在状态栏查看OCR引擎状态"));
+    }
 }
+
 
 void MainWindow::initializeOCRManager()
 {
@@ -1360,13 +1377,29 @@ void MainWindow::onOCREngineStateChanged(OCREngineState state)
         }
     }
 
-    // 如果初始化成功且用户已经尝试启用，自动启用
+    // 如果初始化成功且用户已经尝试启用，自动启用 (修改)
     if (state == OCREngineState::Ready &&
         m_ocrHoverAction &&
         m_ocrHoverAction->isChecked()) {
 
-        if (tab) {
-            tab->setOCRHoverEnabled(true);
+        OCRManager::instance().setOCRHoverEnabled(true);
+    }
+}
+
+void MainWindow::onOCRHoverEnabledChanged(bool enabled)
+{
+    // 同步UI状态
+    if (m_ocrHoverAction) {
+        m_ocrHoverAction->setChecked(enabled);
+    }
+
+    // 通知所有Tab更新
+    for (int i = 0; i < m_tabWidget->count(); ++i) {
+        PDFDocumentTab* tab = qobject_cast<PDFDocumentTab*>(m_tabWidget->widget(i));
+        if (tab && tab->isDocumentLoaded() && !tab->isTextPDF()) {
+            tab->updateOCRHoverState();
         }
     }
+
+    qInfo() << "OCR hover state changed to:" << enabled;
 }

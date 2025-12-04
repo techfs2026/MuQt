@@ -6,6 +6,7 @@
 #include "pdfinteractionhandler.h"
 #include "textselector.h"
 #include "linkmanager.h"
+#include "ocrmanager.h"
 #include "appconfig.h"
 
 #include <QPainter>
@@ -470,6 +471,11 @@ void PDFPageWidget::drawTextSelection(QPainter& painter, int pageIndex, int page
 
 void PDFPageWidget::triggerOCRAtCurrentPosition()
 {
+    if (!OCRManager::instance().isOCRHoverEnabled()) {
+        qDebug() << "OCR hover not enabled globally";
+        return;
+    }
+
     if (!m_ocrHoverEnabled) {
         qDebug() << "OCR hover not enabled";
         return;

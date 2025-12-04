@@ -4,6 +4,7 @@
 
 OCRManager::OCRManager()
     : m_debounceDelay(300)
+    , m_ocrHoverEnabled(false)
 {
     m_debounceTimer.setSingleShot(true);
     connect(&m_debounceTimer, &QTimer::timeout,
@@ -58,8 +59,37 @@ OCREngineState OCRManager::engineState() const
     return m_engine ? m_engine->state() : OCREngineState::Uninitialized;
 }
 
+void OCRManager::setOCRHoverEnabled(bool enabled)
+{
+    if (m_ocrHoverEnabled == enabled) {
+        return;
+    }
+
+    // 如果要启用，检查引擎是否就绪
+    if (enabled && !isReady()) {
+        qWarning() << "Cannot enable OCR hover: Engine not ready";
+        return;
+    }
+
+    m_ocrHoverEnabled = enabled;
+
+    // 禁用时取消待处理的请求
+    if (!enabled) {
+        cancelPending();
+    }
+
+    emit ocrHoverEnabledChanged(enabled);
+    qInfo() << "OCR hover enabled changed to:" << enabled;
+}
+
 void OCRManager::requestOCR(const QImage& image, const QRect& regionRect, const QPoint& lastHoverPos)
 {
+    // 检查是否启用
+    if (!m_ocrHoverEnabled) {
+        qDebug() << "OCR hover is disabled, ignoring request";
+        return;
+    }
+
     if (!m_engine) {
         emit ocrFailed(tr("OCR引擎未初始化"));
         return;

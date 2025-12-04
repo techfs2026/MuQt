@@ -1,4 +1,5 @@
 #include "chinesetokenizer.h"
+#include "rapidocr-cpp/utils.h"
 #include <QFileInfo>
 #include <QDebug>
 #include <cmath>
@@ -103,11 +104,98 @@ QStringList ChineseTokenizer::tokenize(const QString& text)
     }
 }
 
+QStringList ChineseTokenizer::tokenizeEnglish(const QString& text)
+{
+    if (text.isEmpty()) {
+        return QStringList();
+    }
+
+    QStringList result;
+    QString currentWord;
+
+    for (int i = 0; i < text.length(); ++i) {
+        QChar c = text[i];
+
+        // 字母或数字 - 累积到当前单词
+        if (c.isLetterOrNumber() || c == '\'' || c == '-') {
+            currentWord += c;
+        }
+        // 空格或标点 - 结束当前单词
+        else {
+            if (!currentWord.isEmpty()) {
+                result << currentWord;
+                currentWord.clear();
+            }
+        }
+    }
+
+    // 处理最后一个单词
+    if (!currentWord.isEmpty()) {
+        result << currentWord;
+    }
+
+    return result;
+}
+
+QVector<TokenWithPosition> ChineseTokenizer::tokenizeEnglishLine(
+    const QString& text,
+    const QRect& lineRect,
+    int lineIndex)
+{
+    QVector<TokenWithPosition> result;
+
+    if (text.isEmpty()) {
+        return result;
+    }
+
+    QString currentWord;
+    int wordStartIndex = 0;
+    int totalLength = text.length();
+
+    for (int i = 0; i < text.length(); ++i) {
+        QChar c = text[i];
+
+        if (c.isLetterOrNumber() || c == '\'' || c == '-') {
+            if (currentWord.isEmpty()) {
+                wordStartIndex = i;
+            }
+            currentWord += c;
+        } else {
+            if (!currentWord.isEmpty()) {
+                TokenWithPosition token;
+                token.word = currentWord;
+                token.startIndex = wordStartIndex;
+                token.endIndex = i;
+                token.lineIndex = lineIndex;
+                token.estimatedRect = estimateWordRectInLine(
+                    wordStartIndex, i, totalLength, lineRect
+                    );
+                result.append(token);
+                currentWord.clear();
+            }
+        }
+    }
+
+    // 处理最后一个单词
+    if (!currentWord.isEmpty()) {
+        TokenWithPosition token;
+        token.word = currentWord;
+        token.startIndex = wordStartIndex;
+        token.endIndex = text.length();
+        token.lineIndex = lineIndex;
+        token.estimatedRect = estimateWordRectInLine(
+            wordStartIndex, text.length(), totalLength, lineRect
+            );
+        result.append(token);
+    }
+
+    return result;
+}
+
 QVector<TokenWithPosition> ChineseTokenizer::tokenizeWithPosition(
     const OCRResult& ocr)
 {
     QVector<TokenWithPosition> result;
-    if (!m_initialized) return result;
     if (!ocr.success) return result;
     if (ocr.texts.empty() || ocr.boxes.empty()) return result;
 
@@ -117,39 +205,57 @@ QVector<TokenWithPosition> ChineseTokenizer::tokenizeWithPosition(
         const std::string& lineStd = ocr.texts[i];
         if (lineStd.empty()) continue;
 
+        QString lineText = QString::fromStdString(lineStd);
+
         // 1. 这一行对应的 box → 行矩形
         const auto& box = ocr.boxes[i];
         if (box.size() < 4) continue;
 
         QRect lineRect = boundingRectFromBox(box);
 
-        // 2. 用 jieba 对这一行分词（带 offset）
-        std::vector<cppjieba::Word> words;
-        m_jieba->Cut(lineStd, words, false);
+        // 2. 判断是中文还是英文 - 使用工具函数
+        bool hasChinese = RapidOCR::Utils::hasChineseChar(lineStd);
 
-        int totalLength = static_cast<int>(lineStd.length()); // 注意：offset 和 length 跟它同源即可
-
-        for (const auto& w : words) {
-            QString qword = QString::fromStdString(w.word).trimmed();
-            if (qword.isEmpty()) continue;
-            if (qword.length() == 1 && !qword[0].isLetterOrNumber()) {
+        if (!hasChinese) {
+            // 英文：按单词分割
+            QVector<TokenWithPosition> englishTokens = tokenizeEnglishLine(
+                lineText, lineRect, static_cast<int>(i)
+                );
+            result.append(englishTokens);
+        } else {
+            // 中文：用 jieba 分词
+            if (!m_initialized) {
+                qWarning() << "Jieba not initialized for Chinese text";
                 continue;
             }
 
-            TokenWithPosition token;
-            token.word = qword;
-            token.startIndex = static_cast<int>(w.offset);
-            token.endIndex   = static_cast<int>(w.offset + w.word.length());
-            token.lineIndex  = static_cast<int>(i);
+            std::vector<cppjieba::Word> words;
+            m_jieba->Cut(lineStd, words, false);
 
-            token.estimatedRect = estimateWordRectInLine(
-                token.startIndex,
-                token.endIndex,
-                totalLength,
-                lineRect
-                );
+            int totalLength = static_cast<int>(lineStd.length());
 
-            result.append(token);
+            for (const auto& w : words) {
+                QString qword = QString::fromStdString(w.word).trimmed();
+                if (qword.isEmpty()) continue;
+                if (qword.length() == 1 && !qword[0].isLetterOrNumber()) {
+                    continue;
+                }
+
+                TokenWithPosition token;
+                token.word = qword;
+                token.startIndex = static_cast<int>(w.offset);
+                token.endIndex   = static_cast<int>(w.offset + w.word.length());
+                token.lineIndex  = static_cast<int>(i);
+
+                token.estimatedRect = estimateWordRectInLine(
+                    token.startIndex,
+                    token.endIndex,
+                    totalLength,
+                    lineRect
+                    );
+
+                result.append(token);
+            }
         }
     }
 
@@ -235,35 +341,6 @@ TokenWithPosition ChineseTokenizer::findClosestToken(
              << "Distance:" << minDistance;
 
     return closestToken;
-}
-
-QRect ChineseTokenizer::estimateWordRect(
-    int startIndex,
-    int endIndex,
-    int totalLength,
-    const QRect& totalRect)
-{
-    if (totalLength == 0) {
-        return totalRect;
-    }
-
-    // 计算词语在文本中的相对位置
-    double startRatio = static_cast<double>(startIndex) / totalLength;
-    double endRatio = static_cast<double>(endIndex) / totalLength;
-
-    // 假设文本是水平排列的,从左到右
-    int wordLeft = totalRect.left() + static_cast<int>(startRatio * totalRect.width());
-    int wordRight = totalRect.left() + static_cast<int>(endRatio * totalRect.width());
-
-    // 使用整个矩形的高度
-    QRect wordRect(
-        wordLeft,
-        totalRect.top(),
-        wordRight - wordLeft,
-        totalRect.height()
-        );
-
-    return wordRect;
 }
 
 double ChineseTokenizer::distanceToRect(const QPoint& point, const QRect& rect)
