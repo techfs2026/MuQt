@@ -57,7 +57,7 @@ set(OPENCV_BIN_RELEASE "${OPENCV_DIR}/bin/Release")
 set(ONNXRUNTIME_DIR "D:/Ext-Lib/onnxruntime-win-x64")
 set(ONNXRUNTIME_INCLUDE_DIR "${ONNXRUNTIME_DIR}/include")
 set(ONNXRUNTIME_LIB_DIR "${ONNXRUNTIME_DIR}/lib")
-set(ONNXRUNTIME_BIN_DIR "${ONNXRUNTIME_DIR}/lib")  # DLL 通常也在 lib 目录
+set(ONNXRUNTIME_BIN_DIR "${ONNXRUNTIME_DIR}/lib")
 
 # -----------------------------
 # Collect all source files automatically
@@ -99,6 +99,7 @@ target_include_directories(MuQt PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/manager
     ${CMAKE_CURRENT_SOURCE_DIR}/handler
     ${CMAKE_CURRENT_SOURCE_DIR}/ocr
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty
 
     ${MUPDF_INCLUDE_DIR}
     ${OPENCV_INCLUDE_DIR}
@@ -130,11 +131,11 @@ target_link_libraries(MuQt PRIVATE
     libmupdf.lib
     libthirdparty.lib
 
-    # OpenCV (✅ 链接 .lib 文件)
+    # OpenCV
     "$<$<CONFIG:Debug>:opencv_world4120d.lib>"
     "$<$<CONFIG:Release>:opencv_world4120.lib>"
 
-    # ONNX Runtime (✅ 只链接 onnxruntime.lib)
+    # ONNX Runtime
     onnxruntime.lib
 )
 
@@ -186,9 +187,6 @@ foreach(dll ${ONNX_DLLS})
         message(WARNING "ONNX Runtime DLL not found: ${dll}")
     endif()
 endforeach()
-
-# MuPDF DLLs (如果有的话)
-# ... 根据你的 MuPDF 配置添加
 
 # -----------------------------
 # Copy OCR models to output directory

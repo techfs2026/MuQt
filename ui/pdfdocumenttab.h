@@ -5,6 +5,7 @@
 #include <QDateTime>
 
 #include "datastructure.h"
+#include "ocrengine.h"
 #include "navigationpanel.h"
 
 class PDFDocumentSession;

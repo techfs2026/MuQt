@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include "ocrengine.h"
 #include "datastructure.h"
 
 class QTabWidget;

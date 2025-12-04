@@ -8,7 +8,7 @@
 
 <img src="docs/images/mainwindow2.png" alt="主窗口-大纲-连续滚动"/>
 
-## ✨ 主要特性
+## 主要特性
 
 ### 阅读功能
 - **多种显示模式**：单页、双页、连续滚动
@@ -27,11 +27,15 @@
 - **快捷键支持**：完整的键盘导航
 - **工具栏**：直观的操作按钮和状态显示
 
-## 🏗️ 分层设计
+### 实验功能
+- **护眼纸质感**：利用OpenCV实现扫描版PDF护眼纸质感体验！
+- **OCR悬停取词**：基于强大的中英文OCR技术PaddleOCR实现的悬停取词功能，方便与外部工具(如GoldenDict-NG)互动
+
+## 分层设计
 
 <img src="docs/images/MuQt-architecture.png" alt="架构图" width="620px" height="600px"/>
 
-## 🔧 核心组件说明
+## 核心组件说明
 
 项目采用分层架构，从高到低是UI层、Session层、Handler/Cache/Renderer层、Model/Manager/Tool层，此外还有Util工具包。
 
@@ -84,27 +88,35 @@ Handler层只负责处理业务，它不持有状态和数据，状态来自Sess
 
 辅助层，为其他模块提供数据建模，并非MVC或MVVM的Model。同样的，Tool层类似。
 
-## 📊 性能优化
+## 性能优化
 
 ### 页面缓存
 ### 缩略图加载
 ### 全文文本缓存加载
 
-## 📄 许可证
+## 依赖库版本
+- Qt6: 6.10.0
+- MuPDF: 1.26.11
+- OpenCV: 4.12.0
+- onnxruntime: 1.23.2
+- paddleocr: v5模型
+- rapidocr: 3.4.2 (非直接依赖，C++代码实现参考了其Python实现)
+- Clipper2: 1.5.4
 
+## 致谢
 
-
-## 🙏 致谢
-
-- [MuPDF](https://mupdf.com/) - 强大的 PDF 渲染引擎
-- [Qt Framework](https://www.qt.io/) - 跨平台应用框架
+- [MuPDF](https://github.com/ArtifexSoftware/mupdf)
+- [Qt Framework](https://www.qt.io/)
+- [OpenCV](https://github.com/opencv/opencv)
+- [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)
+- [RapidOCR](https://github.com/RapidAI/RapidOCR)
 - PDF Expert - UI 设计灵感来源
 
-## 📧 联系方式
+## 联系方式
 
 - 项目主页: https://github.com/techfs2026/MuQt
 
-## 🌟 Star History
+## Star History
 
 如果这个项目对你有帮助，请给个 Star ⭐️
 
