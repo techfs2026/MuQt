@@ -236,82 +236,51 @@ Ort::Value OrtInferSession::matToTensor(const cv::Mat& mat) {
 }
 
 cv::Mat OrtInferSession::tensorToMat(Ort::Value& tensor) {
-    // 获取tensor信息
     auto tensorInfo = tensor.GetTensorTypeAndShapeInfo();
     auto shape = tensorInfo.GetShape();
     auto elementType = tensorInfo.GetElementType();
 
-    // 检查数据类型
     if (elementType != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
         throw ONNXRuntimeError("Unsupported tensor element type, expected float");
     }
 
-    // 获取数据指针
     float* tensorData = tensor.GetTensorMutableData<float>();
 
-    // 根据shape构建cv::Mat
-    if (shape.size() == 2) {
-        // 2D: [H, W]
+    if (shape.size() == 1) {
+        // 1D tensor
+        int size = static_cast<int>(shape[0]);
+        return cv::Mat(1, size, CV_32F, tensorData).clone();
+
+    } else if (shape.size() == 2) {
+        // 2D tensor: [rows, cols]
         int rows = static_cast<int>(shape[0]);
         int cols = static_cast<int>(shape[1]);
         return cv::Mat(rows, cols, CV_32F, tensorData).clone();
+
     } else if (shape.size() == 3) {
-        // 3D: [C, H, W] 或 [H, W, C]
-        int dim0 = static_cast<int>(shape[0]);
-        int dim1 = static_cast<int>(shape[1]);
-        int dim2 = static_cast<int>(shape[2]);
+        // 3D tensor: 直接构建3D Mat，不做转换
+        int dims[] = {
+            static_cast<int>(shape[0]),
+            static_cast<int>(shape[1]),
+            static_cast<int>(shape[2])
+        };
+        return cv::Mat(3, dims, CV_32F, tensorData).clone();
 
-        // 假设格式为 [C, H, W]
-        if (dim0 <= 4) {  // 通道数通常较小
-            // 需要转换为 [H, W, C]
-            std::vector<cv::Mat> channels;
-            int h = dim1;
-            int w = dim2;
-            int c = dim0;
-
-            for (int i = 0; i < c; ++i) {
-                cv::Mat channel(h, w, CV_32F, tensorData + i * h * w);
-                channels.push_back(channel.clone());
-            }
-
-            cv::Mat result;
-            if (channels.size() == 1) {
-                result = channels[0];
-            } else {
-                cv::merge(channels, result);
-            }
-            return result;
-        } else {
-            // 格式为 [H, W, C]
-            int sizes[] = {dim0, dim1, dim2};
-            return cv::Mat(3, sizes, CV_32F, tensorData).clone();
-        }
     } else if (shape.size() == 4) {
-        // 4D: [N, C, H, W] - 假设N=1
-        if (shape[0] != 1) {
-            throw ONNXRuntimeError("Batch size must be 1");
-        }
+        // 4D tensor: 直接构建4D Mat
+        int dims[] = {
+            static_cast<int>(shape[0]),
+            static_cast<int>(shape[1]),
+            static_cast<int>(shape[2]),
+            static_cast<int>(shape[3])
+        };
+        return cv::Mat(4, dims, CV_32F, tensorData).clone();
 
-        int c = static_cast<int>(shape[1]);
-        int h = static_cast<int>(shape[2]);
-        int w = static_cast<int>(shape[3]);
-
-        std::vector<cv::Mat> channels;
-        for (int i = 0; i < c; ++i) {
-            cv::Mat channel(h, w, CV_32F, tensorData + i * h * w);
-            channels.push_back(channel.clone());
-        }
-
-        cv::Mat result;
-        if (channels.size() == 1) {
-            result = channels[0];
-        } else {
-            cv::merge(channels, result);
-        }
-        return result;
+    } else {
+        throw ONNXRuntimeError(
+            "Unsupported tensor shape dimensions: " + std::to_string(shape.size())
+            );
     }
-
-    throw ONNXRuntimeError("Unsupported tensor shape dimensions: " + std::to_string(shape.size()));
 }
 
 } // namespace RapidOCR
