@@ -108,19 +108,6 @@ void PDFDocumentTab::setupUI()
     // 创建OCR浮层
     m_ocrFloatingWidget = new OCRFloatingWidget(this);
     m_ocrFloatingWidget->hide();
-
-    // 应用样式
-    applyModernStyle();
-}
-
-void PDFDocumentTab::applyModernStyle()
-{
-    QFile styleFile(":styles/resources/styles/pdfdocument.qss");
-    if (styleFile.open(QFile::ReadOnly)) {
-        QString style = QLatin1String(styleFile.readAll());
-        setStyleSheet(style);
-        styleFile.close();
-    }
 }
 
 

@@ -68,9 +68,6 @@ MainWindow::MainWindow(QWidget* parent)
     m_resizeDebounceTimer.setSingleShot(true);
     m_resizeDebounceTimer.setInterval(AppConfig::instance().resizeDebounceDelay());
 
-    // 应用全局样式
-    applyModernStyle();
-
     // 检查GoldenDict是否可用
     if (!DictionaryConnector::instance().isGoldenDictAvailable()) {
         qWarning() << "GoldenDict not found, lookup feature will not work";
@@ -1194,16 +1191,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
     }
 
     QMainWindow::closeEvent(event);
-}
-
-void MainWindow::applyModernStyle()
-{
-    QFile styleFile(":styles/resources/styles/main.qss");
-    if (styleFile.open(QFile::ReadOnly)) {
-        QString style = QLatin1String(styleFile.readAll());
-        setStyleSheet(style);
-        styleFile.close();
-    }
 }
 
 void MainWindow::togglePaperEffect()

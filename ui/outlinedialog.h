@@ -74,11 +74,6 @@ private:
      */
     void setupUI();
 
-    /**
-     * @brief 应用样式表
-     */
-    void applyStyleSheet();
-
 private slots:
     /**
      * @brief 处理确认按钮点击

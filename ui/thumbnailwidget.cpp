@@ -30,13 +30,6 @@ ThumbnailWidget::ThumbnailWidget(QWidget* parent)
     setWidget(m_container);
     setWidgetResizable(true);
 
-    setStyleSheet(R"(
-        QScrollArea {
-            background-color: #F5F5F5;
-            border: none;
-        }
-    )");
-
     m_throttleTimer = new QTimer(this);
     m_throttleTimer->setSingleShot(true);
     m_throttleTimer->setInterval(30);
@@ -365,8 +358,6 @@ void ThumbnailWidget::notifyVisibleRange()
 
     emit visibleRangeChanged(visible, margin);
 }
-
-// ========== 辅助方法 ==========
 
 ScrollState ThumbnailWidget::detectScrollState()
 {

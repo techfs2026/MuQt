@@ -229,34 +229,6 @@ QMenu* OutlineWidget::createContextMenu(QTreeWidgetItem* item)
 {
     QMenu* menu = new QMenu(this);
 
-    // PDF Expert 风格的菜单样式
-    menu->setStyleSheet(R"(
-        QMenu {
-            background-color: #FFFFFF;
-            border: 1px solid #D1D1D6;
-            border-radius: 8px;
-            padding: 6px;
-        }
-
-        QMenu::item {
-            padding: 8px 32px 8px 16px;
-            border-radius: 5px;
-            color: #1C1C1E;
-            font-size: 13px;
-        }
-
-        QMenu::item:selected {
-            background-color: #007AFF;
-            color: #FFFFFF;
-        }
-
-        QMenu::separator {
-            height: 1px;
-            background-color: #E8E8E8;
-            margin: 6px 12px;
-        }
-    )");
-
     if (item) {
         // 编辑选中的大纲项
         QAction* editAction = menu->addAction(tr("✏️  编辑"));

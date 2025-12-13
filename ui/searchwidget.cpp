@@ -74,13 +74,6 @@ void SearchWidget::setupUI()
     m_closeButton->setAutoRaise(true);
     m_closeButton->setToolTip(tr("关闭 (Esc)"));
     mainLayout->addWidget(m_closeButton);
-
-    setStyleSheet(R"(
-        SearchWidget {
-            background-color: palette(window);
-            border-bottom: 1px solid palette(dark);
-        }
-    )");
 }
 
 void SearchWidget::setupConnections()

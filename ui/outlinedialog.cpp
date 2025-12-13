@@ -16,7 +16,6 @@ OutlineDialog::OutlineDialog(Mode mode, int maxPage, QWidget* parent)
     , m_buttonBox(nullptr)
 {
     setupUI();
-    applyStyleSheet();
 
     // 设置窗口属性
     setModal(true);
@@ -110,95 +109,6 @@ void OutlineDialog::setupUI()
 
     // 焦点设置
     m_titleEdit->setFocus();
-}
-
-void OutlineDialog::applyStyleSheet()
-{
-    QString style = R"(
-        QDialog {
-            background-color: #FFFFFF;
-        }
-
-        QLineEdit {
-            padding: 8px 12px;
-            border: 1px solid #D1D5DB;
-            border-radius: 4px;
-            font-size: 10pt;
-            background-color: #FFFFFF;
-        }
-
-        QLineEdit:focus {
-            border-color: #3B82F6;
-            outline: none;
-        }
-
-        QLineEdit:hover {
-            border-color: #9CA3AF;
-        }
-
-        QSpinBox {
-            padding: 8px 12px;
-            border: 1px solid #D1D5DB;
-            border-radius: 4px;
-            font-size: 10pt;
-            background-color: #FFFFFF;
-        }
-
-        QSpinBox:focus {
-            border-color: #3B82F6;
-        }
-
-        QSpinBox:hover {
-            border-color: #9CA3AF;
-        }
-
-        QSpinBox::up-button, QSpinBox::down-button {
-            background-color: #F3F4F6;
-            border: none;
-            width: 20px;
-        }
-
-        QSpinBox::up-button:hover, QSpinBox::down-button:hover {
-            background-color: #E5E7EB;
-        }
-
-        QPushButton {
-            padding: 8px 24px;
-            border: none;
-            border-radius: 4px;
-            font-size: 10pt;
-            font-weight: bold;
-            min-width: 80px;
-        }
-
-        QPushButton:hover {
-            opacity: 0.9;
-        }
-
-        QPushButton:pressed {
-            opacity: 0.8;
-        }
-
-        QDialogButtonBox QPushButton:default {
-            background-color: #3B82F6;
-            color: #FFFFFF;
-        }
-
-        QDialogButtonBox QPushButton:default:hover {
-            background-color: #2563EB;
-        }
-
-        QDialogButtonBox QPushButton:!default {
-            background-color: #F3F4F6;
-            color: #374151;
-        }
-
-        QDialogButtonBox QPushButton:!default:hover {
-            background-color: #E5E7EB;
-        }
-    )";
-
-    setStyleSheet(style);
 }
 
 void OutlineDialog::setTitle(const QString& title)

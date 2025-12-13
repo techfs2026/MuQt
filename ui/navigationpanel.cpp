@@ -94,8 +94,6 @@ NavigationPanel::NavigationPanel(PDFDocumentSession* session, QWidget* parent)
 
     setupUI();
     setupConnections();
-
-    applyModernStyle();
 }
 
 NavigationPanel::~NavigationPanel()
@@ -468,15 +466,5 @@ void NavigationPanel::resizeEvent(QResizeEvent* event)
     if (m_outlineWidget) {
         m_outlineWidget->updateGeometry();
         m_outlineWidget->viewport()->update();
-    }
-}
-
-void NavigationPanel::applyModernStyle()
-{
-    QFile styleFile(":styles/resources/styles/navigation.qss");
-    if (styleFile.open(QFile::ReadOnly)) {
-        QString style = QLatin1String(styleFile.readAll());
-        setStyleSheet(style);
-        styleFile.close();
     }
 }

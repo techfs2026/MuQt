@@ -110,8 +110,6 @@ public:
      */
     void findPrevious();
 
-    void applyModernStyle();
-
     void setPaperEffectEnabled(bool enabled);
     bool paperEffectEnabled() const;
 

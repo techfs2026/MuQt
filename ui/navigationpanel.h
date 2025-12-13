@@ -37,7 +37,6 @@ private slots:
 private:
     void setupUI();
     void setupConnections();
-    void applyModernStyle();
 
     PDFDocumentSession* m_session;
     QTabWidget* m_tabWidget;

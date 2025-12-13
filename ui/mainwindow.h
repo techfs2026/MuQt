@@ -105,9 +105,6 @@ private:
     void closeTab(int index);
     void updateTabTitle(int index);
 
-    // 样式
-    void applyModernStyle();
-
     void initOCREngine();
     void shutdownOCREngine();
     QString getEngineStateText(OCREngineState state) const;
