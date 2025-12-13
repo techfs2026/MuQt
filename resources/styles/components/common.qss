@@ -1,0 +1,250 @@
+/* ==================== 通用组件样式 ==================== */
+
+/* 标签 */
+QLabel {
+    color: @text-primary;
+    background-color: transparent;
+    border: none;
+}
+
+QLabel[heading="h1"] {
+    font-size: 24px;
+    font-weight: 700;
+    color: @text-primary;
+}
+
+QLabel[heading="h2"] {
+    font-size: 20px;
+    font-weight: 600;
+    color: @text-primary;
+}
+
+QLabel[heading="h3"] {
+    font-size: 16px;
+    font-weight: 600;
+    color: @text-primary;
+}
+
+QLabel[secondary="true"] {
+    color: @text-secondary;
+}
+
+QLabel[disabled="true"] {
+    color: @text-disabled;
+}
+
+/* 链接标签 */
+QLabel[link="true"] {
+    color: @primary-color;
+    text-decoration: underline;
+}
+
+QLabel[link="true"]:hover {
+    color: @secondary-color;
+}
+
+/* 卡片容器 */
+QFrame[card="true"] {
+    background-color: @surface-color;
+    border: 1px solid @border-light;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+QFrame[card="true"]:hover {
+    border: 1px solid @border-medium;
+}
+
+/* 分隔线 */
+QFrame[line="true"] {
+    background-color: @border-light;
+    max-height: 1px;
+    margin: 8px 0px;
+}
+
+/* 徽章 */
+QLabel[badge="true"] {
+    background-color: @primary-color;
+    color: @surface-color;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 20px;
+}
+
+QLabel[badge="success"] {
+    background-color: @success-color;
+}
+
+QLabel[badge="warning"] {
+    background-color: @warning-color;
+}
+
+QLabel[badge="error"] {
+    background-color: @error-color;
+}
+
+QLabel[badge="info"] {
+    background-color: @info-color;
+}
+
+/* 标签（Tag） */
+QLabel[tag="true"] {
+    background-color: @hover-background;
+    color: @text-primary;
+    border: 1px solid @border-light;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* 提示框 */
+QFrame[alert="true"] {
+    background-color: @hover-background;
+    border: 1px solid @border-medium;
+    border-radius: 6px;
+    padding: 12px 16px;
+}
+
+QFrame[alert="info"] {
+    background-color: rgba(0, 122, 255, 0.1);
+    border: 1px solid rgba(0, 122, 255, 0.3);
+}
+
+QFrame[alert="info"] QLabel {
+    color: @info-color;
+}
+
+QFrame[alert="success"] {
+    background-color: rgba(52, 199, 89, 0.1);
+    border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
+QFrame[alert="success"] QLabel {
+    color: @success-color;
+}
+
+QFrame[alert="warning"] {
+    background-color: rgba(255, 149, 0, 0.1);
+    border: 1px solid rgba(255, 149, 0, 0.3);
+}
+
+QFrame[alert="warning"] QLabel {
+    color: @warning-color;
+}
+
+QFrame[alert="error"] {
+    background-color: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+QFrame[alert="error"] QLabel {
+    color: @error-color;
+}
+
+/* 加载动画容器 */
+QFrame[loading="true"] {
+    background-color: transparent;
+}
+
+/* 空状态 */
+QFrame[empty-state="true"] {
+    background-color: transparent;
+    padding: 40px;
+}
+
+QFrame[empty-state="true"] QLabel {
+    color: @text-secondary;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* 骨架屏 */
+QFrame[skeleton="true"] {
+    background-color: @hover-background;
+    border-radius: 4px;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+/* 头像 */
+QLabel[avatar="true"] {
+    border-radius: 20px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    background-color: @selected-background;
+    color: @text-primary;
+    font-weight: 600;
+    text-align: center;
+}
+
+QLabel[avatar="small"] {
+    border-radius: 12px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+    font-size: 11px;
+}
+
+QLabel[avatar="large"] {
+    border-radius: 32px;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 64px;
+    font-size: 20px;
+}
+
+/* 工具提示增强 */
+QToolTip {
+    background-color: @text-primary;
+    color: @surface-color;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    opacity: 0.95;
+}
+
+/* 上下文帮助按钮 */
+QToolButton[help="true"] {
+    background-color: transparent;
+    border: 1px solid @border-medium;
+    border-radius: 10px;
+    color: @text-secondary;
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+QToolButton[help="true"]:hover {
+    background-color: @hover-background;
+    color: @text-primary;
+}
+
+/* 搜索框 */
+QLineEdit[search="true"] {
+    background-color: @paper-color;
+    border: 1px solid @border-medium;
+    border-radius: 8px;
+    padding: 8px 36px;
+    color: @text-primary;
+    font-size: @font-size;
+}
+
+QLineEdit[search="true"]:focus {
+    border: 1px solid @primary-color;
+    background-color: @surface-color;
+}
+
+/* 密码输入框 */
+QLineEdit[password="true"] {
+    lineedit-password-character: 9679;
+}

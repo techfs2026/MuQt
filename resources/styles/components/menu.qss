@@ -1,0 +1,93 @@
+/* ==================== 菜单样式 - 现代简洁 ==================== */
+
+/* 菜单栏 */
+QMenuBar {
+    background-color: @surface-color;
+    border: none;
+    border-bottom: 1px solid @border-light;
+    padding: 4px 8px;
+    font-size: @font-size;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    color: @text-primary;
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin: 0px 2px;
+}
+
+QMenuBar::item:selected {
+    background-color: @hover-background;
+}
+
+QMenuBar::item:pressed {
+    background-color: @pressed-background;
+}
+
+/* 下拉菜单 */
+QMenu {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+QMenu::item {
+    padding: 8px 36px 8px 16px;
+    border-radius: 5px;
+    color: @text-primary;
+    font-size: @font-size;
+    min-height: 24px;
+}
+
+QMenu::item:selected {
+    background-color: @selected-background;
+}
+
+QMenu::item:disabled {
+    color: @text-disabled;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: @border-light;
+    margin: 6px 12px;
+}
+
+QMenu::icon {
+    padding-left: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+QMenu::indicator {
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+}
+
+QMenu::indicator:checked {
+    image: url(:/icons/check.png);
+}
+
+QMenu::indicator:unchecked {
+    image: none;
+}
+
+/* 右箭头（子菜单指示） */
+QMenu::right-arrow {
+    image: url(:/icons/chevron-right.png);
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+}
+
+/* 菜单项快捷键 */
+QMenu::item:selected QKeySequence {
+    color: @text-primary;
+}
+
+QMenu::item:!selected QKeySequence {
+    color: @text-secondary;
+}

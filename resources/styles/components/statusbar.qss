@@ -1,0 +1,148 @@
+/* ==================== 状态栏样式 ==================== */
+
+QStatusBar {
+    background-color: @surface-color;
+    border-top: 1px solid @border-light;
+    color: @text-secondary;
+    font-size: 12px;
+    padding: 4px 8px;
+    min-height: 28px;
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+/* 状态标签 */
+QStatusBar QLabel {
+    color: @text-secondary;
+    padding: 0px 8px;
+    background-color: transparent;
+}
+
+QStatusBar #statusLabel {
+    color: @text-primary;
+    font-weight: 500;
+}
+
+/* 页码标签 */
+QStatusBar #pageLabel {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+    border-radius: 4px;
+    padding: 4px 12px;
+    color: @text-primary;
+    font-weight: 600;
+    margin: 0px 4px;
+}
+
+/* 缩放标签 */
+QStatusBar #zoomLabel {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+    border-radius: 4px;
+    padding: 4px 12px;
+    color: @text-primary;
+    font-weight: 600;
+    margin: 0px 4px;
+}
+
+/* 文件大小标签 */
+QStatusBar #fileSizeLabel {
+    color: @text-secondary;
+    padding: 0px 8px;
+}
+
+/* 修改时间标签 */
+QStatusBar #modifiedLabel {
+    color: @text-secondary;
+    padding: 0px 8px;
+}
+
+/* 进度条 */
+QStatusBar QProgressBar {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+    border-radius: 3px;
+    text-align: center;
+    color: @text-primary;
+    height: 16px;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+QStatusBar QProgressBar::chunk {
+    background-color: @primary-color;
+    border-radius: 2px;
+}
+
+/* 工具按钮 */
+QStatusBar QToolButton {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 3px 6px;
+    color: @text-primary;
+    margin: 0px 2px;
+}
+
+QStatusBar QToolButton:hover {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+}
+
+QStatusBar QToolButton:pressed {
+    background-color: @pressed-background;
+}
+
+/* 分隔器 */
+QStatusBar #separator {
+    background-color: @border-light;
+    width: 1px;
+    height: 20px;
+    margin: 0px 8px;
+}
+
+/* 图标标签 */
+QStatusBar #iconLabel {
+    padding: 2px 4px;
+}
+
+/* 消息标签（临时消息） */
+QStatusBar #messageLabel {
+    color: @text-primary;
+    padding: 4px 12px;
+    background-color: @hover-background;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* 警告消息 */
+QStatusBar #warningLabel {
+    color: @warning-color;
+    background-color: rgba(255, 149, 0, 0.1);
+    border: 1px solid rgba(255, 149, 0, 0.3);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-weight: 600;
+}
+
+/* 错误消息 */
+QStatusBar #errorLabel {
+    color: @error-color;
+    background-color: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-weight: 600;
+}
+
+/* 成功消息 */
+QStatusBar #successLabel {
+    color: @success-color;
+    background-color: rgba(52, 199, 89, 0.1);
+    border: 1px solid rgba(52, 199, 89, 0.3);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-weight: 600;
+}

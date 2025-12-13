@@ -1,0 +1,130 @@
+/* ==================== PDF 页面显示组件样式 ==================== */
+
+PDFPageWidget {
+    background-color: @background-color;
+    border: none;
+}
+
+/* 页面容器 */
+PDFPageWidget #pageContainer {
+    background-color: @background-color;
+}
+
+/* 页面阴影效果 - 纸质感 */
+PDFPageWidget #pageShadow {
+    background-color: transparent;
+}
+
+/* 加载占位符 */
+PDFPageWidget #loadingPlaceholder {
+    background-color: @surface-color;
+    border: 1px solid @border-light;
+    border-radius: 4px;
+}
+
+PDFPageWidget #loadingLabel {
+    color: @text-secondary;
+    font-size: 13px;
+}
+
+/* 页码指示器 */
+PDFPageWidget #pageIndicator {
+    background-color: rgba(28, 28, 30, 0.8);
+    color: @surface-color;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* OCR 悬停提示框 */
+PDFPageWidget #ocrTooltip {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+PDFPageWidget #ocrTooltip QLabel {
+    color: @text-primary;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* 链接高亮 */
+PDFPageWidget #linkHighlight {
+    background-color: rgba(0, 122, 255, 0.15);
+    border: 1px solid rgba(0, 122, 255, 0.3);
+    border-radius: 2px;
+}
+
+PDFPageWidget #linkHighlight:hover {
+    background-color: rgba(0, 122, 255, 0.25);
+    border: 1px solid rgba(0, 122, 255, 0.5);
+}
+
+/* 文本选择高亮 */
+PDFPageWidget #textSelection {
+    background-color: rgba(0, 122, 255, 0.3);
+}
+
+/* 搜索结果高亮 */
+PDFPageWidget #searchHighlight {
+    background-color: rgba(255, 204, 0, 0.4);
+    border: 1px solid rgba(255, 204, 0, 0.6);
+}
+
+PDFPageWidget #searchHighlight:current {
+    background-color: rgba(255, 149, 0, 0.5);
+    border: 1px solid rgba(255, 149, 0, 0.8);
+}
+
+/* 注释高亮 */
+PDFPageWidget #annotationHighlight {
+    background-color: rgba(52, 199, 89, 0.2);
+    border: 1px solid rgba(52, 199, 89, 0.4);
+}
+
+/* 右键菜单 */
+PDFPageWidget QMenu {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+PDFPageWidget QMenu::item {
+    padding: 8px 36px 8px 16px;
+    border-radius: 5px;
+    color: @text-primary;
+    font-size: 13px;
+    min-height: 24px;
+}
+
+PDFPageWidget QMenu::item:selected {
+    background-color: @selected-background;
+}
+
+PDFPageWidget QMenu::item:disabled {
+    color: @text-disabled;
+}
+
+PDFPageWidget QMenu::separator {
+    height: 1px;
+    background-color: @border-light;
+    margin: 6px 12px;
+}
+
+PDFPageWidget QMenu::icon {
+    padding-left: 10px;
+}
+
+/* 缓存统计信息 */
+PDFPageWidget #cacheStats {
+    background-color: rgba(28, 28, 30, 0.9);
+    color: @surface-color;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-family: monospace;
+}

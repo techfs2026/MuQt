@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "stylemanager.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -9,7 +10,10 @@ int main(int argc, char *argv[])
 
     app.setWindowIcon(QIcon(":/resources/windows.ico"));
 
-    // 创建主窗口
+    StyleManager::instance().initialize();
+    StyleManager::instance().setTheme("light");
+    StyleManager::instance().applyStyleToApplication(&app);
+
     MainWindow mainWindow;
     mainWindow.show();
 

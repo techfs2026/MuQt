@@ -1,0 +1,33 @@
+/* ==================== 主窗口样式 ==================== */
+
+QMainWindow {
+    background-color: @background-color;
+}
+
+/* 中央区域 */
+QMainWindow #centralWidget {
+    background-color: @background-color;
+}
+
+/* 状态栏区域 */
+QMainWindow #statusBarContainer {
+    background-color: @surface-color;
+    border-top: 1px solid @border-light;
+}
+
+/* 工具栏容器 */
+QMainWindow #toolBarContainer {
+    background-color: @surface-color;
+    border-bottom: 1px solid @border-light;
+}
+
+/* 分隔器 */
+QMainWindow::separator {
+    background-color: @border-light;
+    width: 1px;
+    height: 1px;
+}
+
+QMainWindow::separator:hover {
+    background-color: @border-medium;
+}

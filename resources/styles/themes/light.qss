@@ -1,0 +1,451 @@
+/* ==================== PDF Expert Light Theme ==================== */
+/* 主色调：蓝白灰，简洁大方，纸质感，现代典雅 */
+
+/* ==================== 全局样式 ==================== */
+* {
+    font-family: @font-family;
+    font-size: @font-size;
+}
+
+QWidget {
+    background-color: @background-color;
+    color: @text-primary;
+    border: none;
+}
+
+/* ==================== 主窗口 ==================== */
+QMainWindow {
+    background-color: @background-color;
+}
+
+QMainWindow::separator {
+    background-color: @border-light;
+    width: 1px;
+    height: 1px;
+}
+
+/* ==================== 工具提示 ==================== */
+QToolTip {
+    background-color: @text-primary;
+    color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+/* ==================== 对话框 ==================== */
+QDialog {
+    background-color: @surface-color;
+}
+
+QMessageBox {
+    background-color: @surface-color;
+}
+
+QMessageBox QLabel {
+    color: @text-primary;
+    font-size: @font-size;
+}
+
+/* ==================== 文件对话框 ==================== */
+QFileDialog {
+    background-color: @background-color;
+}
+
+QFileDialog QTreeView,
+QFileDialog QListView {
+    background-color: @surface-color;
+    border: 1px solid @border-light;
+    border-radius: @border-radius;
+    color: @text-primary;
+}
+
+QFileDialog QTreeView::item:selected,
+QFileDialog QListView::item:selected {
+    background-color: @primary-color;
+    color: @surface-color;
+}
+
+QFileDialog QTreeView::item:hover,
+QFileDialog QListView::item:hover {
+    background-color: @hover-background;
+}
+
+/* ==================== 通用输入框 ==================== */
+QLineEdit {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 5px;
+    padding: 6px 10px;
+    color: @text-primary;
+    selection-background-color: @primary-color;
+    selection-color: @surface-color;
+}
+
+QLineEdit:hover {
+    border: 1px solid @border-dark;
+}
+
+QLineEdit:focus {
+    border: 1px solid @primary-color;
+    outline: none;
+}
+
+QLineEdit:disabled {
+    background-color: @hover-background;
+    color: @text-disabled;
+    border: 1px solid @border-light;
+}
+
+/* ==================== 文本编辑框 ==================== */
+QTextEdit, QPlainTextEdit {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: @border-radius;
+    padding: 8px;
+    color: @text-primary;
+    selection-background-color: @primary-color;
+    selection-color: @surface-color;
+}
+
+QTextEdit:focus, QPlainTextEdit:focus {
+    border: 1px solid @primary-color;
+}
+
+/* ==================== 列表视图 ==================== */
+QListView, QTreeView, QTableView {
+    background-color: @surface-color;
+    border: 1px solid @border-light;
+    border-radius: @border-radius;
+    color: @text-primary;
+    outline: none;
+}
+
+QListView::item, QTreeView::item, QTableView::item {
+    padding: 6px;
+    border-radius: 4px;
+}
+
+QListView::item:hover, QTreeView::item:hover, QTableView::item:hover {
+    background-color: @hover-background;
+}
+
+QListView::item:selected, QTreeView::item:selected, QTableView::item:selected {
+    background-color: @selected-background;
+    color: @text-primary;
+}
+
+/* ==================== 标签页 ==================== */
+QTabWidget::pane {
+    border: none;
+    background-color: @background-color;
+    top: -1px;
+}
+
+QTabBar {
+    background-color: @surface-color;
+    border-bottom: 1px solid @border-light;
+}
+
+QTabBar::tab {
+    background-color: transparent;
+    color: @text-secondary;
+    padding: 10px 20px;
+    margin-right: 2px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    min-width: 120px;
+    max-width: 220px;
+    font-size: @font-size;
+    border: 1px solid transparent;
+    border-bottom: none;
+}
+
+QTabBar::tab:selected {
+    background-color: @background-color;
+    color: @text-primary;
+    font-weight: 600;
+    border: 1px solid @border-light;
+    border-bottom: 1px solid @background-color;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: @hover-background;
+    color: @text-primary;
+}
+
+QTabBar::close-button {
+    image: url(:/icons/close.png);
+    subcontrol-position: right;
+    margin: 2px 4px 2px 2px;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+QTabBar::close-button:hover {
+    background-color: @pressed-background;
+}
+
+/* ==================== Dock 窗口 ==================== */
+QDockWidget {
+    titlebar-close-icon: url(:/icons/close.png);
+    titlebar-normal-icon: url(:/icons/expand.png);
+    border: 1px solid @border-light;
+    background-color: @surface-color;
+}
+
+QDockWidget::title {
+    background-color: @hover-background;
+    padding: 10px;
+    border-bottom: 1px solid @border-light;
+    font-weight: 600;
+    color: @text-primary;
+}
+
+QDockWidget::close-button,
+QDockWidget::float-button {
+    border: none;
+    background-color: transparent;
+    padding: 3px;
+    border-radius: 4px;
+}
+
+QDockWidget::close-button:hover,
+QDockWidget::float-button:hover {
+    background-color: @pressed-background;
+}
+
+/* ==================== 分隔器 ==================== */
+QSplitter::handle {
+    background-color: @border-light;
+}
+
+QSplitter::handle:horizontal {
+    width: 1px;
+}
+
+QSplitter::handle:vertical {
+    height: 1px;
+}
+
+QSplitter::handle:hover {
+    background-color: @border-medium;
+}
+
+/* ==================== 进度条 ==================== */
+QProgressBar {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+    border-radius: 4px;
+    text-align: center;
+    color: @text-primary;
+    height: 20px;
+}
+
+QProgressBar::chunk {
+    background-color: @primary-color;
+    border-radius: 3px;
+}
+
+/* ==================== 滑块 ==================== */
+QSlider::groove:horizontal {
+    background-color: @border-light;
+    height: 4px;
+    border-radius: 2px;
+}
+
+QSlider::handle:horizontal {
+    background-color: @primary-color;
+    border: none;
+    width: 16px;
+    height: 16px;
+    margin: -6px 0;
+    border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+    background-color: @secondary-color;
+}
+
+/* ==================== 复选框 ==================== */
+QCheckBox {
+    spacing: 8px;
+    color: @text-primary;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid @border-medium;
+    border-radius: 4px;
+    background-color: @surface-color;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid @primary-color;
+}
+
+QCheckBox::indicator:checked {
+    background-color: @primary-color;
+    border: 2px solid @primary-color;
+    image: url(:/icons/check.png);
+}
+
+QCheckBox::indicator:disabled {
+    border: 2px solid @border-light;
+    background-color: @hover-background;
+}
+
+/* ==================== 单选框 ==================== */
+QRadioButton {
+    spacing: 8px;
+    color: @text-primary;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid @border-medium;
+    border-radius: 9px;
+    background-color: @surface-color;
+}
+
+QRadioButton::indicator:hover {
+    border: 2px solid @primary-color;
+}
+
+QRadioButton::indicator:checked {
+    background-color: @primary-color;
+    border: 2px solid @primary-color;
+}
+
+QRadioButton::indicator:checked::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: @surface-color;
+    margin: 3px;
+}
+
+/* ==================== 组合框 ==================== */
+QComboBox {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 5px;
+    padding: 6px 10px;
+    color: @text-primary;
+    min-height: 24px;
+}
+
+QComboBox:hover {
+    border: 1px solid @border-dark;
+}
+
+QComboBox:focus {
+    border: 1px solid @primary-color;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 20px;
+    border: none;
+    background-color: transparent;
+}
+
+QComboBox::drop-down:hover {
+    background-color: @hover-background;
+    border-radius: 4px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/icons/expand.png);
+    width: 12px;
+    height: 12px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: @border-radius;
+    padding: 4px;
+    selection-background-color: @selected-background;
+    selection-color: @text-primary;
+    outline: none;
+}
+
+QComboBox QAbstractItemView::item {
+    min-height: 28px;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: @hover-background;
+}
+
+QComboBox QAbstractItemView::item:selected {
+    background-color: @selected-background;
+    font-weight: 600;
+}
+
+/* ==================== 旋转框 ==================== */
+QSpinBox, QDoubleSpinBox {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 5px;
+    padding: 6px 10px;
+    color: @text-primary;
+    min-height: 24px;
+}
+
+QSpinBox:hover, QDoubleSpinBox:hover {
+    border: 1px solid @border-dark;
+}
+
+QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 1px solid @primary-color;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 18px;
+    border: none;
+    background-color: transparent;
+    border-top-right-radius: 4px;
+}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 18px;
+    border: none;
+    background-color: transparent;
+    border-bottom-right-radius: 4px;
+}
+
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
+    background-color: @hover-background;
+}
+
+/* ==================== 分组框 ==================== */
+QGroupBox {
+    border: 1px solid @border-light;
+    border-radius: @border-radius;
+    margin-top: 12px;
+    padding-top: 12px;
+    background-color: @surface-color;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 8px;
+    color: @text-primary;
+    font-weight: 600;
+    background-color: @surface-color;
+}

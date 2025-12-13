@@ -1,0 +1,206 @@
+/* ==================== 导航面板样式 ==================== */
+
+NavigationPanel {
+    background-color: @surface-color;
+    border-right: 1px solid @border-light;
+}
+
+/* 标签栏 */
+NavigationPanel QTabWidget::pane {
+    border: none;
+    background-color: @surface-color;
+}
+
+NavigationPanel QTabBar {
+    background-color: @surface-color;
+    border-bottom: 1px solid @border-light;
+}
+
+NavigationPanel QTabBar::tab {
+    background-color: transparent;
+    color: @text-secondary;
+    padding: 12px 16px;
+    margin: 0px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+}
+
+NavigationPanel QTabBar::tab:selected {
+    color: @primary-color;
+    border-bottom: 2px solid @primary-color;
+    font-weight: 600;
+}
+
+NavigationPanel QTabBar::tab:hover:!selected {
+    color: @text-primary;
+    background-color: @hover-background;
+}
+
+/* 缩略图视图 */
+NavigationPanel #thumbnailWidget {
+    background-color: @surface-color;
+    border: none;
+}
+
+NavigationPanel #thumbnailListWidget {
+    background-color: @surface-color;
+    border: none;
+    outline: none;
+}
+
+NavigationPanel #thumbnailListWidget::item {
+    background-color: transparent;
+    padding: 8px;
+    margin: 4px 8px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+}
+
+NavigationPanel #thumbnailListWidget::item:hover {
+    background-color: @hover-background;
+    border: 2px solid @border-light;
+}
+
+NavigationPanel #thumbnailListWidget::item:selected {
+    background-color: @selected-background;
+    border: 2px solid @primary-color;
+}
+
+/* 缩略图页码标签 */
+NavigationPanel #pageLabel {
+    background-color: @surface-color;
+    color: @text-secondary;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 大纲视图 */
+NavigationPanel #outlineWidget {
+    background-color: @surface-color;
+    border: none;
+}
+
+NavigationPanel #outlineTreeWidget {
+    background-color: @surface-color;
+    border: none;
+    outline: none;
+    padding: 4px;
+}
+
+NavigationPanel #outlineTreeWidget::item {
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: @text-primary;
+}
+
+NavigationPanel #outlineTreeWidget::item:hover {
+    background-color: @hover-background;
+}
+
+NavigationPanel #outlineTreeWidget::item:selected {
+    background-color: @selected-background;
+    color: @text-primary;
+    font-weight: 600;
+}
+
+NavigationPanel #outlineTreeWidget::branch {
+    background-color: transparent;
+}
+
+NavigationPanel #outlineTreeWidget::branch:has-children:!has-siblings:closed,
+NavigationPanel #outlineTreeWidget::branch:closed:has-children:has-siblings {
+    image: url(:/icons/chevron-right.png);
+    padding: 2px;
+}
+
+NavigationPanel #outlineTreeWidget::branch:open:has-children:!has-siblings,
+NavigationPanel #outlineTreeWidget::branch:open:has-children:has-siblings {
+    image: url(:/icons/chevron-down.png);
+    padding: 2px;
+}
+
+/* 书签视图 */
+NavigationPanel #bookmarksWidget {
+    background-color: @surface-color;
+    border: none;
+}
+
+NavigationPanel #bookmarksListWidget {
+    background-color: @surface-color;
+    border: none;
+    outline: none;
+    padding: 4px;
+}
+
+NavigationPanel #bookmarksListWidget::item {
+    padding: 10px 12px;
+    margin: 2px 8px;
+    border-radius: 6px;
+    color: @text-primary;
+}
+
+NavigationPanel #bookmarksListWidget::item:hover {
+    background-color: @hover-background;
+}
+
+NavigationPanel #bookmarksListWidget::item:selected {
+    background-color: @selected-background;
+    font-weight: 600;
+}
+
+/* 空状态提示 */
+NavigationPanel #emptyStateLabel {
+    color: @text-secondary;
+    font-size: 13px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* 工具按钮 */
+NavigationPanel QToolButton {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 4px;
+    color: @text-primary;
+}
+
+NavigationPanel QToolButton:hover {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+}
+
+NavigationPanel QToolButton:pressed {
+    background-color: @pressed-background;
+}
+
+/* 滚动条 - 细腻样式 */
+NavigationPanel QScrollBar:vertical {
+    background: @surface-color;
+    width: 10px;
+    margin: 0px;
+}
+
+NavigationPanel QScrollBar::handle:vertical {
+    background: @border-medium;
+    border-radius: 5px;
+    min-height: 30px;
+    margin: 2px;
+}
+
+NavigationPanel QScrollBar::handle:vertical:hover {
+    background: @border-dark;
+}
+
+NavigationPanel QScrollBar::add-line:vertical,
+NavigationPanel QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+NavigationPanel QScrollBar::add-page:vertical,
+NavigationPanel QScrollBar::sub-page:vertical {
+    background: transparent;
+}

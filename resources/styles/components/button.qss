@@ -1,0 +1,207 @@
+/* ==================== 按钮样式 - 现代典雅 ==================== */
+
+/* 标准按钮 */
+QPushButton {
+    background-color: @surface-color;
+    border: 1px solid @border-medium;
+    border-radius: 6px;
+    padding: 8px 18px;
+    color: @text-primary;
+    font-size: @font-size;
+    font-weight: 500;
+    min-height: 32px;
+}
+
+QPushButton:hover {
+    background-color: @hover-background;
+    border: 1px solid @border-dark;
+}
+
+QPushButton:pressed {
+    background-color: @pressed-background;
+    border: 1px solid @border-dark;
+}
+
+QPushButton:disabled {
+    background-color: @hover-background;
+    color: @text-disabled;
+    border: 1px solid @border-light;
+}
+
+QPushButton:focus {
+    outline: none;
+    border: 1px solid @primary-color;
+}
+
+/* 主要按钮 */
+QPushButton[primary="true"] {
+    background-color: @primary-color;
+    border: 1px solid @primary-color;
+    color: @surface-color;
+    font-weight: 600;
+}
+
+QPushButton[primary="true"]:hover {
+    background-color: @secondary-color;
+    border: 1px solid @secondary-color;
+}
+
+QPushButton[primary="true"]:pressed {
+    background-color: #0051D5;
+    border: 1px solid #0051D5;
+}
+
+QPushButton[primary="true"]:disabled {
+    background-color: @border-light;
+    border: 1px solid @border-light;
+    color: @text-disabled;
+}
+
+/* 次要按钮 */
+QPushButton[secondary="true"] {
+    background-color: transparent;
+    border: 1px solid @border-medium;
+    color: @text-primary;
+}
+
+QPushButton[secondary="true"]:hover {
+    background-color: @hover-background;
+    border: 1px solid @border-dark;
+}
+
+QPushButton[secondary="true"]:pressed {
+    background-color: @pressed-background;
+}
+
+/* 文本按钮 */
+QPushButton[flat="true"] {
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: @primary-color;
+    font-weight: 600;
+}
+
+QPushButton[flat="true"]:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+QPushButton[flat="true"]:pressed {
+    background-color: rgba(0, 122, 255, 0.2);
+}
+
+/* 危险按钮 */
+QPushButton[danger="true"] {
+    background-color: @error-color;
+    border: 1px solid @error-color;
+    color: @surface-color;
+    font-weight: 600;
+}
+
+QPushButton[danger="true"]:hover {
+    background-color: #FF5048;
+    border: 1px solid #FF5048;
+}
+
+QPushButton[danger="true"]:pressed {
+    background-color: #D32F2F;
+    border: 1px solid #D32F2F;
+}
+
+/* 成功按钮 */
+QPushButton[success="true"] {
+    background-color: @success-color;
+    border: 1px solid @success-color;
+    color: @surface-color;
+    font-weight: 600;
+}
+
+QPushButton[success="true"]:hover {
+    background-color: #45D367;
+    border: 1px solid #45D367;
+}
+
+QPushButton[success="true"]:pressed {
+    background-color: #28A745;
+    border: 1px solid #28A745;
+}
+
+/* 工具按钮 */
+QToolButton {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 6px;
+    color: @text-primary;
+}
+
+QToolButton:hover {
+    background-color: @hover-background;
+    border: 1px solid @border-light;
+}
+
+QToolButton:pressed {
+    background-color: @pressed-background;
+    border: 1px solid @border-medium;
+}
+
+QToolButton:checked {
+    background-color: @selected-background;
+    border: 1px solid @border-medium;
+    color: @text-primary;
+    font-weight: 600;
+}
+
+QToolButton:disabled {
+    opacity: 0.4;
+}
+
+QToolButton::menu-indicator {
+    image: url(:/icons/expand.png);
+    subcontrol-position: bottom right;
+    width: 10px;
+    height: 10px;
+    padding: 2px;
+}
+
+/* 图标按钮 */
+QPushButton[icon-only="true"],
+QToolButton[icon-only="true"] {
+    padding: 8px;
+    min-width: 36px;
+    min-height: 36px;
+}
+
+/* 小按钮 */
+QPushButton[size="small"] {
+    padding: 5px 12px;
+    font-size: 12px;
+    min-height: 26px;
+}
+
+/* 大按钮 */
+QPushButton[size="large"] {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-height: 42px;
+    font-weight: 600;
+}
+
+/* 按钮组 */
+QButtonGroup QPushButton {
+    margin: 0px;
+}
+
+QButtonGroup QPushButton:first {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+QButtonGroup QPushButton:last {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+QButtonGroup QPushButton:middle {
+    border-radius: 0px;
+    border-left: none;
+}

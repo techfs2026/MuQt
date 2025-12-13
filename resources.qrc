@@ -1,6 +1,16 @@
 <RCC>
     <qresource prefix="/styles">
-        <file>resources/styles/main.qss</file>
+        <file>resources/styles/themes/light.qss</file>
+        <file>resources/styles/components/button.qss</file>
+        <file>resources/styles/components/common.qss</file>
+        <file>resources/styles/components/mainwindow.qss</file>
+        <file>resources/styles/components/menu.qss</file>
+        <file>resources/styles/components/navigationpanel.qss</file>
+        <file>resources/styles/components/pdfpagewidget.qss</file>
+        <file>resources/styles/components/scrollbar.qss</file>
+        <file>resources/styles/components/searchwidget.qss</file>
+        <file>resources/styles/components/statusbar.qss</file>
+        <file>resources/styles/components/toolbar.qss</file>
     </qresource>
     <qresource prefix="/icons">
         <file>resources/icons/continuous-mode.png</file>
