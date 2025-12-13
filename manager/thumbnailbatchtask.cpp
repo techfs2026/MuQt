@@ -82,7 +82,7 @@ void ThumbnailBatchTask::run()
         double zoom = m_thumbnailWidth / pageSize.width();
 
         // 渲染页面
-        RenderResult thumbnailRes = m_renderer->renderPage(pageIndex, zoom, m_rotation);
+        RenderResult thumbnailRes = m_renderer->renderPage(pageIndex, zoom, m_rotation, RenderScene::Thumbnail);
 
         QImage thumbnail = thumbnailRes.image;
 

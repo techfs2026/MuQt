@@ -276,7 +276,7 @@ void ThumbnailManagerV2::renderPagesSync(const QVector<int>& pages)
         double zoom = renderWidth / pageSize.width();
 
         RenderResult result = m_renderer->renderPage(
-            pageIndex, zoom, m_rotation);
+            pageIndex, zoom, m_rotation, RenderScene::Thumbnail);
 
         if (result.success && !result.image.isNull()) {
             // 设置图片的设备像素比

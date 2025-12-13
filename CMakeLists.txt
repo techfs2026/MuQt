@@ -207,6 +207,24 @@ else()
 endif()
 
 # -----------------------------
+# Copy jieba dict to output directory
+# -----------------------------
+set(JIEBA_DICT_SRC "${CMAKE_SOURCE_DIR}/dict")
+set(JIEBA_DICT_DST "$<TARGET_FILE_DIR:MuQt>/dict")
+
+if(EXISTS "${JIEBA_DICT_SRC}")
+    add_custom_command(TARGET MuQt POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${JIEBA_DICT_DST}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${JIEBA_DICT_SRC}
+            ${JIEBA_DICT_DST}
+        COMMENT "Copying jieba dict to output directory"
+    )
+else()
+    message(WARNING "jieba dict directory not found: ${JIEBA_DICT_SRC}")
+endif()
+
+# -----------------------------
 # Install section
 # -----------------------------
 include(GNUInstallDirs)

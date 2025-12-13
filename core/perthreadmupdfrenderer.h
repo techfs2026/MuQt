@@ -13,6 +13,14 @@ extern "C" {
 #include <mupdf/fitz.h>
 }
 
+enum class RenderScene {
+    Page,       ///< 主页面显示（标准质量）
+    Thumbnail,  ///< 缩略图显示（可降低质量以提升速度）
+    Export,     ///< 导出操作（最高质量）
+    Search,     ///< 搜索预览（可降低质量）
+    Print       ///< 打印操作（高质量）
+};
+
 
 /**
  * @brief 线程隔离的MuPDF渲染器
@@ -70,7 +78,7 @@ public:
      * @param rotation 旋转角度 (0, 90, 180, 270)
      * @return 渲染结果
      */
-    RenderResult renderPage(int pageIndex, double zoom, int rotation);
+    RenderResult renderPage(int pageIndex, double zoom, int rotation, RenderScene scene = RenderScene::Page);
 
     /**
      * @brief 提取页面文本

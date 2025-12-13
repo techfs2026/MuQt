@@ -12,6 +12,7 @@
 #include <QTimer>
 #include <QFile>
 #include <QPainter>
+#include <QAbstractButton>
 #include <QElapsedTimer>
 #include <QStyledItemDelegate>
 
@@ -290,6 +291,21 @@ QMenu* OutlineWidget::createContextMenu(QTreeWidgetItem* item)
     connect(saveAction, &QAction::triggered,
             this, &OutlineWidget::onSaveToDocument);
 
+    if (topLevelItemCount() > 0) {
+        menu->addSeparator();
+
+        QAction* deleteAllAction = menu->addAction(tr("🗑️  删除全部"));
+        deleteAllAction->setToolTip(tr("删除所有目录项"));
+
+        // 使用红色警告样式
+        QFont font = deleteAllAction->font();
+        font.setBold(true);
+        deleteAllAction->setFont(font);
+
+        connect(deleteAllAction, &QAction::triggered,
+                this, &OutlineWidget::onDeleteAllOutlines);
+    }
+
     return menu;
 }
 
@@ -507,6 +523,54 @@ void OutlineWidget::onDeleteOutline()
         } else {
             QMessageBox::warning(this, tr("失败"),
                                  tr("删除目录项失败!"));
+        }
+    }
+}
+
+void OutlineWidget::onDeleteAllOutlines()
+{
+    if (!m_outlineEditor) {
+        QMessageBox::warning(this, tr("错误"),
+                             tr("目录编辑器未初始化！"));
+        return;
+    }
+
+    // 检查是否有目录项
+    if (topLevelItemCount() == 0) {
+        return;
+    }
+
+    // 显示确认对话框
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(tr("确认删除"));
+    msgBox.setText(tr("确定要删除所有目录项吗？"));
+    msgBox.setInformativeText(tr("此操作将删除 %1 个目录项及其所有子项，且无法撤销！")
+                                  .arg(m_contentHandler->outlineItemCount()));
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+
+    // 设置按钮文本
+    msgBox.button(QMessageBox::Yes)->setText(tr("删除"));
+    msgBox.button(QMessageBox::No)->setText(tr("取消"));
+
+    if (msgBox.exec() == QMessageBox::Yes) {
+        // 执行删除操作
+        bool success = m_outlineEditor->deleteAllOutlines();
+
+        if (success) {
+            // 清空树视图
+            clear();
+            m_currentHighlight = nullptr;
+
+            qInfo() << "OutlineWidget: All outlines deleted successfully";
+
+            // 可选：显示成功提示
+            // QMessageBox::information(this, tr("完成"),
+            //     tr("已删除所有目录项"));
+        } else {
+            QMessageBox::critical(this, tr("错误"),
+                                  tr("删除所有目录项失败！\n请检查目录是否被锁定或其他错误。"));
         }
     }
 }

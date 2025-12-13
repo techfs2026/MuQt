@@ -10,7 +10,6 @@ OutlineItem::OutlineItem(const QString& title, int pageIndex, const QString& uri
 
 OutlineItem::~OutlineItem()
 {
-    // 释放所有子节点
     clearChildren();
 }
 

@@ -680,7 +680,7 @@ QImage PDFPageWidget::extractHoverRegion(const QPoint& pos)
 
     if (pageImage.isNull()) {
         // 缓存未命中，临时渲染
-        auto result = m_renderer->renderPage(pageIndex, zoom, rotation);
+        auto result = m_renderer->renderPage(pageIndex, zoom, rotation, RenderScene::Page);
         if (!result.success) {
             return QImage();
         }

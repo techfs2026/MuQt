@@ -54,6 +54,8 @@ public:
      */
     bool deleteOutline(OutlineItem* item);
 
+    bool deleteAllOutlines();
+
     /**
      * @brief 重命名大纲项
      * @param item 要重命名的大纲节点

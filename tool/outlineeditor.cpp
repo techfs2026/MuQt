@@ -109,6 +109,40 @@ bool OutlineEditor::deleteOutline(OutlineItem* item)
     return true;
 }
 
+bool OutlineEditor::deleteAllOutlines()
+{
+    if (!m_root) {
+        qWarning() << "OutlineEditor::deleteAllOutlines: No root available";
+        return false;
+    }
+
+    // 检查是否有子项
+    if (m_root->childCount() == 0) {
+        qInfo() << "OutlineEditor::deleteAllOutlines: Already empty";
+        return true;
+    }
+
+    qInfo() << "OutlineEditor::deleteAllOutlines: Deleting"
+            << m_root->childCount() << "root items";
+
+    // 删除所有根级子项（会递归删除所有子孙项）
+    while (m_root->childCount() > 0) {
+        OutlineItem* child = m_root->child(0);
+        m_root->removeChild(child);
+        delete child;  // OutlineItem的析构函数会递归删除所有子孙
+    }
+
+    // 标记为已修改
+    m_modified = true;
+
+    // 发送修改信号，触发UI刷新
+    emit outlineModified();
+
+    qInfo() << "OutlineEditor::deleteAllOutlines: All outlines deleted";
+
+    return true;
+}
+
 bool OutlineEditor::renameOutline(OutlineItem* item, const QString& newTitle)
 {
     if (!item || newTitle.isEmpty()) return false;

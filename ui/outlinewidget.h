@@ -279,6 +279,7 @@ private slots:
     void onEditOutline();
     void onDeleteOutline();
     void onSaveToDocument();
+    void onDeleteAllOutlines();
 
 private:
     void setupUI();

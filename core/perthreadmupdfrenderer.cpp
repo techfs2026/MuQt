@@ -278,7 +278,7 @@ static QImage pixmapToQImage(fz_context* ctx, fz_pixmap* pixmap)
     return image;
 }
 
-RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int rotation)
+RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int rotation, RenderScene scene)
 {
     RenderResult result;
 
@@ -292,9 +292,35 @@ RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int 
         return result;
     }
 
+    double actualZoom = zoom;
+    bool applyPaperEffect = m_paperEffectEnabled;
+
+    switch (scene) {
+    case RenderScene::Thumbnail:
+        actualZoom = qMin(zoom, 2.0);
+        applyPaperEffect = false;
+        break;
+
+    case RenderScene::Page:
+        actualZoom = zoom;
+        applyPaperEffect = m_paperEffectEnabled;
+        break;
+
+    case RenderScene::Export:
+    case RenderScene::Print:
+        actualZoom = qMax(zoom, 2.0);
+        applyPaperEffect = false;
+        break;
+
+    case RenderScene::Search:
+        actualZoom = qMin(zoom, 1.5);
+        applyPaperEffect = false;
+        break;
+    }
+
     fz_try(m_context) {
         fz_page* page = fz_load_page(m_context, m_document, pageIndex);
-        fz_matrix matrix = calculateMatrixForMuPDF(zoom, rotation);
+        fz_matrix matrix = calculateMatrixForMuPDF(actualZoom, rotation);
         fz_rect bounds = fz_bound_page(m_context, page);
         bounds = fz_transform_rect(bounds, matrix);
 
@@ -312,11 +338,10 @@ RenderResult PerThreadMuPDFRenderer::renderPage(int pageIndex, double zoom, int 
 
         result.image = pixmapToQImage(m_context, pixmap);
 
-        // ============ 添加纸质增强处理 ============
-        if (m_paperEffectEnabled && !result.image.isNull()) {
+
+        if (applyPaperEffect && !result.image.isNull()) {
             result.image = m_paperEffectEnhancer.enhance(result.image);
         }
-        // ========================================
 
         result.success = true;
 
