@@ -1,11 +1,11 @@
-#ifndef PAPEREFFECTENHANCER_SIMPLE_H
-#define PAPEREFFECTENHANCER_SIMPLE_H
+#ifndef PAPEREFFECTENHANCER_ADVANCED_H
+#define PAPEREFFECTENHANCER_ADVANCED_H
 
 #include <opencv2/opencv.hpp>
 #include <QImage>
 #include <QMutex>
 
-struct SimpleOptions {
+struct AdvancedOptions {
     bool enabled = true;
 
     // 核心参数：背景纸张颜色 (米黄色)
@@ -15,10 +15,28 @@ struct SimpleOptions {
     double colorIntensity = 0.7;
 
     // 文字/背景分离阈值 (0-255, 越高越多区域被认为是背景)
-    int threshold = 200;
+    // 设置为 0 表示启用自适应阈值
+    int threshold = 0;  // 0 = 自适应
 
     // 边缘羽化半径 (避免文字边缘生硬, 0=不羽化)
     int featherRadius = 2;
+
+    // 1. 自适应阈值
+    bool useAdaptiveThreshold = true;
+    double adaptiveThresholdRatio = 0.85;  // 阈值 = 平均亮度 × 此比例
+
+    // 2. 纸张纹理
+    bool enablePaperTexture = true;
+    double textureIntensity = 0.03;  // 纹理强度 (0.02-0.05 推荐)
+
+    // 3. 边缘对比度保护
+    bool protectTextEdges = true;
+    double edgeThreshold = 30.0;  // Canny边缘检测阈值
+
+    // 4. 渐进式着色强度
+    bool useProgressiveIntensity = true;
+    double centerIntensity = 0.6;   // 中心区域着色强度
+    double edgeIntensity = 0.8;     // 边缘区域着色强度
 
     // 预设颜色选项
     enum PaperPreset {
@@ -53,15 +71,15 @@ struct SimpleOptions {
 class PaperEffectEnhancer
 {
 public:
-    explicit PaperEffectEnhancer(const SimpleOptions& opt = SimpleOptions());
+    explicit PaperEffectEnhancer(const AdvancedOptions& opt = AdvancedOptions());
     ~PaperEffectEnhancer();
 
     // 主要处理函数
     QImage enhance(const QImage& input);
 
     // 设置和获取参数
-    void setOptions(const SimpleOptions& opt);
-    SimpleOptions options() const { return m_options; }
+    void setOptions(const AdvancedOptions& opt);
+    AdvancedOptions options() const { return m_options; }
 
 private:
     // 格式转换
@@ -73,8 +91,24 @@ private:
     void applyPaperBackground(cv::Mat& img, const cv::Mat& textMask);
     void featherMask(cv::Mat& mask, int radius);
 
-    SimpleOptions m_options;
-    QMutex m_mutex;
+    // 1. 自适应阈值计算
+    int calculateAdaptiveThreshold(const cv::Mat& gray);
+
+    // 2. 生成纸张纹理
+    cv::Mat generatePaperTexture(const cv::Size& size);
+    void applyPaperTexture(cv::Mat& img, const cv::Mat& mask);
+
+    // 3. 检测文字边缘
+    cv::Mat detectTextEdges(const cv::Mat& gray);
+
+    // 4. 创建渐进式强度遮罩
+    cv::Mat createProgressiveIntensityMask(const cv::Size& size);
+
+    AdvancedOptions m_options;
+
+    // 纹理缓存（避免重复生成）
+    cv::Mat m_cachedTexture;
+    cv::Size m_cachedTextureSize;
 };
 
-#endif // PAPEREFFECTENHANCER_SIMPLE_H
+#endif // PAPEREFFECTENHANCER_ADVANCED_H

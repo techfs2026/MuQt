@@ -1,7 +1,8 @@
 #include "papereffectenhancer.h"
 #include <QMutexLocker>
+#include <random>
 
-PaperEffectEnhancer::PaperEffectEnhancer(const SimpleOptions& opt)
+PaperEffectEnhancer::PaperEffectEnhancer(const AdvancedOptions& opt)
     : m_options(opt)
 {
 }
@@ -12,8 +13,6 @@ PaperEffectEnhancer::~PaperEffectEnhancer()
 
 QImage PaperEffectEnhancer::enhance(const QImage& input)
 {
-    QMutexLocker locker(&m_mutex);
-
     if (!m_options.enabled || input.isNull()) {
         return input;
     }
@@ -30,14 +29,21 @@ QImage PaperEffectEnhancer::enhance(const QImage& input)
     // 2. 应用纸张背景色
     applyPaperBackground(img, textMask);
 
+    // 3. 应用纸张纹理（如果启用）
+    if (m_options.enablePaperTexture) {
+        applyPaperTexture(img, textMask);
+    }
+
     // 转换回 QImage
     return cvMatToQImage(img);
 }
 
-void PaperEffectEnhancer::setOptions(const SimpleOptions& opt)
+void PaperEffectEnhancer::setOptions(const AdvancedOptions& opt)
 {
-    QMutexLocker locker(&m_mutex);
     m_options = opt;
+
+    // 清除纹理缓存，下次使用时重新生成
+    m_cachedTexture = cv::Mat();
 }
 
 cv::Mat PaperEffectEnhancer::qImageToCvMat(const QImage& image)
@@ -109,6 +115,21 @@ QImage PaperEffectEnhancer::cvMatToQImage(const cv::Mat& mat)
     }
 }
 
+int PaperEffectEnhancer::calculateAdaptiveThreshold(const cv::Mat& gray)
+{
+    // 计算图像平均亮度
+    cv::Scalar meanValue = cv::mean(gray);
+    double meanBrightness = meanValue[0];
+
+    // 自适应阈值 = 平均亮度 × 比例
+    int adaptiveThreshold = static_cast<int>(meanBrightness * m_options.adaptiveThresholdRatio);
+
+    // 限制在合理范围内 (150-230)
+    adaptiveThreshold = std::max(150, std::min(230, adaptiveThreshold));
+
+    return adaptiveThreshold;
+}
+
 cv::Mat PaperEffectEnhancer::createTextMask(const cv::Mat& img)
 {
     cv::Mat gray;
@@ -120,11 +141,24 @@ cv::Mat PaperEffectEnhancer::createTextMask(const cv::Mat& img)
         gray = img.clone();
     }
 
+
+    int finalThreshold = m_options.threshold;
+    if (m_options.useAdaptiveThreshold && m_options.threshold == 0) {
+        finalThreshold = calculateAdaptiveThreshold(gray);
+    }
+
     // 创建遮罩：亮度低于阈值的是文字(0), 高于阈值的是背景(255)
     cv::Mat mask;
-    cv::threshold(gray, mask, m_options.threshold, 255, cv::THRESH_BINARY);
+    cv::threshold(gray, mask, finalThreshold, 255, cv::THRESH_BINARY);
 
-    // 轻微膨胀，避免文字边缘有白色残留
+
+    if (m_options.protectTextEdges) {
+        cv::Mat edgeMask = detectTextEdges(gray);
+        // 有边缘的地方强制标记为文字区域（设为0）
+        mask.setTo(0, edgeMask);
+    }
+
+    // 轻微腐蚀，避免文字边缘有白色残留
     if (m_options.featherRadius > 0) {
         cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE,
                                                    cv::Size(3, 3));
@@ -139,6 +173,55 @@ cv::Mat PaperEffectEnhancer::createTextMask(const cv::Mat& img)
     return mask;
 }
 
+cv::Mat PaperEffectEnhancer::detectTextEdges(const cv::Mat& gray)
+{
+    cv::Mat edges;
+
+    // 使用Canny边缘检测
+    double threshold1 = m_options.edgeThreshold;
+    double threshold2 = threshold1 * 2.5;
+    cv::Canny(gray, edges, threshold1, threshold2);
+
+    // 轻微膨胀，让边缘区域更连续
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
+    cv::dilate(edges, edges, kernel, cv::Point(-1, -1), 1);
+
+    return edges;
+}
+
+cv::Mat PaperEffectEnhancer::createProgressiveIntensityMask(const cv::Size& size)
+{
+    cv::Mat intensityMask(size, CV_32F);
+
+    // 计算中心点
+    float centerX = size.width / 2.0f;
+    float centerY = size.height / 2.0f;
+
+    // 最大半径（从中心到角落的距离）
+    float maxRadius = std::sqrt(centerX * centerX + centerY * centerY);
+
+    // 生成径向渐变
+    for (int y = 0; y < size.height; y++) {
+        for (int x = 0; x < size.width; x++) {
+            // 计算当前点到中心的距离
+            float dx = x - centerX;
+            float dy = y - centerY;
+            float distance = std::sqrt(dx * dx + dy * dy);
+
+            // 归一化距离 (0=中心, 1=边缘)
+            float normalizedDistance = distance / maxRadius;
+
+            // 线性插值：中心用 centerIntensity，边缘用 edgeIntensity
+            float intensity = m_options.centerIntensity +
+                              (m_options.edgeIntensity - m_options.centerIntensity) * normalizedDistance;
+
+            intensityMask.at<float>(y, x) = intensity;
+        }
+    }
+
+    return intensityMask;
+}
+
 void PaperEffectEnhancer::applyPaperBackground(cv::Mat& img, const cv::Mat& textMask)
 {
     // 创建纸张背景图
@@ -149,17 +232,10 @@ void PaperEffectEnhancer::applyPaperBackground(cv::Mat& img, const cv::Mat& text
         cv::cvtColor(paperBackground, paperBackground, cv::COLOR_BGR2GRAY);
     }
 
-    // 根据 colorIntensity 混合原图和纸张背景
-    // intensity=0: 完全保持原图
-    // intensity=1: 背景完全变为纸张色
-    cv::Mat blendedBackground;
-    cv::addWeighted(img, 1.0 - m_options.colorIntensity,
-                    paperBackground, m_options.colorIntensity,
-                    0, blendedBackground);
-
-    // 使用遮罩合成：文字区域用原图，背景区域用混合后的纸张色
-    // textMask: 0=文字, 255=背景
-    cv::Mat result = img.clone();
+    cv::Mat intensityMask;
+    if (m_options.useProgressiveIntensity) {
+        intensityMask = createProgressiveIntensityMask(img.size());
+    }
 
     // 归一化遮罩到 0-1 范围
     cv::Mat maskFloat;
@@ -170,27 +246,120 @@ void PaperEffectEnhancer::applyPaperBackground(cv::Mat& img, const cv::Mat& text
         std::vector<cv::Mat> channels(3);
         std::vector<cv::Mat> bgChannels(3);
         cv::split(img, channels);
-        cv::split(blendedBackground, bgChannels);
+        cv::split(paperBackground, bgChannels);
 
         for (int i = 0; i < 3; i++) {
             channels[i].convertTo(channels[i], CV_32F);
             bgChannels[i].convertTo(bgChannels[i], CV_32F);
 
+            // 根据是否使用渐进式强度，计算混合权重
+            cv::Mat blendWeight;
+            if (m_options.useProgressiveIntensity) {
+                blendWeight = intensityMask.mul(maskFloat);
+            } else {
+                blendWeight = maskFloat * m_options.colorIntensity;
+            }
+
             // 文字区域(mask=0)保持原图，背景区域(mask=1)使用纸张色
-            channels[i] = channels[i].mul(1.0 - maskFloat) + bgChannels[i].mul(maskFloat);
+            channels[i] = channels[i].mul(1.0 - blendWeight) + bgChannels[i].mul(blendWeight);
             channels[i].convertTo(channels[i], CV_8U);
         }
-        cv::merge(channels, result);
+        cv::merge(channels, img);
     } else {
         cv::Mat imgFloat, bgFloat;
         img.convertTo(imgFloat, CV_32F);
-        blendedBackground.convertTo(bgFloat, CV_32F);
+        paperBackground.convertTo(bgFloat, CV_32F);
 
-        result = imgFloat.mul(1.0 - maskFloat) + bgFloat.mul(maskFloat);
-        result.convertTo(result, CV_8U);
+        cv::Mat blendWeight;
+        if (m_options.useProgressiveIntensity) {
+            blendWeight = intensityMask.mul(maskFloat);
+        } else {
+            blendWeight = maskFloat * m_options.colorIntensity;
+        }
+
+        img = imgFloat.mul(1.0 - blendWeight) + bgFloat.mul(blendWeight);
+        img.convertTo(img, CV_8U);
+    }
+}
+
+cv::Mat PaperEffectEnhancer::generatePaperTexture(const cv::Size& size)
+{
+    // 检查缓存
+    if (!m_cachedTexture.empty() && m_cachedTextureSize == size) {
+        return m_cachedTexture.clone();
     }
 
-    img = result;
+    cv::Mat texture(size, CV_8UC3);
+
+    // 使用随机数生成器
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<float> dis(0.0f, 10.0f);  // 均值0，标准差10
+
+    // 生成细腻的噪点
+    for (int y = 0; y < size.height; y++) {
+        for (int x = 0; x < size.width; x++) {
+            float noise = dis(gen);
+            // 限制噪点范围在 [-20, 20]
+            noise = std::max(-20.0f, std::min(20.0f, noise));
+
+            uchar value = cv::saturate_cast<uchar>(noise);
+            texture.at<cv::Vec3b>(y, x) = cv::Vec3b(value, value, value);
+        }
+    }
+
+    // 轻微模糊，让纹理更自然（模拟纸张纤维）
+    cv::GaussianBlur(texture, texture, cv::Size(3, 3), 0.5);
+
+    // 缓存纹理
+    m_cachedTexture = texture.clone();
+    m_cachedTextureSize = size;
+
+    return texture;
+}
+
+void PaperEffectEnhancer::applyPaperTexture(cv::Mat& img, const cv::Mat& mask)
+{
+    // 生成纹理
+    cv::Mat texture = generatePaperTexture(img.size());
+
+    // 如果是灰度图，转换纹理为灰度
+    if (img.channels() == 1) {
+        cv::cvtColor(texture, texture, cv::COLOR_BGR2GRAY);
+    }
+
+    // 归一化遮罩（只在背景区域应用纹理）
+    cv::Mat maskFloat;
+    mask.convertTo(maskFloat, CV_32F, 1.0/255.0);
+
+    // 转换为浮点数进行混合
+    cv::Mat imgFloat, textureFloat;
+    img.convertTo(imgFloat, CV_32F);
+    texture.convertTo(textureFloat, CV_32F);
+
+    // 纹理强度
+    float intensity = m_options.textureIntensity;
+
+    if (img.channels() == 3) {
+        std::vector<cv::Mat> imgChannels(3);
+        std::vector<cv::Mat> texChannels(3);
+        cv::split(imgFloat, imgChannels);
+        cv::split(textureFloat, texChannels);
+
+        for (int i = 0; i < 3; i++) {
+            // 只在背景区域（mask=1）添加纹理
+            cv::Mat textureContribution = texChannels[i].mul(maskFloat) * intensity;
+            imgChannels[i] = imgChannels[i] + textureContribution;
+        }
+
+        cv::merge(imgChannels, imgFloat);
+    } else {
+        cv::Mat textureContribution = textureFloat.mul(maskFloat) * intensity;
+        imgFloat = imgFloat + textureContribution;
+    }
+
+    // 转换回8位
+    imgFloat.convertTo(img, CV_8U);
 }
 
 void PaperEffectEnhancer::featherMask(cv::Mat& mask, int radius)
