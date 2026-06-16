@@ -24,9 +24,9 @@ OwlPDF 不追求成为一个庞大的 PDF 编辑器，而是把重点放在更�
 
 <img src="docs/images/owlpdf-edit-outline.png" alt="OwlPDF 编辑目录"/>
 
-OCR
+OCR悬停取词
 
-<img src="docs/images/owlpdf-ocr.png" alt="OwlPDF OCR"/>
+<img src="docs/images/owlpdf-ocr.gif" alt="OwlPDF OCR悬停取词"/>
 
 搜索
 
