@@ -113,6 +113,7 @@ NavigationPanel::NavigationPanel(QWidget* parent)
     , m_outlineWidget(nullptr)
     , m_thumbnailWidget(nullptr)
     , m_annotationWidget(nullptr)
+    , m_saveOutlineBtn(nullptr)
     , m_expandAllBtn(nullptr)
     , m_collapseAllBtn(nullptr)
     , m_thumbnailStatusLabel(nullptr)
@@ -196,7 +197,11 @@ void NavigationPanel::attachSession(PDFDocumentSession* session)
                               });
 
     OutlineEditor* editor = ch->outlineEditor();
+    // 保存按钮可用态跟随“未保存改动”：有改动才点亮，存盘后自动熄灭。
+    m_saveOutlineBtn->setEnabled(editor && editor->hasUnsavedChanges());
     if (editor) {
+        m_sessionConns << connect(editor, &OutlineEditor::unsavedChangesChanged,
+                                  m_saveOutlineBtn, &QToolButton::setEnabled);
         m_sessionConns << connect(editor, &OutlineEditor::saveCompleted,
                                   this, [this](bool success, const QString& errorMsg) {
                                       if (success) {
@@ -275,6 +280,9 @@ void NavigationPanel::detachSession()
     m_sessionConns.clear();
 
     clear();
+    if (m_saveOutlineBtn) {
+        m_saveOutlineBtn->setEnabled(false);
+    }
     m_outlineWidget->setContentHandler(nullptr);
     m_thumbnailWidget->setThumbnailManager(nullptr);
     m_annotationWidget->setManager(nullptr);
@@ -449,13 +457,15 @@ void NavigationPanel::setupUI()
     m_deleteOutlineBtn->setFixedSize(28, 28);
     m_deleteOutlineBtn->setIconSize(QSize(16, 16));
 
-    m_deleteAllOutlineBtn = new QToolButton(this);
-    m_deleteAllOutlineBtn->setIcon(QIcon(":icons/resources/icons/trash.svg"));
-    m_deleteAllOutlineBtn->setToolTip(tr("Delete All Outline Items"));
-    m_deleteAllOutlineBtn->setObjectName("outlineToolButton");
-    m_deleteAllOutlineBtn->setProperty("variant", "danger");  // 危险操作，留给 qss 差异化
-    m_deleteAllOutlineBtn->setFixedSize(28, 28);
-    m_deleteAllOutlineBtn->setIconSize(QSize(16, 16));
+    // 保存：目录的主操作。常态禁用，仅当有未保存改动时点亮（见 attachSession）。
+    // “删除全部”这类危险操作只保留在右键菜单，避免常驻工具栏误触。
+    m_saveOutlineBtn = new QToolButton(this);
+    m_saveOutlineBtn->setIcon(QIcon(":icons/resources/icons/save.svg"));
+    m_saveOutlineBtn->setToolTip(tr("Save Outline to PDF"));
+    m_saveOutlineBtn->setObjectName("outlineToolButton");
+    m_saveOutlineBtn->setFixedSize(28, 28);
+    m_saveOutlineBtn->setIconSize(QSize(16, 16));
+    m_saveOutlineBtn->setEnabled(false);
 
     m_expandAllBtn = new QToolButton(this);
     m_expandAllBtn->setIcon(QIcon(":icons/resources/icons/expand.svg"));
@@ -473,7 +483,7 @@ void NavigationPanel::setupUI()
 
     toolbarLayout->addWidget(m_addOutlineBtn);
     toolbarLayout->addWidget(m_deleteOutlineBtn);
-    toolbarLayout->addWidget(m_deleteAllOutlineBtn);
+    toolbarLayout->addWidget(m_saveOutlineBtn);
     toolbarLayout->addStretch();
     toolbarLayout->addWidget(m_expandAllBtn);
     toolbarLayout->addWidget(m_collapseAllBtn);
@@ -590,8 +600,8 @@ void NavigationPanel::setupConnections()
             m_outlineWidget, &OutlineWidget::addNewOutlineItem);
     connect(m_deleteOutlineBtn, &QToolButton::clicked,
             m_outlineWidget, &OutlineWidget::onDeleteOutline);
-    connect(m_deleteAllOutlineBtn, &QToolButton::clicked,
-            m_outlineWidget, &OutlineWidget::onDeleteAllOutlines);
+    connect(m_saveOutlineBtn, &QToolButton::clicked,
+            m_outlineWidget, &OutlineWidget::onSaveToDocument);
     connect(m_expandAllBtn, &QToolButton::clicked,
             m_outlineWidget, &OutlineWidget::expandAll);
     connect(m_collapseAllBtn, &QToolButton::clicked,

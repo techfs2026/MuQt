@@ -14,33 +14,33 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="70"/>
+        <location filename="../ui/annotationwidget.cpp" line="78"/>
         <source>Pen width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="71"/>
+        <location filename="../ui/annotationwidget.cpp" line="79"/>
         <source>Fine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="72"/>
+        <location filename="../ui/annotationwidget.cpp" line="80"/>
         <source>Thin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="73"/>
+        <location filename="../ui/annotationwidget.cpp" line="81"/>
         <location filename="../ui/annotationwidget.cpp" line="89"/>
         <source>Medium</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="74"/>
+        <location filename="../ui/annotationwidget.cpp" line="82"/>
         <source>Thick</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="82"/>
+        <location filename="../ui/annotationwidget.cpp" line="73"/>
         <source>Pen color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -85,17 +85,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="116"/>
+        <location filename="../ui/annotationwidget.cpp" line="130"/>
         <source>No annotations yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="245"/>
+        <location filename="../ui/annotationwidget.cpp" line="259"/>
         <source>Pen Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/annotationwidget.cpp" line="322"/>
+        <location filename="../ui/annotationwidget.cpp" line="336"/>
         <source>Page %1  ·  %n stroke(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -168,7 +168,7 @@ You can change this setting at any time from the Tools menu.</source>
     <name>MainWindow</name>
     <message>
         <location filename="../ui/mainwindow.cpp" line="57"/>
-        <location filename="../ui/mainwindow.cpp" line="1309"/>
+        <location filename="../ui/mainwindow.cpp" line="1316"/>
         <source>OwlPDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -183,24 +183,24 @@ You can change this setting at any time from the Tools menu.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="153"/>
+        <location filename="../ui/mainwindow.cpp" line="158"/>
         <source>Open PDF File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="155"/>
+        <location filename="../ui/mainwindow.cpp" line="160"/>
         <source>PDF Files (*.pdf);;All Files (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="170"/>
-        <location filename="../ui/mainwindow.cpp" line="1538"/>
-        <location filename="../ui/mainwindow.cpp" line="1831"/>
+        <location filename="../ui/mainwindow.cpp" line="175"/>
+        <location filename="../ui/mainwindow.cpp" line="1545"/>
+        <location filename="../ui/mainwindow.cpp" line="1838"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="171"/>
+        <location filename="../ui/mainwindow.cpp" line="176"/>
         <source>Failed to open:
 %1
 
@@ -208,393 +208,393 @@ Error: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="213"/>
+        <location filename="../ui/mainwindow.cpp" line="218"/>
         <source>Do you want to save them to the PDF?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="198"/>
-        <location filename="../ui/mainwindow.cpp" line="225"/>
+        <location filename="../ui/mainwindow.cpp" line="203"/>
+        <location filename="../ui/mainwindow.cpp" line="230"/>
         <source>Save Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="199"/>
-        <location filename="../ui/mainwindow.cpp" line="226"/>
+        <location filename="../ui/mainwindow.cpp" line="204"/>
+        <location filename="../ui/mainwindow.cpp" line="231"/>
         <source>Failed to save outline.
 Please check file permissions and disk space.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="211"/>
+        <location filename="../ui/mainwindow.cpp" line="216"/>
         <source>Unsaved Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="212"/>
+        <location filename="../ui/mainwindow.cpp" line="217"/>
         <source>&quot;%1&quot; has unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="278"/>
+        <location filename="../ui/mainwindow.cpp" line="285"/>
         <source>New Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="300"/>
+        <location filename="../ui/mainwindow.cpp" line="307"/>
         <source>Close Tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="385"/>
+        <location filename="../ui/mainwindow.cpp" line="392"/>
         <source>Paper texture enhancement (scanned PDFs only)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="387"/>
-        <location filename="../ui/mainwindow.cpp" line="1226"/>
+        <location filename="../ui/mainwindow.cpp" line="394"/>
+        <location filename="../ui/mainwindow.cpp" line="1233"/>
         <source>Paper texture enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="756"/>
+        <location filename="../ui/mainwindow.cpp" line="763"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="758"/>
+        <location filename="../ui/mainwindow.cpp" line="765"/>
         <source>Open File (Ctrl+O)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="762"/>
+        <location filename="../ui/mainwindow.cpp" line="769"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="767"/>
+        <location filename="../ui/mainwindow.cpp" line="774"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="769"/>
+        <location filename="../ui/mainwindow.cpp" line="776"/>
         <source>Save outline changes to PDF (Ctrl+S)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="772"/>
+        <location filename="../ui/mainwindow.cpp" line="779"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="776"/>
+        <location filename="../ui/mainwindow.cpp" line="783"/>
         <source>Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="781"/>
+        <location filename="../ui/mainwindow.cpp" line="788"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="787"/>
+        <location filename="../ui/mainwindow.cpp" line="794"/>
         <source>Find</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="789"/>
+        <location filename="../ui/mainwindow.cpp" line="796"/>
         <source>Search (Ctrl+F)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="792"/>
+        <location filename="../ui/mainwindow.cpp" line="799"/>
         <source>Find Next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="797"/>
+        <location filename="../ui/mainwindow.cpp" line="804"/>
         <source>Find Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="803"/>
+        <location filename="../ui/mainwindow.cpp" line="810"/>
         <source>First Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="804"/>
+        <location filename="../ui/mainwindow.cpp" line="811"/>
         <source>First Page (Home)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="808"/>
+        <location filename="../ui/mainwindow.cpp" line="815"/>
         <source>Previous Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="809"/>
+        <location filename="../ui/mainwindow.cpp" line="816"/>
         <source>Previous Page (PgUp)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="813"/>
+        <location filename="../ui/mainwindow.cpp" line="820"/>
         <source>Next Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="814"/>
+        <location filename="../ui/mainwindow.cpp" line="821"/>
         <source>Next Page (PgDown)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="818"/>
+        <location filename="../ui/mainwindow.cpp" line="825"/>
         <source>Last Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="819"/>
+        <location filename="../ui/mainwindow.cpp" line="826"/>
         <source>Last Page (End)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="823"/>
+        <location filename="../ui/mainwindow.cpp" line="830"/>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="825"/>
+        <location filename="../ui/mainwindow.cpp" line="832"/>
         <source>Zoom In (Ctrl++)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="829"/>
+        <location filename="../ui/mainwindow.cpp" line="836"/>
         <source>Zoom Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="831"/>
+        <location filename="../ui/mainwindow.cpp" line="838"/>
         <source>Zoom Out (Ctrl+-)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="835"/>
+        <location filename="../ui/mainwindow.cpp" line="842"/>
         <source>Fit Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="836"/>
+        <location filename="../ui/mainwindow.cpp" line="843"/>
         <source>Ctrl+1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="837"/>
+        <location filename="../ui/mainwindow.cpp" line="844"/>
         <source>Fit Page (Ctrl+1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="842"/>
+        <location filename="../ui/mainwindow.cpp" line="849"/>
         <source>Fit Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="843"/>
+        <location filename="../ui/mainwindow.cpp" line="850"/>
         <source>Ctrl+2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="844"/>
+        <location filename="../ui/mainwindow.cpp" line="851"/>
         <source>Fit Width (Ctrl+2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="852"/>
+        <location filename="../ui/mainwindow.cpp" line="859"/>
         <source>Single Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="861"/>
+        <location filename="../ui/mainwindow.cpp" line="868"/>
         <source>Double Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="869"/>
+        <location filename="../ui/mainwindow.cpp" line="876"/>
         <source>Continuous Scroll</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="876"/>
+        <location filename="../ui/mainwindow.cpp" line="883"/>
         <source>Navigation Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="877"/>
+        <location filename="../ui/mainwindow.cpp" line="884"/>
         <source>Show Navigation Panel (F9)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="883"/>
+        <location filename="../ui/mainwindow.cpp" line="890"/>
         <source>F9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="885"/>
+        <location filename="../ui/mainwindow.cpp" line="892"/>
         <source>Show Link Borders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="892"/>
+        <location filename="../ui/mainwindow.cpp" line="899"/>
         <source>Paper Enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="893"/>
+        <location filename="../ui/mainwindow.cpp" line="900"/>
         <source>Eye-protective paper texture enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="900"/>
+        <location filename="../ui/mainwindow.cpp" line="907"/>
         <source>OCR Lookup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="901"/>
+        <location filename="../ui/mainwindow.cpp" line="908"/>
         <source>Ctrl+Shift+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="902"/>
+        <location filename="../ui/mainwindow.cpp" line="909"/>
         <source>Enable OCR hover mode (Ctrl+Shift+O)
 Press Ctrl+Q to trigger recognition
 (Scanned PDFs only)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="911"/>
+        <location filename="../ui/mainwindow.cpp" line="918"/>
         <source>Toggle Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="912"/>
+        <location filename="../ui/mainwindow.cpp" line="919"/>
         <source>F11</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="917"/>
+        <location filename="../ui/mainwindow.cpp" line="924"/>
         <source>Annotate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="918"/>
+        <location filename="../ui/mainwindow.cpp" line="925"/>
         <source>Annotate — pen &amp; eraser (in the side panel)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="922"/>
+        <location filename="../ui/mainwindow.cpp" line="929"/>
         <source>Undo Annotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="927"/>
+        <location filename="../ui/mainwindow.cpp" line="934"/>
         <source>Redo Annotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="941"/>
+        <location filename="../ui/mainwindow.cpp" line="948"/>
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="948"/>
+        <location filename="../ui/mainwindow.cpp" line="955"/>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="955"/>
+        <location filename="../ui/mainwindow.cpp" line="962"/>
         <source>&amp;View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="978"/>
+        <location filename="../ui/mainwindow.cpp" line="985"/>
         <source>&amp;Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="981"/>
+        <location filename="../ui/mainwindow.cpp" line="988"/>
         <source>File Association Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1224"/>
+        <location filename="../ui/mainwindow.cpp" line="1231"/>
         <source>Paper texture enhancement
 (Current is native text PDF, not applicable)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1228"/>
+        <location filename="../ui/mainwindow.cpp" line="1235"/>
         <source>Paper texture enhancement (Open document first)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1246"/>
+        <location filename="../ui/mainwindow.cpp" line="1253"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Please start OCR engine in status bar first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1250"/>
+        <location filename="../ui/mainwindow.cpp" line="1257"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 OCR engine loading, please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1254"/>
+        <location filename="../ui/mainwindow.cpp" line="1261"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 OCR engine initialization failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1260"/>
+        <location filename="../ui/mainwindow.cpp" line="1267"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Press Ctrl+Q to trigger
 Open document first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1264"/>
+        <location filename="../ui/mainwindow.cpp" line="1271"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Press Ctrl+Q to trigger
 Current is text PDF, OCR not needed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1268"/>
+        <location filename="../ui/mainwindow.cpp" line="1275"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Press Ctrl+Q to trigger
 Click to enable OCR hover feature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1292"/>
+        <location filename="../ui/mainwindow.cpp" line="1299"/>
         <source> / %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1333"/>
+        <location filename="../ui/mainwindow.cpp" line="1340"/>
         <source>Please open a PDF file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1338"/>
+        <location filename="../ui/mainwindow.cpp" line="1345"/>
         <source>Text selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1406"/>
+        <location filename="../ui/mainwindow.cpp" line="1413"/>
         <source>Close Application</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/mainwindow.cpp" line="1407"/>
+        <location filename="../ui/mainwindow.cpp" line="1414"/>
         <source>You have %n document(s) open. Are you sure you want to close all of them?</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -602,12 +602,12 @@ Click to enable OCR hover feature</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1497"/>
+        <location filename="../ui/mainwindow.cpp" line="1504"/>
         <source>Opened %1 file(s), failed %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/mainwindow.cpp" line="1499"/>
+        <location filename="../ui/mainwindow.cpp" line="1506"/>
         <source>Successfully opened %n file(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -615,65 +615,65 @@ Click to enable OCR hover feature</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1503"/>
+        <location filename="../ui/mainwindow.cpp" line="1510"/>
         <source>Failed to open files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1517"/>
+        <location filename="../ui/mainwindow.cpp" line="1524"/>
         <source>Feature Not Available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1518"/>
+        <location filename="../ui/mainwindow.cpp" line="1525"/>
         <source>Paper enhancement is only for scanned PDFs.
 Current document is native text PDF and does not need this feature.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1532"/>
+        <location filename="../ui/mainwindow.cpp" line="1539"/>
         <source>Uninitialized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1534"/>
+        <location filename="../ui/mainwindow.cpp" line="1541"/>
         <source>Loading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1536"/>
+        <location filename="../ui/mainwindow.cpp" line="1543"/>
         <source>Ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1540"/>
+        <location filename="../ui/mainwindow.cpp" line="1547"/>
         <source>Unknown State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1552"/>
-        <location filename="../ui/mainwindow.cpp" line="1560"/>
-        <location filename="../ui/mainwindow.cpp" line="1568"/>
-        <location filename="../ui/mainwindow.cpp" line="1581"/>
+        <location filename="../ui/mainwindow.cpp" line="1559"/>
+        <location filename="../ui/mainwindow.cpp" line="1567"/>
+        <location filename="../ui/mainwindow.cpp" line="1575"/>
+        <location filename="../ui/mainwindow.cpp" line="1588"/>
         <source>OCR Feature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1553"/>
+        <location filename="../ui/mainwindow.cpp" line="1560"/>
         <source>Please start the OCR engine in the status bar first!
 
 Click the [OCR Engine] button on the right side of the status bar to start the engine.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1561"/>
+        <location filename="../ui/mainwindow.cpp" line="1568"/>
         <source>OCR engine is loading...
 
 Please wait for the engine to finish loading (status indicator turns green) before enabling.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1569"/>
+        <location filename="../ui/mainwindow.cpp" line="1576"/>
         <source>OCR engine initialization failed!
 
 Error message: %1
@@ -685,19 +685,19 @@ Please try:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1582"/>
+        <location filename="../ui/mainwindow.cpp" line="1589"/>
         <source>OCR engine not ready yet, cannot enable feature.
 
 Current state: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1591"/>
+        <location filename="../ui/mainwindow.cpp" line="1598"/>
         <source>OCR Hover Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1592"/>
+        <location filename="../ui/mainwindow.cpp" line="1599"/>
         <source>OCR hover lookup enabled!
 
 How to use:
@@ -711,12 +711,12 @@ Tip: View OCR engine status in status bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1627"/>
+        <location filename="../ui/mainwindow.cpp" line="1634"/>
         <source>Tokenizer Initialization Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1628"/>
+        <location filename="../ui/mainwindow.cpp" line="1635"/>
         <source>Chinese word segmentation initialization failed:
 %1
 
@@ -724,17 +724,17 @@ OCR will use full text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1639"/>
+        <location filename="../ui/mainwindow.cpp" line="1646"/>
         <source>OCR engine loading in background...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1646"/>
+        <location filename="../ui/mainwindow.cpp" line="1653"/>
         <source>OCR Engine Start Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1647"/>
+        <location filename="../ui/mainwindow.cpp" line="1654"/>
         <source>Unable to start OCR engine, please check:
 1. Model files exist
 2. Model path configuration is correct
@@ -744,88 +744,88 @@ Model directory: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1667"/>
+        <location filename="../ui/mainwindow.cpp" line="1674"/>
         <source>Stop OCR Engine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1668"/>
+        <location filename="../ui/mainwindow.cpp" line="1675"/>
         <source>Are you sure you want to stop the OCR engine?
 
 OCR hover feature will be disabled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1691"/>
+        <location filename="../ui/mainwindow.cpp" line="1698"/>
         <source>OCR engine stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1709"/>
+        <location filename="../ui/mainwindow.cpp" line="1716"/>
         <source>OCR engine ready, enable OCR hover in toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1711"/>
+        <location filename="../ui/mainwindow.cpp" line="1718"/>
         <source>OCR engine initialization failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1765"/>
+        <location filename="../ui/mainwindow.cpp" line="1772"/>
         <source>PDF Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1769"/>
+        <location filename="../ui/mainwindow.cpp" line="1776"/>
         <source>File association has been set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1771"/>
+        <location filename="../ui/mainwindow.cpp" line="1778"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1772"/>
+        <location filename="../ui/mainwindow.cpp" line="1779"/>
         <source>Failed to set file association. Please check permissions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1781"/>
+        <location filename="../ui/mainwindow.cpp" line="1788"/>
         <source>File association has been removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1795"/>
+        <location filename="../ui/mainwindow.cpp" line="1802"/>
         <source>Currently associated file types: %1
 
 Do you want to remove file association?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1798"/>
+        <location filename="../ui/mainwindow.cpp" line="1805"/>
         <source>Do you want to associate file types: %1
 
 After association, you can open files by double-clicking.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1805"/>
+        <location filename="../ui/mainwindow.cpp" line="1812"/>
         <source>File Association Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1832"/>
+        <location filename="../ui/mainwindow.cpp" line="1839"/>
         <source>File does not exist: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1847"/>
+        <location filename="../ui/mainwindow.cpp" line="1853"/>
         <source>Opened: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/mainwindow.cpp" line="1906"/>
+        <location filename="../ui/mainwindow.cpp" line="1910"/>
         <source>Restored %n document(s) from last session</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -833,12 +833,12 @@ After association, you can open files by double-clicking.</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1982"/>
+        <location filename="../ui/mainwindow.cpp" line="1986"/>
         <source>Toolbar shown (Press F11 to hide)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1984"/>
+        <location filename="../ui/mainwindow.cpp" line="1988"/>
         <source>Toolbar hidden (Press F11 to show)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -846,83 +846,83 @@ After association, you can open files by double-clicking.</source>
 <context>
     <name>NavigationPanel</name>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="216"/>
+        <location filename="../ui/navigationpanel.cpp" line="221"/>
         <source>Loading started...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="234"/>
+        <location filename="../ui/navigationpanel.cpp" line="239"/>
         <source>Loading complete!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="239"/>
+        <location filename="../ui/navigationpanel.cpp" line="244"/>
         <source>Loaded successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="249"/>
+        <location filename="../ui/navigationpanel.cpp" line="254"/>
         <source>Loading: %1/%2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="440"/>
+        <location filename="../ui/navigationpanel.cpp" line="448"/>
         <source>Add Outline Item (at current page)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="447"/>
+        <location filename="../ui/navigationpanel.cpp" line="455"/>
         <source>Delete Selected Outline Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="454"/>
-        <source>Delete All Outline Items</source>
+        <location filename="../ui/navigationpanel.cpp" line="464"/>
+        <source>Save Outline to PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="462"/>
+        <location filename="../ui/navigationpanel.cpp" line="472"/>
         <source>Expand All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="469"/>
+        <location filename="../ui/navigationpanel.cpp" line="479"/>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="548"/>
+        <location filename="../ui/navigationpanel.cpp" line="558"/>
         <source>Outline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="549"/>
+        <location filename="../ui/navigationpanel.cpp" line="559"/>
         <source>Thumbnails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="550"/>
+        <location filename="../ui/navigationpanel.cpp" line="560"/>
         <source>Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="579"/>
+        <location filename="../ui/navigationpanel.cpp" line="589"/>
         <source>Failed to Open Link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="580"/>
+        <location filename="../ui/navigationpanel.cpp" line="590"/>
         <source>Failed to open link:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="583"/>
+        <location filename="../ui/navigationpanel.cpp" line="593"/>
         <source>Invalid Link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="584"/>
+        <location filename="../ui/navigationpanel.cpp" line="594"/>
         <source>Invalid link:
 %1</source>
         <translation type="unfinished"></translation>
@@ -1479,6 +1479,38 @@ Continue searching?</source>
     </message>
 </context>
 <context>
+    <name>RapidOcrEngine</name>
+    <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="100"/>
+        <source>OCR is busy, please wait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="106"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="157"/>
+        <source>OCR engine is not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="112"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="162"/>
+        <source>Invalid input image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="136"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="193"/>
+        <source>No text recognized</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="142"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="199"/>
+        <source>Recognition failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SearchWidget</name>
     <message>
         <location filename="../ui/searchwidget.cpp" line="60"/>
@@ -1557,121 +1589,181 @@ Continue searching?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="63"/>
+        <location filename="../ui/settingsdialog.cpp" line="167"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="64"/>
+        <location filename="../ui/settingsdialog.cpp" line="168"/>
+        <source>Startup and overall app behavior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="171"/>
         <source>Reopen last session on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="68"/>
-        <source>Cache</source>
+        <location filename="../ui/settingsdialog.cpp" line="173"/>
+        <source>Automatically reopen the documents you had open when you last quit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="71"/>
+        <location filename="../ui/settingsdialog.cpp" line="179"/>
+        <source>Reading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="180"/>
+        <source>Tune how pages are cached and how smoothly the view responds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="182"/>
+        <source>Page Cache</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="187"/>
+        <source>Page cache limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="188"/>
+        <source>How many rendered pages to keep in memory. Higher is smoother when flipping back and forth, but uses more memory. Recommended: 10.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="196"/>
+        <source>Preload distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="197"/>
+        <source>How far beyond the screen to render pages ahead of time, so scrolling feels instant. Recommended: 500.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="206"/>
+        <source>Resize delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="207"/>
+        <source>How long to wait after you stop resizing the window before re-rendering. Larger values feel calmer; smaller values update faster. Recommended: 150.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="215"/>
+        <source>Word Lookup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="216"/>
+        <source>Recognize text under the cursor and look it up in an external dictionary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="218"/>
+        <source>Hover Recognition (OCR)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="224"/>
+        <source>Hover delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="225"/>
+        <source>How long the cursor must rest before a word is recognized. Larger values avoid accidental lookups. Recommended: 300.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="233"/>
+        <source>Capture size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="234"/>
+        <source>The size of the area around the cursor sent to OCR. Larger captures more context but is slower. Recommended: 200.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="246"/>
+        <source>Lookup command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="247"/>
+        <source>Shell command used to look up the recognized word. Use {word} as a placeholder; if omitted, the word is appended to the command.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="330"/>
+        <source>Restore Defaults</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="331"/>
+        <source>Reset all settings to their default values? This cannot be undone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="185"/>
         <source> pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="72"/>
-        <source>Page cache limit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="77"/>
-        <location filename="../ui/settingsdialog.cpp" line="105"/>
+        <location filename="../ui/settingsdialog.cpp" line="194"/>
+        <location filename="../ui/settingsdialog.cpp" line="231"/>
         <source> px</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="78"/>
-        <source>Preload margin:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="81"/>
-        <source>Cache settings take effect the next time a document is opened.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="87"/>
+        <location filename="../ui/settingsdialog.cpp" line="200"/>
         <source>Performance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="91"/>
-        <location filename="../ui/settingsdialog.cpp" line="99"/>
+        <location filename="../ui/settingsdialog.cpp" line="204"/>
+        <location filename="../ui/settingsdialog.cpp" line="222"/>
         <source> ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="92"/>
-        <source>Window resize debounce:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="95"/>
-        <source>OCR</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="100"/>
-        <source>Hover lookup debounce:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="106"/>
-        <source>Hover capture region:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="109"/>
+        <location filename="../ui/settingsdialog.cpp" line="237"/>
         <source>Dictionary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="115"/>
+        <location filename="../ui/settingsdialog.cpp" line="242"/>
         <source>e.g. open -a GoldenDict {word}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="116"/>
+        <location filename="../ui/settingsdialog.cpp" line="243"/>
         <source>Test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="119"/>
-        <source>Command:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="122"/>
-        <source>Shell command used to look up the OCR-recognized word in an external dictionary. Use {word} as a placeholder for the query word; if omitted, the word is appended to the command.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/settingsdialog.cpp" line="133"/>
-        <location filename="../ui/settingsdialog.cpp" line="141"/>
-        <location filename="../ui/settingsdialog.cpp" line="144"/>
+        <location filename="../ui/settingsdialog.cpp" line="255"/>
+        <location filename="../ui/settingsdialog.cpp" line="263"/>
+        <location filename="../ui/settingsdialog.cpp" line="266"/>
         <source>Test Dictionary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="134"/>
+        <location filename="../ui/settingsdialog.cpp" line="256"/>
         <source>Please enter a dictionary command first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="142"/>
+        <location filename="../ui/settingsdialog.cpp" line="264"/>
         <source>Command launched. If your dictionary popped up with &quot;test&quot;, it works.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="145"/>
+        <location filename="../ui/settingsdialog.cpp" line="267"/>
         <source>Failed to run the command:
 %1</source>
         <translation type="unfinished"></translation>

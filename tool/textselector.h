@@ -156,10 +156,6 @@ private:
 
     QVector<QRectF> calculateHighlightRects(const PageTextData& pageData);
 
-    int getCharGlobalIndex(const PageTextData& pageData, const CharPosition& pos) const;
-
-    CharPosition getCharPositionFromIndex(const PageTextData& pageData, int index) const;
-
 private:
     PerThreadMuPDFRenderer* m_renderer;
     TextCacheManager* m_textCache;

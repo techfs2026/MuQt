@@ -568,13 +568,3 @@ QVector<QRectF> TextSelector::calculateHighlightRects(const PageTextData& pageDa
 
     return rects;
 }
-
-int TextSelector::getCharGlobalIndex(const PageTextData& pageData, const CharPosition& pos) const
-{
-    return 0;
-}
-
-CharPosition TextSelector::getCharPositionFromIndex(const PageTextData& pageData, int index) const
-{
-    return CharPosition();
-}

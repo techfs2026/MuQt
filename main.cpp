@@ -7,7 +7,11 @@
 #include <QMessageBox>
 #include <QTranslator>
 #include <QLocale>
+#include <QLibraryInfo>
 #include <QTimer>
+#include <QDir>
+#include <QFileInfo>
+#include <QStringList>
 
 #ifdef Q_OS_MACOS
 #include <QFileOpenEvent>
@@ -64,7 +68,9 @@ int main(int argc, char *argv[])
 
     app.setOrganizationName("OwlPDF");
     app.setApplicationName("OwlPDF");
+#ifdef Q_OS_WIN
     app.setWindowIcon(QIcon(":/resources/windows.ico"));
+#endif
 
     // 启动时清理一次目录备份（按时间/总体积），依赖上面的应用名设置 AppDataLocation
     OutlineEditor::cleanupBackups();
@@ -79,10 +85,39 @@ int main(int argc, char *argv[])
     StyleManager::instance().setTheme("light");
     StyleManager::instance().applyStyleToApplication(&app);
 
-    QTranslator translator;
-    QString locale = QLocale::system().name();
+    const QLocale systemLocale = QLocale::system();
 
-    if (translator.load(":/translations/owlpdf_" + locale)) {
+    // Qt 自带控件的标准文案（QMessageBox 的 Yes/No、QDialogButtonBox 的
+    // OK/Cancel/Restore Defaults 等）来自 Qt 翻译包。部署后优先从应用包内加载，
+    // 开发期再回退到 Qt 安装目录；最后安装应用自己的翻译。
+    static QTranslator qtBaseTranslator;
+    static QTranslator qtTranslator;
+    const QStringList translationDirs = {
+        QCoreApplication::applicationDirPath() + "/translations",
+        QCoreApplication::applicationDirPath() + "/../Resources/translations",
+        QLibraryInfo::path(QLibraryInfo::TranslationsPath)
+    };
+
+    auto loadQtTranslation = [&](QTranslator& target, const QString& baseName) {
+        for (const QString& dir : translationDirs) {
+            const QString cleanDir = QDir::cleanPath(dir);
+            if (QFileInfo::exists(cleanDir)
+                && target.load(systemLocale, baseName, "_", cleanDir)) {
+                app.installTranslator(&target);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if (!loadQtTranslation(qtBaseTranslator, QStringLiteral("qtbase"))) {
+        loadQtTranslation(qtTranslator, QStringLiteral("qt"));
+    } else {
+        loadQtTranslation(qtTranslator, QStringLiteral("qt"));
+    }
+
+    static QTranslator translator;
+    if (translator.load(":/translations/owlpdf_" + systemLocale.name())) {
         app.installTranslator(&translator);
     }
 

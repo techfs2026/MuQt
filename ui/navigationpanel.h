@@ -64,7 +64,7 @@ private:
     int m_annotationTabIndex = -1;
     QToolButton* m_addOutlineBtn;
     QToolButton* m_deleteOutlineBtn;
-    QToolButton* m_deleteAllOutlineBtn;
+    QToolButton* m_saveOutlineBtn;
     QToolButton* m_expandAllBtn;
     QToolButton* m_collapseAllBtn;
 

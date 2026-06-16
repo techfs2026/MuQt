@@ -278,6 +278,8 @@ public slots:
     // 工具栏“删除选中”/“删除全部”（均带确认弹窗），与右键菜单共用同一逻辑。
     void onDeleteOutline();
     void onDeleteAllOutlines();
+    // 工具栏“保存”：静默存盘（自动建备份），失败才弹错；与右键菜单共用同一逻辑。
+    void onSaveToDocument();
 
 signals:
     void pageJumpRequested(int pageIndex);
@@ -299,7 +301,6 @@ private slots:
     void onAddChildOutline();
     void onAddSiblingOutline();
     void onEditOutline();
-    void onSaveToDocument();
 
 private:
     void setupUI();

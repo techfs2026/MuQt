@@ -151,6 +151,12 @@ qt_add_translations(OwlPDF
     RESOURCE_PREFIX "/translations"
 )
 
+set(QT_TRANSLATIONS_DIR "${CMAKE_PREFIX_PATH}/translations")
+set(QT_STANDARD_TRANSLATION_FILES
+    qtbase_zh_CN.qm
+    qt_zh_CN.qm
+)
+
 # ============================================================
 # macOS 应用包 Info.plist
 #   使用自定义 Info.plist，声明 OwlPDF 可处理 PDF 文件
@@ -161,6 +167,9 @@ qt_add_translations(OwlPDF
 if(APPLE)
     set_target_properties(OwlPDF PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
+        BUILD_RPATH "@executable_path/../Frameworks;${CMAKE_PREFIX_PATH}/lib;${MUPDF_LIB_DIR};${OPENCV_LIB_DIR};${HOMEBREW_PREFIX}/lib"
+        INSTALL_RPATH "@executable_path/../Frameworks"
+        INSTALL_RPATH_USE_LINK_PATH FALSE
     )
 endif()
 
@@ -298,6 +307,29 @@ if(WIN32)
         VERBATIM
     )
 # macOS 不需要拷贝 onnxruntime.dylib（已不使用）
+endif()
+
+if(WIN32)
+    set(QT_STANDARD_TRANSLATIONS_DST "$<TARGET_FILE_DIR:OwlPDF>/translations")
+elseif(APPLE)
+    set(QT_STANDARD_TRANSLATIONS_DST "$<TARGET_BUNDLE_CONTENT_DIR:OwlPDF>/Resources/translations")
+endif()
+
+if(QT_STANDARD_TRANSLATIONS_DST)
+    foreach(QT_TRANSLATION_FILE IN LISTS QT_STANDARD_TRANSLATION_FILES)
+        if(EXISTS "${QT_TRANSLATIONS_DIR}/${QT_TRANSLATION_FILE}")
+            add_custom_command(TARGET OwlPDF POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${QT_STANDARD_TRANSLATIONS_DST}"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${QT_TRANSLATIONS_DIR}/${QT_TRANSLATION_FILE}"
+                    "${QT_STANDARD_TRANSLATIONS_DST}/${QT_TRANSLATION_FILE}"
+                COMMENT "Copying Qt standard translation ${QT_TRANSLATION_FILE}"
+                VERBATIM
+            )
+        else()
+            message(WARNING "Qt standard translation not found: ${QT_TRANSLATIONS_DIR}/${QT_TRANSLATION_FILE}")
+        endif()
+    endforeach()
 endif()
 
 # ============================================================

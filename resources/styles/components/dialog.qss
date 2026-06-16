@@ -75,3 +75,76 @@ QDialog QSpinBox:disabled {
 QDialog QDialogButtonBox {
     /* 占位：按钮间距由布局控制，外观由 button.qss 决定 */
 }
+
+/* ==================== 设置对话框 ==================== */
+QDialog#settingsDialog {
+    background-color: @background-color;
+}
+
+/* ---- 左侧分类导航 ---- */
+QListWidget#settingsCategoryList {
+    background-color: @surface-color;
+    border: none;
+    border-right: 1px solid @border-light;
+    outline: none;
+    padding: @space-2 @space-1;
+}
+QListWidget#settingsCategoryList::item {
+    padding: @space-2 @space-3;
+    margin: 2px @space-1;
+    border-radius: @radius-md;
+    color: @text-secondary;
+    min-height: 24px;
+}
+QListWidget#settingsCategoryList::item:hover {
+    background-color: @hover-background;
+    color: @text-primary;
+}
+QListWidget#settingsCategoryList::item:selected {
+    background-color: @selected-background;
+    color: @primary-color;
+    font-weight: 600;
+}
+
+/* ---- 右侧页面区 ---- */
+QStackedWidget#settingsPages {
+    background-color: @background-color;
+}
+
+/* 页面标题 / 副标题 */
+QDialog QLabel[role="pageTitle"] {
+    font-size: @font-size-lg;
+    font-weight: 600;
+    color: @text-primary;
+}
+QDialog QLabel[role="pageSubtitle"] {
+    font-size: @font-size-sm;
+    color: @text-secondary;
+}
+
+/* 分组小标题 */
+QDialog QLabel[role="sectionTitle"] {
+    font-size: @font-size-sm;
+    font-weight: 600;
+    color: @text-secondary;
+    padding-left: @space-1;
+}
+
+/* 行内主标签 */
+QDialog QLabel[role="rowLabel"] {
+    font-size: @font-size-base;
+    color: @text-primary;
+}
+
+/* 分组卡片容器 */
+QFrame#settingsSection {
+    background-color: @surface-color;
+    border: 1px solid @border-light;
+    border-radius: @radius-lg;
+}
+
+/* 行间细分隔线 */
+QFrame#settingsRowSeparator {
+    background-color: @border-light;
+    border: none;
+}

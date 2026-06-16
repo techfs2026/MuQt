@@ -14,33 +14,33 @@
         <translation>橡皮</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="70"/>
+        <location filename="../ui/annotationwidget.cpp" line="78"/>
         <source>Pen width</source>
         <translation>笔粗细</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="71"/>
+        <location filename="../ui/annotationwidget.cpp" line="79"/>
         <source>Fine</source>
         <translation>极细</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="72"/>
+        <location filename="../ui/annotationwidget.cpp" line="80"/>
         <source>Thin</source>
         <translation>细</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="73"/>
+        <location filename="../ui/annotationwidget.cpp" line="81"/>
         <location filename="../ui/annotationwidget.cpp" line="89"/>
         <source>Medium</source>
         <translation>中</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="74"/>
+        <location filename="../ui/annotationwidget.cpp" line="82"/>
         <source>Thick</source>
         <translation>粗</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="82"/>
+        <location filename="../ui/annotationwidget.cpp" line="73"/>
         <source>Pen color</source>
         <translation>笔颜色</translation>
     </message>
@@ -85,17 +85,17 @@
         <translation>清除全部</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="116"/>
+        <location filename="../ui/annotationwidget.cpp" line="130"/>
         <source>No annotations yet</source>
         <translation>暂无批注</translation>
     </message>
     <message>
-        <location filename="../ui/annotationwidget.cpp" line="245"/>
+        <location filename="../ui/annotationwidget.cpp" line="259"/>
         <source>Pen Color</source>
         <translation>钢笔颜色</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/annotationwidget.cpp" line="322"/>
+        <location filename="../ui/annotationwidget.cpp" line="336"/>
         <source>Page %1  ·  %n stroke(s)</source>
         <translation>
             <numerusform>第 %1 页 · %n 笔</numerusform>
@@ -171,7 +171,7 @@ You can change this setting at any time from the Tools menu.</source>
     <name>MainWindow</name>
     <message>
         <location filename="../ui/mainwindow.cpp" line="57"/>
-        <location filename="../ui/mainwindow.cpp" line="1309"/>
+        <location filename="../ui/mainwindow.cpp" line="1316"/>
         <source>OwlPDF</source>
         <translation>OwlPDF</translation>
     </message>
@@ -181,24 +181,24 @@ You can change this setting at any time from the Tools menu.</source>
         <translation>导航</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="153"/>
+        <location filename="../ui/mainwindow.cpp" line="158"/>
         <source>Open PDF File</source>
         <translation>打开PDF文件</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="155"/>
+        <location filename="../ui/mainwindow.cpp" line="160"/>
         <source>PDF Files (*.pdf);;All Files (*.*)</source>
         <translation>PDF文件 (*.pdf);;所有文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="170"/>
-        <location filename="../ui/mainwindow.cpp" line="1538"/>
-        <location filename="../ui/mainwindow.cpp" line="1831"/>
+        <location filename="../ui/mainwindow.cpp" line="175"/>
+        <location filename="../ui/mainwindow.cpp" line="1545"/>
+        <location filename="../ui/mainwindow.cpp" line="1838"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="171"/>
+        <location filename="../ui/mainwindow.cpp" line="176"/>
         <source>Failed to open:
 %1
 
@@ -217,262 +217,262 @@ Error: %2</source>
         <translation type="vanished">“%1” 有未保存的目录修改。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="213"/>
+        <location filename="../ui/mainwindow.cpp" line="218"/>
         <source>Do you want to save them to the PDF?</source>
         <translation>是否将修改保存到 PDF？</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="198"/>
-        <location filename="../ui/mainwindow.cpp" line="225"/>
+        <location filename="../ui/mainwindow.cpp" line="203"/>
+        <location filename="../ui/mainwindow.cpp" line="230"/>
         <source>Save Failed</source>
         <translation>保存失败</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="199"/>
-        <location filename="../ui/mainwindow.cpp" line="226"/>
+        <location filename="../ui/mainwindow.cpp" line="204"/>
+        <location filename="../ui/mainwindow.cpp" line="231"/>
         <source>Failed to save outline.
 Please check file permissions and disk space.</source>
         <translation>保存目录失败。
 请检查文件权限和磁盘空间。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="211"/>
+        <location filename="../ui/mainwindow.cpp" line="216"/>
         <source>Unsaved Changes</source>
         <translation>未保存的更改</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="212"/>
+        <location filename="../ui/mainwindow.cpp" line="217"/>
         <source>&quot;%1&quot; has unsaved changes.</source>
         <translation>“%1” 有未保存的更改。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="278"/>
+        <location filename="../ui/mainwindow.cpp" line="285"/>
         <source>New Tab</source>
         <translation>新标签页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="300"/>
+        <location filename="../ui/mainwindow.cpp" line="307"/>
         <source>Close Tab</source>
         <translation>关闭标签页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="385"/>
+        <location filename="../ui/mainwindow.cpp" line="392"/>
         <source>Paper texture enhancement (scanned PDFs only)</source>
         <translation>纸质书印刷效果增强(仅适用于扫描版 PDF)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="387"/>
-        <location filename="../ui/mainwindow.cpp" line="1226"/>
+        <location filename="../ui/mainwindow.cpp" line="394"/>
+        <location filename="../ui/mainwindow.cpp" line="1233"/>
         <source>Paper texture enhancement</source>
         <translation>纸质书印刷效果增强</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="756"/>
+        <location filename="../ui/mainwindow.cpp" line="763"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="758"/>
+        <location filename="../ui/mainwindow.cpp" line="765"/>
         <source>Open File (Ctrl+O)</source>
         <translation>打开文件 (Ctrl+O)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="762"/>
+        <location filename="../ui/mainwindow.cpp" line="769"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="767"/>
+        <location filename="../ui/mainwindow.cpp" line="774"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="769"/>
+        <location filename="../ui/mainwindow.cpp" line="776"/>
         <source>Save outline changes to PDF (Ctrl+S)</source>
         <translation>将目录修改保存到 PDF (Ctrl+S)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="772"/>
+        <location filename="../ui/mainwindow.cpp" line="779"/>
         <source>Quit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="776"/>
+        <location filename="../ui/mainwindow.cpp" line="783"/>
         <source>Settings...</source>
         <translation>设置…</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="781"/>
+        <location filename="../ui/mainwindow.cpp" line="788"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="787"/>
+        <location filename="../ui/mainwindow.cpp" line="794"/>
         <source>Find</source>
         <translation>查找</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="789"/>
+        <location filename="../ui/mainwindow.cpp" line="796"/>
         <source>Search (Ctrl+F)</source>
         <translation>搜索 (Ctrl+F)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="792"/>
+        <location filename="../ui/mainwindow.cpp" line="799"/>
         <source>Find Next</source>
         <translation>查找下一个</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="797"/>
+        <location filename="../ui/mainwindow.cpp" line="804"/>
         <source>Find Previous</source>
         <translation>查找上一个</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="803"/>
+        <location filename="../ui/mainwindow.cpp" line="810"/>
         <source>First Page</source>
         <translation>首页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="804"/>
+        <location filename="../ui/mainwindow.cpp" line="811"/>
         <source>First Page (Home)</source>
         <translation>首页 (Home)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="808"/>
+        <location filename="../ui/mainwindow.cpp" line="815"/>
         <source>Previous Page</source>
         <translation>上一页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="809"/>
+        <location filename="../ui/mainwindow.cpp" line="816"/>
         <source>Previous Page (PgUp)</source>
         <translation>上一页 (PgUp)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="813"/>
+        <location filename="../ui/mainwindow.cpp" line="820"/>
         <source>Next Page</source>
         <translation>下一页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="814"/>
+        <location filename="../ui/mainwindow.cpp" line="821"/>
         <source>Next Page (PgDown)</source>
         <translation>下一页 (PgDown)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="818"/>
+        <location filename="../ui/mainwindow.cpp" line="825"/>
         <source>Last Page</source>
         <translation>尾页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="819"/>
+        <location filename="../ui/mainwindow.cpp" line="826"/>
         <source>Last Page (End)</source>
         <translation>尾页 (End)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="823"/>
+        <location filename="../ui/mainwindow.cpp" line="830"/>
         <source>Zoom In</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="825"/>
+        <location filename="../ui/mainwindow.cpp" line="832"/>
         <source>Zoom In (Ctrl++)</source>
         <translation>放大 (Ctrl++)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="829"/>
+        <location filename="../ui/mainwindow.cpp" line="836"/>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="831"/>
+        <location filename="../ui/mainwindow.cpp" line="838"/>
         <source>Zoom Out (Ctrl+-)</source>
         <translation>缩小 (Ctrl+-)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="835"/>
+        <location filename="../ui/mainwindow.cpp" line="842"/>
         <source>Fit Page</source>
         <translation>适应页面</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="836"/>
+        <location filename="../ui/mainwindow.cpp" line="843"/>
         <source>Ctrl+1</source>
         <translation>Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="837"/>
+        <location filename="../ui/mainwindow.cpp" line="844"/>
         <source>Fit Page (Ctrl+1)</source>
         <translation>适应页面 (Ctrl+1)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="842"/>
+        <location filename="../ui/mainwindow.cpp" line="849"/>
         <source>Fit Width</source>
         <translation>适应宽度</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="843"/>
+        <location filename="../ui/mainwindow.cpp" line="850"/>
         <source>Ctrl+2</source>
         <translation>Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="844"/>
+        <location filename="../ui/mainwindow.cpp" line="851"/>
         <source>Fit Width (Ctrl+2)</source>
         <translation>适应宽度 (Ctrl+2)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="852"/>
+        <location filename="../ui/mainwindow.cpp" line="859"/>
         <source>Single Page</source>
         <translation>单页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="861"/>
+        <location filename="../ui/mainwindow.cpp" line="868"/>
         <source>Double Page</source>
         <translation>双页</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="869"/>
+        <location filename="../ui/mainwindow.cpp" line="876"/>
         <source>Continuous Scroll</source>
         <translation>连续滚动</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="876"/>
+        <location filename="../ui/mainwindow.cpp" line="883"/>
         <source>Navigation Panel</source>
         <translation>导航面板</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="877"/>
+        <location filename="../ui/mainwindow.cpp" line="884"/>
         <source>Show Navigation Panel (F9)</source>
         <translation>显示导航栏 (F9)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="883"/>
+        <location filename="../ui/mainwindow.cpp" line="890"/>
         <source>F9</source>
         <translation>F9</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="885"/>
+        <location filename="../ui/mainwindow.cpp" line="892"/>
         <source>Show Link Borders</source>
         <translation>显示链接边框</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="892"/>
+        <location filename="../ui/mainwindow.cpp" line="899"/>
         <source>Paper Enhancement</source>
         <translation>纸质增强</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="893"/>
+        <location filename="../ui/mainwindow.cpp" line="900"/>
         <source>Eye-protective paper texture enhancement</source>
         <translation>魔法！护眼纸质感效果增强</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="900"/>
+        <location filename="../ui/mainwindow.cpp" line="907"/>
         <source>OCR Lookup</source>
         <translation>OCR取词</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="901"/>
+        <location filename="../ui/mainwindow.cpp" line="908"/>
         <source>Ctrl+Shift+O</source>
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="902"/>
+        <location filename="../ui/mainwindow.cpp" line="909"/>
         <source>Enable OCR hover mode (Ctrl+Shift+O)
 Press Ctrl+Q to trigger recognition
 (Scanned PDFs only)</source>
@@ -481,139 +481,139 @@ Press Ctrl+Q to trigger recognition
 (仅扫描版PDF)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="912"/>
+        <location filename="../ui/mainwindow.cpp" line="919"/>
         <source>F11</source>
         <translation>F11</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="917"/>
+        <location filename="../ui/mainwindow.cpp" line="924"/>
         <source>Annotate</source>
         <translation>批注</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="918"/>
+        <location filename="../ui/mainwindow.cpp" line="925"/>
         <source>Annotate — pen &amp; eraser (in the side panel)</source>
         <translation>批注——钢笔与橡皮（在侧边栏）</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="922"/>
+        <location filename="../ui/mainwindow.cpp" line="929"/>
         <source>Undo Annotation</source>
         <translation>撤销批注</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="927"/>
+        <location filename="../ui/mainwindow.cpp" line="934"/>
         <source>Redo Annotation</source>
         <translation>重做批注</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="941"/>
+        <location filename="../ui/mainwindow.cpp" line="948"/>
         <source>&amp;File</source>
         <translation>文件(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="948"/>
+        <location filename="../ui/mainwindow.cpp" line="955"/>
         <source>&amp;Edit</source>
         <translation>编辑(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="955"/>
+        <location filename="../ui/mainwindow.cpp" line="962"/>
         <source>&amp;View</source>
         <translation>视图(&amp;V)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1292"/>
+        <location filename="../ui/mainwindow.cpp" line="1299"/>
         <source> / %1</source>
         <translation> / %1</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1333"/>
+        <location filename="../ui/mainwindow.cpp" line="1340"/>
         <source>Please open a PDF file</source>
         <translation>请打开PDF文件查看</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1338"/>
+        <location filename="../ui/mainwindow.cpp" line="1345"/>
         <source>Text selected</source>
         <translation>文本已选择</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1406"/>
+        <location filename="../ui/mainwindow.cpp" line="1413"/>
         <source>Close Application</source>
         <translation>关闭应用程序</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/mainwindow.cpp" line="1407"/>
+        <location filename="../ui/mainwindow.cpp" line="1414"/>
         <source>You have %n document(s) open. Are you sure you want to close all of them?</source>
         <translation>
             <numerusform>您有 %n 个文档已打开。确定要全部关闭吗？</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1517"/>
+        <location filename="../ui/mainwindow.cpp" line="1524"/>
         <source>Feature Not Available</source>
         <translation>功能不可用</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1518"/>
+        <location filename="../ui/mainwindow.cpp" line="1525"/>
         <source>Paper enhancement is only for scanned PDFs.
 Current document is native text PDF and does not need this feature.</source>
         <translation>纸质增强效果仅适用于扫描版 PDF。
 当前文档是原生文本 PDF，不需要此功能。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1224"/>
+        <location filename="../ui/mainwindow.cpp" line="1231"/>
         <source>Paper texture enhancement
 (Current is native text PDF, not applicable)</source>
         <translation>纸质书印刷效果增强
 (当前是原生文本 PDF，此功能不适用)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1228"/>
+        <location filename="../ui/mainwindow.cpp" line="1235"/>
         <source>Paper texture enhancement (Open document first)</source>
         <translation>纸质书印刷效果增强(需要打开文档)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1532"/>
+        <location filename="../ui/mainwindow.cpp" line="1539"/>
         <source>Uninitialized</source>
         <translation>未初始化</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1534"/>
+        <location filename="../ui/mainwindow.cpp" line="1541"/>
         <source>Loading</source>
         <translation>加载中</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1536"/>
+        <location filename="../ui/mainwindow.cpp" line="1543"/>
         <source>Ready</source>
         <translation>就绪</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1540"/>
+        <location filename="../ui/mainwindow.cpp" line="1547"/>
         <source>Unknown State</source>
         <translation>未知状态</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1246"/>
+        <location filename="../ui/mainwindow.cpp" line="1253"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Please start OCR engine in status bar first</source>
         <translation>启用OCR取词 (Ctrl+Shift+O)
 请先在状态栏启动OCR引擎</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1250"/>
+        <location filename="../ui/mainwindow.cpp" line="1257"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 OCR engine loading, please wait...</source>
         <translation>启用OCR取词 (Ctrl+Shift+O)
 OCR引擎加载中，请稍候...</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1254"/>
+        <location filename="../ui/mainwindow.cpp" line="1261"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 OCR engine initialization failed</source>
         <translation>启用OCR取词 (Ctrl+Shift+O)
 OCR引擎初始化失败</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1260"/>
+        <location filename="../ui/mainwindow.cpp" line="1267"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Press Ctrl+Q to trigger
 Open document first</source>
@@ -622,7 +622,7 @@ Open document first</source>
 需要先打开文档</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1264"/>
+        <location filename="../ui/mainwindow.cpp" line="1271"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Press Ctrl+Q to trigger
 Current is text PDF, OCR not needed</source>
@@ -631,7 +631,7 @@ Current is text PDF, OCR not needed</source>
 当前是文本PDF，不需要OCR</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1268"/>
+        <location filename="../ui/mainwindow.cpp" line="1275"/>
         <source>Enable OCR hover (Ctrl+Shift+O)
 Press Ctrl+Q to trigger
 Click to enable OCR hover feature</source>
@@ -640,15 +640,15 @@ Click to enable OCR hover feature</source>
 点击启用OCR取词功能</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1552"/>
-        <location filename="../ui/mainwindow.cpp" line="1560"/>
-        <location filename="../ui/mainwindow.cpp" line="1568"/>
-        <location filename="../ui/mainwindow.cpp" line="1581"/>
+        <location filename="../ui/mainwindow.cpp" line="1559"/>
+        <location filename="../ui/mainwindow.cpp" line="1567"/>
+        <location filename="../ui/mainwindow.cpp" line="1575"/>
+        <location filename="../ui/mainwindow.cpp" line="1588"/>
         <source>OCR Feature</source>
         <translation>OCR功能</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1553"/>
+        <location filename="../ui/mainwindow.cpp" line="1560"/>
         <source>Please start the OCR engine in the status bar first!
 
 Click the [OCR Engine] button on the right side of the status bar to start the engine.</source>
@@ -657,7 +657,7 @@ Click the [OCR Engine] button on the right side of the status bar to start the e
 点击状态栏右侧的 [OCR引擎] 按钮即可启动引擎。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1561"/>
+        <location filename="../ui/mainwindow.cpp" line="1568"/>
         <source>OCR engine is loading...
 
 Please wait for the engine to finish loading (status indicator turns green) before enabling.</source>
@@ -666,7 +666,7 @@ Please wait for the engine to finish loading (status indicator turns green) befo
 请等待引擎加载完成(状态栏指示器变为绿色)后再启用功能。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1569"/>
+        <location filename="../ui/mainwindow.cpp" line="1576"/>
         <source>OCR engine initialization failed!
 
 Error message: %1
@@ -685,7 +685,7 @@ Please try:
 3. 查看日志获取详细错误信息</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1582"/>
+        <location filename="../ui/mainwindow.cpp" line="1589"/>
         <source>OCR engine not ready yet, cannot enable feature.
 
 Current state: %1</source>
@@ -694,12 +694,12 @@ Current state: %1</source>
 当前状态: %1</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1591"/>
+        <location filename="../ui/mainwindow.cpp" line="1598"/>
         <source>OCR Hover Enabled</source>
         <translation>OCR取词已启用</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1592"/>
+        <location filename="../ui/mainwindow.cpp" line="1599"/>
         <source>OCR hover lookup enabled!
 
 How to use:
@@ -722,12 +722,12 @@ Tip: View OCR engine status in status bar</source>
 提示: 可在状态栏查看OCR引擎状态</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1627"/>
+        <location filename="../ui/mainwindow.cpp" line="1634"/>
         <source>Tokenizer Initialization Failed</source>
         <translation>分词器初始化失败</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1628"/>
+        <location filename="../ui/mainwindow.cpp" line="1635"/>
         <source>Chinese word segmentation initialization failed:
 %1
 
@@ -738,17 +738,17 @@ OCR will use full text.</source>
 OCR识别将使用全部文本。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1639"/>
+        <location filename="../ui/mainwindow.cpp" line="1646"/>
         <source>OCR engine loading in background...</source>
         <translation>OCR引擎正在后台加载中...</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1646"/>
+        <location filename="../ui/mainwindow.cpp" line="1653"/>
         <source>OCR Engine Start Failed</source>
         <translation>OCR引擎启动失败</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1647"/>
+        <location filename="../ui/mainwindow.cpp" line="1654"/>
         <source>Unable to start OCR engine, please check:
 1. Model files exist
 2. Model path configuration is correct
@@ -763,12 +763,12 @@ Model directory: %1</source>
 模型目录: %1</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1667"/>
+        <location filename="../ui/mainwindow.cpp" line="1674"/>
         <source>Stop OCR Engine</source>
         <translation>停止OCR引擎</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1668"/>
+        <location filename="../ui/mainwindow.cpp" line="1675"/>
         <source>Are you sure you want to stop the OCR engine?
 
 OCR hover feature will be disabled.</source>
@@ -777,84 +777,84 @@ OCR hover feature will be disabled.</source>
 OCR取词功能将同时被关闭。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1691"/>
+        <location filename="../ui/mainwindow.cpp" line="1698"/>
         <source>OCR engine stopped</source>
         <translation>OCR引擎已停止</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1709"/>
+        <location filename="../ui/mainwindow.cpp" line="1716"/>
         <source>OCR engine ready, enable OCR hover in toolbar</source>
         <translation>OCR引擎已就绪，可在工具栏启用OCR取词功能</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1711"/>
+        <location filename="../ui/mainwindow.cpp" line="1718"/>
         <source>OCR engine initialization failed</source>
         <translation>OCR引擎初始化失败</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="978"/>
+        <location filename="../ui/mainwindow.cpp" line="985"/>
         <source>&amp;Tools</source>
         <translation>工具(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="981"/>
+        <location filename="../ui/mainwindow.cpp" line="988"/>
         <source>File Association Settings...</source>
         <translation>文件关联设置...</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1765"/>
+        <location filename="../ui/mainwindow.cpp" line="1772"/>
         <source>PDF Document</source>
         <translation>PDF 文档</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1769"/>
+        <location filename="../ui/mainwindow.cpp" line="1776"/>
         <source>File association has been set</source>
         <translation>文件关联已设置</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1771"/>
+        <location filename="../ui/mainwindow.cpp" line="1778"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1772"/>
+        <location filename="../ui/mainwindow.cpp" line="1779"/>
         <source>Failed to set file association. Please check permissions.</source>
         <translation>设置文件关联失败，请检查权限。</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1781"/>
+        <location filename="../ui/mainwindow.cpp" line="1788"/>
         <source>File association has been removed</source>
         <translation>文件关联已移除</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1805"/>
+        <location filename="../ui/mainwindow.cpp" line="1812"/>
         <source>File Association Settings</source>
         <translation>文件关联设置</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1832"/>
+        <location filename="../ui/mainwindow.cpp" line="1839"/>
         <source>File does not exist: %1</source>
         <translation>文件不存在：%1</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1847"/>
+        <location filename="../ui/mainwindow.cpp" line="1853"/>
         <source>Opened: %1</source>
         <translation>已打开：%1</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/mainwindow.cpp" line="1499"/>
+        <location filename="../ui/mainwindow.cpp" line="1506"/>
         <source>Successfully opened %n file(s)</source>
         <translation>
             <numerusform>成功打开 %n 个文件</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1497"/>
+        <location filename="../ui/mainwindow.cpp" line="1504"/>
         <source>Opened %1 file(s), failed %2</source>
         <translation>打开 %1 个文件，失败 %2 个</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1503"/>
+        <location filename="../ui/mainwindow.cpp" line="1510"/>
         <source>Failed to open files</source>
         <translation>打开文件失败</translation>
     </message>
@@ -864,12 +864,12 @@ OCR取词功能将同时被关闭。</translation>
         <translation>&lt;div style=&apos;color: #666;&apos;&gt;&lt;p style=&apos;font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 18px;&apos;&gt;未打开 PDF 文件&lt;/p&gt;&lt;table align=&apos;center&apos; cellspacing=&apos;6&apos;&gt;&lt;tr&gt;&lt;td style=&apos;font-size: 14px;&apos;&gt;• 拖拽 PDF 文件到此处&lt;br&gt;• 按 &lt;b&gt;Ctrl+O&lt;/b&gt; 打开文件对话框&lt;br&gt;• 使用&lt;b&gt;文件&lt;/b&gt;菜单浏览文档&lt;br&gt;• 按 &lt;b&gt;F11&lt;/b&gt; 切换工具栏显示&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="911"/>
+        <location filename="../ui/mainwindow.cpp" line="918"/>
         <source>Toggle Toolbar</source>
         <translation>切换工具栏</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1795"/>
+        <location filename="../ui/mainwindow.cpp" line="1802"/>
         <source>Currently associated file types: %1
 
 Do you want to remove file association?</source>
@@ -878,7 +878,7 @@ Do you want to remove file association?</source>
 是否解除文件关联？</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1798"/>
+        <location filename="../ui/mainwindow.cpp" line="1805"/>
         <source>Do you want to associate file types: %1
 
 After association, you can open files by double-clicking.</source>
@@ -887,19 +887,19 @@ After association, you can open files by double-clicking.</source>
 关联后可通过双击打开文件。</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/mainwindow.cpp" line="1906"/>
+        <location filename="../ui/mainwindow.cpp" line="1910"/>
         <source>Restored %n document(s) from last session</source>
         <translation>
             <numerusform>从上次会话恢复了 %n 个文档</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1982"/>
+        <location filename="../ui/mainwindow.cpp" line="1986"/>
         <source>Toolbar shown (Press F11 to hide)</source>
         <translation>工具栏已显示（按 F11 隐藏）</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1984"/>
+        <location filename="../ui/mainwindow.cpp" line="1988"/>
         <source>Toolbar hidden (Press F11 to show)</source>
         <translation>工具栏已隐藏（按 F11 显示）</translation>
     </message>
@@ -907,86 +907,90 @@ After association, you can open files by double-clicking.</source>
 <context>
     <name>NavigationPanel</name>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="440"/>
+        <location filename="../ui/navigationpanel.cpp" line="448"/>
         <source>Add Outline Item (at current page)</source>
         <translation>添加目录项（当前页）</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="447"/>
+        <location filename="../ui/navigationpanel.cpp" line="455"/>
         <source>Delete Selected Outline Item</source>
         <translation>删除选中目录项</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="454"/>
         <source>Delete All Outline Items</source>
-        <translation>删除全部目录项</translation>
+        <translation type="vanished">删除全部目录项</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="462"/>
+        <location filename="../ui/navigationpanel.cpp" line="464"/>
+        <source>Save Outline to PDF</source>
+        <translation>保存目录到 PDF</translation>
+    </message>
+    <message>
+        <location filename="../ui/navigationpanel.cpp" line="472"/>
         <source>Expand All</source>
         <translation>展开全部</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="469"/>
+        <location filename="../ui/navigationpanel.cpp" line="479"/>
         <source>Collapse All</source>
         <translation>折叠全部</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="548"/>
+        <location filename="../ui/navigationpanel.cpp" line="558"/>
         <source>Outline</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="549"/>
+        <location filename="../ui/navigationpanel.cpp" line="559"/>
         <source>Thumbnails</source>
         <translation>缩略图</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="550"/>
+        <location filename="../ui/navigationpanel.cpp" line="560"/>
         <source>Annotations</source>
         <translation>批注</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="579"/>
+        <location filename="../ui/navigationpanel.cpp" line="589"/>
         <source>Failed to Open Link</source>
         <translation>打开链接失败</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="580"/>
+        <location filename="../ui/navigationpanel.cpp" line="590"/>
         <source>Failed to open link:
 %1</source>
         <translation>打开链接失败:
 %1</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="583"/>
+        <location filename="../ui/navigationpanel.cpp" line="593"/>
         <source>Invalid Link</source>
         <translation>无效链接</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="584"/>
+        <location filename="../ui/navigationpanel.cpp" line="594"/>
         <source>Invalid link:
 %1</source>
         <translation>无效链接:
 %1</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="216"/>
+        <location filename="../ui/navigationpanel.cpp" line="221"/>
         <source>Loading started...</source>
         <translation>加载开始...</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="234"/>
+        <location filename="../ui/navigationpanel.cpp" line="239"/>
         <source>Loading complete!</source>
         <translation>加载完毕！</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="239"/>
+        <location filename="../ui/navigationpanel.cpp" line="244"/>
         <source>Loaded successfully!</source>
         <translation>加载成功！</translation>
     </message>
     <message>
-        <location filename="../ui/navigationpanel.cpp" line="249"/>
+        <location filename="../ui/navigationpanel.cpp" line="254"/>
         <source>Loading: %1/%2 (%3%)</source>
         <translation>加载中: %1/%2 (%3%)</translation>
     </message>
@@ -1559,24 +1563,33 @@ Continue searching?</source>
 <context>
     <name>RapidOcrEngine</name>
     <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="100"/>
         <source>OCR is busy, please wait</source>
-        <translation type="vanished">OCR 正忙，请稍候</translation>
+        <translation>OCR 正忙，请稍候</translation>
     </message>
     <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="106"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="157"/>
         <source>OCR engine is not ready</source>
-        <translation type="vanished">OCR 引擎未就绪</translation>
+        <translation>OCR 引擎未就绪</translation>
     </message>
     <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="112"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="162"/>
         <source>Invalid input image</source>
-        <translation type="vanished">输入图像无效</translation>
+        <translation>输入图像无效</translation>
     </message>
     <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="136"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="193"/>
         <source>No text recognized</source>
-        <translation type="vanished">未识别到文本</translation>
+        <translation>未识别到文本</translation>
     </message>
     <message>
+        <location filename="../ocr/rapidocrengine.cpp" line="142"/>
+        <location filename="../ocr/rapidocrengine.cpp" line="199"/>
         <source>Recognition failed: %1</source>
-        <translation type="vanished">识别失败：%1</translation>
+        <translation>识别失败：%1</translation>
     </message>
 </context>
 <context>
@@ -1658,121 +1671,221 @@ Continue searching?</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="63"/>
+        <location filename="../ui/settingsdialog.cpp" line="167"/>
         <source>General</source>
         <translation>常规</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="64"/>
+        <location filename="../ui/settingsdialog.cpp" line="168"/>
+        <source>Startup and overall app behavior.</source>
+        <translation>启动行为与应用整体设置。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="171"/>
         <source>Reopen last session on startup</source>
         <translation>启动时恢复上次会话</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="68"/>
-        <source>Cache</source>
-        <translation>缓存</translation>
+        <location filename="../ui/settingsdialog.cpp" line="173"/>
+        <source>Automatically reopen the documents you had open when you last quit.</source>
+        <translation>自动重新打开你上次退出时正在阅读的文档。</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="71"/>
+        <location filename="../ui/settingsdialog.cpp" line="179"/>
+        <source>Reading</source>
+        <translation>阅读</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="180"/>
+        <source>Tune how pages are cached and how smoothly the view responds.</source>
+        <translation>调整页面缓存方式，以及视图响应的流畅度。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="182"/>
+        <source>Page Cache</source>
+        <translation>页面缓存</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="187"/>
+        <source>Page cache limit</source>
+        <translation>页面缓存上限</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="188"/>
+        <source>How many rendered pages to keep in memory. Higher is smoother when flipping back and forth, but uses more memory. Recommended: 10.</source>
+        <translation>在内存中保留多少已渲染的页面。数值越大，来回翻页越流畅，但占用内存更多。推荐：10。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="196"/>
+        <source>Preload distance</source>
+        <translation>预加载距离</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="197"/>
+        <source>How far beyond the screen to render pages ahead of time, so scrolling feels instant. Recommended: 500.</source>
+        <translation>提前渲染屏幕外多远范围的页面，让滚动更顺滑。推荐：500。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="206"/>
+        <source>Resize delay</source>
+        <translation>缩放延迟</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="207"/>
+        <source>How long to wait after you stop resizing the window before re-rendering. Larger values feel calmer; smaller values update faster. Recommended: 150.</source>
+        <translation>停止调整窗口大小后，等待多久再重新渲染。数值越大越平稳，越小更新越快。推荐：150。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="215"/>
+        <source>Word Lookup</source>
+        <translation>取词</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="216"/>
+        <source>Recognize text under the cursor and look it up in an external dictionary.</source>
+        <translation>识别光标下的文字，并在外部词典中查询。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="218"/>
+        <source>Hover Recognition (OCR)</source>
+        <translation>悬停识别（OCR）</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="224"/>
+        <source>Hover delay</source>
+        <translation>悬停延迟</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="225"/>
+        <source>How long the cursor must rest before a word is recognized. Larger values avoid accidental lookups. Recommended: 300.</source>
+        <translation>光标停留多久后才识别单词。数值越大越能避免误触发。推荐：300。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="233"/>
+        <source>Capture size</source>
+        <translation>捕获尺寸</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="234"/>
+        <source>The size of the area around the cursor sent to OCR. Larger captures more context but is slower. Recommended: 200.</source>
+        <translation>发送给 OCR 的光标周围区域大小。捕获越大上下文越多，但速度更慢。推荐：200。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="246"/>
+        <source>Lookup command</source>
+        <translation>查词命令</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="247"/>
+        <source>Shell command used to look up the recognized word. Use {word} as a placeholder; if omitted, the word is appended to the command.</source>
+        <translation>用于查询识别出单词的 Shell 命令。用 {word} 作为占位符；若省略，则把单词追加到命令末尾。</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="330"/>
+        <source>Restore Defaults</source>
+        <translation>恢复默认</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="331"/>
+        <source>Reset all settings to their default values? This cannot be undone.</source>
+        <translation>确定将所有设置恢复为默认值吗？此操作无法撤销。</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation type="vanished">缓存</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingsdialog.cpp" line="185"/>
         <source> pages</source>
         <translation> 页</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="72"/>
         <source>Page cache limit:</source>
-        <translation>页面缓存上限：</translation>
+        <translation type="vanished">页面缓存上限：</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="77"/>
-        <location filename="../ui/settingsdialog.cpp" line="105"/>
+        <location filename="../ui/settingsdialog.cpp" line="194"/>
+        <location filename="../ui/settingsdialog.cpp" line="231"/>
         <source> px</source>
         <translation> 像素</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="78"/>
         <source>Preload margin:</source>
-        <translation>预加载边距：</translation>
+        <translation type="vanished">预加载边距：</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="81"/>
         <source>Cache settings take effect the next time a document is opened.</source>
-        <translation>缓存设置将在下次打开文档时生效。</translation>
+        <translation type="vanished">缓存设置将在下次打开文档时生效。</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="87"/>
+        <location filename="../ui/settingsdialog.cpp" line="200"/>
         <source>Performance</source>
         <translation>性能</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="91"/>
-        <location filename="../ui/settingsdialog.cpp" line="99"/>
+        <location filename="../ui/settingsdialog.cpp" line="204"/>
+        <location filename="../ui/settingsdialog.cpp" line="222"/>
         <source> ms</source>
         <translation> 毫秒</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="92"/>
         <source>Window resize debounce:</source>
-        <translation>窗口缩放防抖：</translation>
+        <translation type="vanished">窗口缩放防抖：</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="95"/>
         <source>OCR</source>
-        <translation>OCR</translation>
+        <translation type="vanished">OCR</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="100"/>
         <source>Hover lookup debounce:</source>
-        <translation>悬停查词防抖：</translation>
+        <translation type="vanished">悬停查词防抖：</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="106"/>
         <source>Hover capture region:</source>
-        <translation>悬停捕获区域：</translation>
+        <translation type="vanished">悬停捕获区域：</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="109"/>
+        <location filename="../ui/settingsdialog.cpp" line="237"/>
         <source>Dictionary</source>
         <translation>词典</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="115"/>
+        <location filename="../ui/settingsdialog.cpp" line="242"/>
         <source>e.g. open -a GoldenDict {word}</source>
         <translation>例如 open -a GoldenDict {word}</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="116"/>
+        <location filename="../ui/settingsdialog.cpp" line="243"/>
         <source>Test</source>
         <translation>测试</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="119"/>
         <source>Command:</source>
-        <translation>命令：</translation>
+        <translation type="vanished">命令：</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="122"/>
         <source>Shell command used to look up the OCR-recognized word in an external dictionary. Use {word} as a placeholder for the query word; if omitted, the word is appended to the command.</source>
-        <translation>用于在外部词典中查询 OCR 识别出的词的 shell 命令。用 {word} 作为查询词的占位符；若省略，则把词追加到命令末尾。</translation>
+        <translation type="vanished">用于在外部词典中查询 OCR 识别出的词的 shell 命令。用 {word} 作为查询词的占位符；若省略，则把词追加到命令末尾。</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="133"/>
-        <location filename="../ui/settingsdialog.cpp" line="141"/>
-        <location filename="../ui/settingsdialog.cpp" line="144"/>
+        <location filename="../ui/settingsdialog.cpp" line="255"/>
+        <location filename="../ui/settingsdialog.cpp" line="263"/>
+        <location filename="../ui/settingsdialog.cpp" line="266"/>
         <source>Test Dictionary</source>
         <translation>测试词典</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="134"/>
+        <location filename="../ui/settingsdialog.cpp" line="256"/>
         <source>Please enter a dictionary command first.</source>
         <translation>请先填写词典命令。</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="142"/>
+        <location filename="../ui/settingsdialog.cpp" line="264"/>
         <source>Command launched. If your dictionary popped up with &quot;test&quot;, it works.</source>
         <translation>命令已执行。若词典弹出并查询了 “test”，即表示可用。</translation>
     </message>
     <message>
-        <location filename="../ui/settingsdialog.cpp" line="145"/>
+        <location filename="../ui/settingsdialog.cpp" line="267"/>
         <source>Failed to run the command:
 %1</source>
         <translation>执行命令失败：

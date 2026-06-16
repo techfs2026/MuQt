@@ -4,7 +4,7 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QFormLayout>
+#include <QGridLayout>
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QLineEdit>
@@ -15,6 +15,8 @@
 #include <QListWidget>
 #include <QStackedWidget>
 #include <QFrame>
+#include <QScrollArea>
+#include <QSizePolicy>
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     : QDialog(parent)
@@ -40,92 +42,234 @@ void SettingsDialog::buildUI()
 
     QListWidget* categoryList = new QListWidget(this);
     categoryList->setObjectName("settingsCategoryList");
-    categoryList->setFixedWidth(150);
+    categoryList->setFixedWidth(176);
     categoryList->setFrameShape(QFrame::NoFrame);
 
     QStackedWidget* pages = new QStackedWidget(this);
     pages->setObjectName("settingsPages");
 
-    // 新建一个带 FormLayout 的分类页，并把分类名登记到左侧列表
-    auto addPage = [&](const QString& title) -> QFormLayout* {
-        QWidget* page = new QWidget(this);
-        QFormLayout* form = new QFormLayout(page);
-        form->setContentsMargins(24, 24, 24, 24);
-        form->setSpacing(12);
-        form->setLabelAlignment(Qt::AlignRight);
-        form->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-        pages->addWidget(page);
+    // 新建一个分类页：顶部标题+副标题，下面竖排放分组卡片；返回承载卡片的布局。
+    // 外层用滚动区承载，避免系统字体较大或翻译较长时内容被窗口裁掉。
+    auto addPage = [&](const QString& title, const QString& subtitle) -> QVBoxLayout* {
+        QScrollArea* scroll = new QScrollArea(this);
+        scroll->setFrameShape(QFrame::NoFrame);
+        scroll->setWidgetResizable(true);
+        scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+        QWidget* page = new QWidget(scroll);
+        page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        QVBoxLayout* outer = new QVBoxLayout(page);
+        outer->setContentsMargins(26, 24, 26, 24);
+        outer->setSpacing(16);
+
+        QVBoxLayout* header = new QVBoxLayout();
+        header->setSpacing(3);
+        QLabel* t = new QLabel(title, page);
+        t->setProperty("role", "pageTitle");
+        t->setWordWrap(true);
+        header->addWidget(t);
+        if (!subtitle.isEmpty()) {
+            QLabel* s = new QLabel(subtitle, page);
+            s->setProperty("role", "pageSubtitle");
+            s->setWordWrap(true);
+            header->addWidget(s);
+        }
+        outer->addLayout(header);
+
+        scroll->setWidget(page);
+        pages->addWidget(scroll);
         new QListWidgetItem(title, categoryList);
-        return form;
+        return outer;
     };
 
-    // ---- 常规 ----
-    QFormLayout* generalForm = addPage(tr("General"));
-    m_rememberLastFile = new QCheckBox(tr("Reopen last session on startup"), this);
-    generalForm->addRow(m_rememberLastFile);
+    // 在页面里加一个分组：可选小标题 + 卡片容器；返回卡片内部布局供加行。
+    auto addSection = [&](QVBoxLayout* pageLayout, const QString& sectionTitle) -> QVBoxLayout* {
+        if (!sectionTitle.isEmpty()) {
+            QLabel* st = new QLabel(sectionTitle, this);
+            st->setProperty("role", "sectionTitle");
+            st->setWordWrap(true);
+            pageLayout->addWidget(st);
+        }
+        QFrame* card = new QFrame(this);
+        card->setObjectName("settingsSection");
+        QVBoxLayout* inner = new QVBoxLayout(card);
+        inner->setContentsMargins(16, 4, 16, 4);
+        inner->setSpacing(0);
+        pageLayout->addWidget(card);
+        return inner;
+    };
 
-    // ---- 缓存 ----
-    QFormLayout* cacheForm = addPage(tr("Cache"));
-    m_maxCacheSize = new QSpinBox(this);
-    m_maxCacheSize->setRange(1, 100);
-    m_maxCacheSize->setSuffix(tr(" pages"));
-    cacheForm->addRow(tr("Page cache limit:"), m_maxCacheSize);
+    // 行间细分隔线：卡片里已有内容时，在新行前补一条 1px 线。
+    auto addSeparatorIfNeeded = [&](QVBoxLayout* card) {
+        if (card->count() > 0) {
+            QFrame* sep = new QFrame(this);
+            sep->setObjectName("settingsRowSeparator");
+            sep->setFixedHeight(1);
+            card->addWidget(sep);
+        }
+    };
 
-    m_preloadMargin = new QSpinBox(this);
-    m_preloadMargin->setRange(0, 2000);
-    m_preloadMargin->setSingleStep(50);
-    m_preloadMargin->setSuffix(tr(" px"));
-    cacheForm->addRow(tr("Preload margin:"), m_preloadMargin);
+    // 标准行：左标签 + 右控件（右对齐），下方可附一句灰色说明。
+    auto addRow = [&](QVBoxLayout* card, const QString& label,
+                      QWidget* control, const QString& hint) {
+        addSeparatorIfNeeded(card);
+        QWidget* row = new QWidget(this);
+        QGridLayout* g = new QGridLayout(row);
+        g->setContentsMargins(0, 12, 0, 12);
+        g->setHorizontalSpacing(12);
+        g->setVerticalSpacing(4);
+        QLabel* l = new QLabel(label, row);
+        l->setProperty("role", "rowLabel");
+        l->setWordWrap(true);
+        l->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        g->addWidget(l, 0, 0, Qt::AlignLeft | Qt::AlignVCenter);
+        if (control) {
+            control->setSizePolicy(QSizePolicy::Fixed, control->sizePolicy().verticalPolicy());
+            g->addWidget(control, 0, 1, Qt::AlignRight | Qt::AlignVCenter);
+        }
+        g->setColumnStretch(0, 1);
+        g->setColumnStretch(1, 0);
+        if (!hint.isEmpty()) {
+            QLabel* h = new QLabel(hint, row);
+            h->setProperty("role", "caption");
+            h->setWordWrap(true);
+            h->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+            g->addWidget(h, 1, 0, 1, 2);
+        }
+        card->addWidget(row);
+    };
 
-    QLabel* cacheHint = new QLabel(
-        tr("Cache settings take effect the next time a document is opened."), this);
-    cacheHint->setObjectName("settingsHint");
-    cacheHint->setWordWrap(true);
-    cacheForm->addRow(cacheHint);
+    // 勾选行：复选框自带文案，下方说明缩进对齐到文字。
+    auto addCheckRow = [&](QVBoxLayout* card, QCheckBox* cb, const QString& hint) {
+        addSeparatorIfNeeded(card);
+        QWidget* row = new QWidget(this);
+        QVBoxLayout* v = new QVBoxLayout(row);
+        v->setContentsMargins(0, 12, 0, 12);
+        v->setSpacing(4);
+        cb->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        v->addWidget(cb);
+        if (!hint.isEmpty()) {
+            QLabel* h = new QLabel(hint, row);
+            h->setProperty("role", "caption");
+            h->setWordWrap(true);
+            h->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+            h->setContentsMargins(26, 0, 0, 0);
+            v->addWidget(h);
+        }
+        card->addWidget(row);
+    };
 
-    // ---- 性能 ----
-    QFormLayout* perfForm = addPage(tr("Performance"));
-    m_resizeDebounce = new QSpinBox(this);
-    m_resizeDebounce->setRange(0, 1000);
-    m_resizeDebounce->setSingleStep(10);
-    m_resizeDebounce->setSuffix(tr(" ms"));
-    perfForm->addRow(tr("Window resize debounce:"), m_resizeDebounce);
+    // 宽行：标签在上、控件占满整行（用于命令输入这种长控件），说明在下。
+    auto addWideRow = [&](QVBoxLayout* card, const QString& label,
+                          QWidget* control, const QString& hint) {
+        addSeparatorIfNeeded(card);
+        QWidget* row = new QWidget(this);
+        QVBoxLayout* v = new QVBoxLayout(row);
+        v->setContentsMargins(0, 12, 0, 12);
+        v->setSpacing(6);
+        QLabel* l = new QLabel(label, row);
+        l->setProperty("role", "rowLabel");
+        l->setWordWrap(true);
+        v->addWidget(l);
+        v->addWidget(control);
+        if (!hint.isEmpty()) {
+            QLabel* h = new QLabel(hint, row);
+            h->setProperty("role", "caption");
+            h->setWordWrap(true);
+            h->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+            v->addWidget(h);
+        }
+        card->addWidget(row);
+    };
 
-    // ---- OCR ----
-    QFormLayout* ocrForm = addPage(tr("OCR"));
-    m_ocrDebounce = new QSpinBox(this);
-    m_ocrDebounce->setRange(0, 2000);
-    m_ocrDebounce->setSingleStep(50);
-    m_ocrDebounce->setSuffix(tr(" ms"));
-    ocrForm->addRow(tr("Hover lookup debounce:"), m_ocrDebounce);
+    const int kFieldWidth = 132;  // 数值类控件统一宽度，避免被拉满整行
 
-    m_ocrRegionSize = new QSpinBox(this);
-    m_ocrRegionSize->setRange(50, 600);
-    m_ocrRegionSize->setSingleStep(20);
-    m_ocrRegionSize->setSuffix(tr(" px"));
-    ocrForm->addRow(tr("Hover capture region:"), m_ocrRegionSize);
+    // ========== 常规 ==========
+    QVBoxLayout* generalPage = addPage(
+        tr("General"),
+        tr("Startup and overall app behavior."));
+    {
+        QVBoxLayout* sec = addSection(generalPage, QString());
+        m_rememberLastFile = new QCheckBox(tr("Reopen last session on startup"), this);
+        addCheckRow(sec, m_rememberLastFile,
+            tr("Automatically reopen the documents you had open when you last quit."));
+    }
+    generalPage->addStretch(1);
 
-    // ---- 词典（OCR 查词调用外部词典）----
-    QFormLayout* dictForm = addPage(tr("Dictionary"));
+    // ========== 阅读体验（缓存 + 性能）==========
+    QVBoxLayout* readingPage = addPage(
+        tr("Reading"),
+        tr("Tune how pages are cached and how smoothly the view responds."));
+    {
+        QVBoxLayout* cacheSec = addSection(readingPage, tr("Page Cache"));
+        m_maxCacheSize = new QSpinBox(this);
+        m_maxCacheSize->setRange(1, 100);
+        m_maxCacheSize->setSuffix(tr(" pages"));
+        m_maxCacheSize->setFixedWidth(kFieldWidth);
+        addRow(cacheSec, tr("Page cache limit"), m_maxCacheSize,
+            tr("How many rendered pages to keep in memory. Higher is smoother when "
+               "flipping back and forth, but uses more memory. Recommended: 10."));
 
-    QWidget* dictRow = new QWidget(this);
-    QHBoxLayout* dictCmdRow = new QHBoxLayout(dictRow);
-    dictCmdRow->setContentsMargins(0, 0, 0, 0);
-    m_dictionaryCommand = new QLineEdit(this);
-    m_dictionaryCommand->setPlaceholderText(tr("e.g. open -a GoldenDict {word}"));
-    QPushButton* testDictBtn = new QPushButton(tr("Test"), this);
-    dictCmdRow->addWidget(m_dictionaryCommand, 1);
-    dictCmdRow->addWidget(testDictBtn);
-    dictForm->addRow(tr("Command:"), dictRow);
+        m_preloadMargin = new QSpinBox(this);
+        m_preloadMargin->setRange(0, 2000);
+        m_preloadMargin->setSingleStep(50);
+        m_preloadMargin->setSuffix(tr(" px"));
+        m_preloadMargin->setFixedWidth(kFieldWidth);
+        addRow(cacheSec, tr("Preload distance"), m_preloadMargin,
+            tr("How far beyond the screen to render pages ahead of time, so scrolling "
+               "feels instant. Recommended: 500."));
 
-    QLabel* dictHint = new QLabel(
-        tr("Shell command used to look up the OCR-recognized word in an external "
-           "dictionary. Use {word} as a placeholder for the query word; if omitted, "
-           "the word is appended to the command."),
-        this);
-    dictHint->setObjectName("settingsHint");
-    dictHint->setWordWrap(true);
-    dictForm->addRow(dictHint);
+        QVBoxLayout* perfSec = addSection(readingPage, tr("Performance"));
+        m_resizeDebounce = new QSpinBox(this);
+        m_resizeDebounce->setRange(0, 1000);
+        m_resizeDebounce->setSingleStep(10);
+        m_resizeDebounce->setSuffix(tr(" ms"));
+        m_resizeDebounce->setFixedWidth(kFieldWidth);
+        addRow(perfSec, tr("Resize delay"), m_resizeDebounce,
+            tr("How long to wait after you stop resizing the window before re-rendering. "
+               "Larger values feel calmer; smaller values update faster. Recommended: 150."));
+    }
+    readingPage->addStretch(1);
+
+    // ========== 取词（OCR + 词典）==========
+    QPushButton* testDictBtn = nullptr;
+    QVBoxLayout* lookupPage = addPage(
+        tr("Word Lookup"),
+        tr("Recognize text under the cursor and look it up in an external dictionary."));
+    {
+        QVBoxLayout* ocrSec = addSection(lookupPage, tr("Hover Recognition (OCR)"));
+        m_ocrDebounce = new QSpinBox(this);
+        m_ocrDebounce->setRange(0, 2000);
+        m_ocrDebounce->setSingleStep(50);
+        m_ocrDebounce->setSuffix(tr(" ms"));
+        m_ocrDebounce->setFixedWidth(kFieldWidth);
+        addRow(ocrSec, tr("Hover delay"), m_ocrDebounce,
+            tr("How long the cursor must rest before a word is recognized. Larger values "
+               "avoid accidental lookups. Recommended: 300."));
+
+        m_ocrRegionSize = new QSpinBox(this);
+        m_ocrRegionSize->setRange(50, 600);
+        m_ocrRegionSize->setSingleStep(20);
+        m_ocrRegionSize->setSuffix(tr(" px"));
+        m_ocrRegionSize->setFixedWidth(kFieldWidth);
+        addRow(ocrSec, tr("Capture size"), m_ocrRegionSize,
+            tr("The size of the area around the cursor sent to OCR. Larger captures more "
+               "context but is slower. Recommended: 200."));
+
+        QVBoxLayout* dictSec = addSection(lookupPage, tr("Dictionary"));
+        QWidget* dictRow = new QWidget(this);
+        QHBoxLayout* dictCmdRow = new QHBoxLayout(dictRow);
+        dictCmdRow->setContentsMargins(0, 0, 0, 0);
+        m_dictionaryCommand = new QLineEdit(this);
+        m_dictionaryCommand->setPlaceholderText(tr("e.g. open -a GoldenDict {word}"));
+        testDictBtn = new QPushButton(tr("Test"), this);
+        dictCmdRow->addWidget(m_dictionaryCommand, 1);
+        dictCmdRow->addWidget(testDictBtn);
+        addWideRow(dictSec, tr("Lookup command"), dictRow,
+            tr("Shell command used to look up the recognized word. Use {word} as a "
+               "placeholder; if omitted, the word is appended to the command."));
+    }
+    lookupPage->addStretch(1);
 
     connect(testDictBtn, &QPushButton::clicked, this, [this]() {
         const QString cmd = m_dictionaryCommand->text().trimmed();
@@ -172,7 +316,8 @@ void SettingsDialog::buildUI()
             pages, &QStackedWidget::setCurrentIndex);
     categoryList->setCurrentRow(0);
 
-    resize(580, 400);
+    setMinimumSize(760, 540);
+    resize(820, 600);
 }
 
 void SettingsDialog::loadFromConfig()
@@ -202,6 +347,14 @@ void SettingsDialog::applyToConfig()
 
 void SettingsDialog::restoreDefaults()
 {
+    // 重置会立即落盘且不可撤销，先二次确认，避免误点
+    const auto choice = QMessageBox::question(
+        this, tr("Restore Defaults"),
+        tr("Reset all settings to their default values? This cannot be undone."),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (choice != QMessageBox::Yes)
+        return;
+
     // resetToDefaults 会立即落盘（只重置偏好项，不动会话/文件关联）
     AppConfig::instance().resetToDefaults();
     loadFromConfig();
