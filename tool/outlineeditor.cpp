@@ -492,12 +492,28 @@ bool OutlineEditor::saveToDocument(const QString& filePath)
         }
 
         pdf_write_options opts = pdf_default_write_options;
-        opts.do_incremental = 1;
-        opts.do_garbage = 0;
 
-        QByteArray pathBytes = savePath.toUtf8();
         qInfo() << "OutlineEditor: about to save PDF to" << savePath;
-        pdf_save_document(ctx, pdfDoc, pathBytes.constData(), &opts);
+        if (pdf_can_be_saved_incrementally(ctx, pdfDoc)) {
+            // 正常文档：增量追加，最快且不动原有字节。
+            opts.do_incremental = 1;
+            opts.do_garbage = 0;
+            pdf_save_document(ctx, pdfDoc, savePath.toUtf8().constData(), &opts);
+        } else {
+            // 被 MuPDF 修复过的文档（增量写出的 xref 偏移与原始字节对不上，
+            // 别家阅读器会打不开）：完整重写到临时文件后原子替换原文件。
+            opts.do_incremental = 0;
+            opts.do_garbage = 1;
+            opts.do_clean = 1;
+            const QString tmpPath = savePath + QStringLiteral(".owlsave.tmp");
+            QFile::remove(tmpPath);
+            pdf_save_document(ctx, pdfDoc, tmpPath.toUtf8().constData(), &opts);
+            // 原文件已在上面 createBackup() 备份，替换失败也可回滚。
+            if (!QFile::remove(savePath) || !QFile::rename(tmpPath, savePath)) {
+                QFile::remove(tmpPath);
+                fz_throw(ctx, FZ_ERROR_GENERIC, "replace original file failed");
+            }
+        }
 
         success = true;
         setModified(false);
