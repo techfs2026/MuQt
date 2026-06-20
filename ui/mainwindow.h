@@ -86,8 +86,7 @@ private slots:
 
     void toggleToolBar();
 
-    // 批注：单入口 + 撤销/重做
-    void showAnnotations();
+    // 批注：全局撤销/重做（入口在侧边栏「批注」Tab）
     void undoAnnotation();
     void redoAnnotation();
 
@@ -183,8 +182,7 @@ private:
 
     QAction* m_paperEffectAction;
 
-    // 批注：工具栏单入口 + 全局撤销/重做快捷键
-    QAction* m_annotationAction;
+    // 批注：全局撤销/重做快捷键（入口在侧边栏「批注」Tab）
     QAction* m_undoAnnotAction;
     QAction* m_redoAnnotAction;
 

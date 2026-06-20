@@ -152,6 +152,19 @@ NavigationPanel QToolButton:pressed {
     background-color: @pressed-background;
 }
 
+/* 选中态：批注工具（钢笔/橡皮）与平铺的粗细/大小档位 */
+NavigationPanel QToolButton:checked {
+    background-color: @selected-background;
+    border: 1px solid @primary-color;
+}
+
+/* ---------- 批注控制条分割线 ---------- */
+NavigationPanel #annotRowSeparator {
+    background-color: @border-light;
+    border: none;
+    max-height: 1px;
+}
+
 /* ---------- 滚动条（细腻样式） ---------- */
 NavigationPanel QScrollBar:vertical {
     background: @surface-color;

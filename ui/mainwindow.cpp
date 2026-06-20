@@ -920,11 +920,7 @@ void MainWindow::createActions()
     connect(m_toggleToolBarAction, &QAction::triggered, this, &MainWindow::toggleToolBar);
 
     // —— 批注 ——
-    // 工具栏单入口：展开侧边栏并切到「批注」Tab（控件在 Tab 顶部）
-    m_annotationAction = new QAction(ThemedIcon::toolButton("pen"), tr("Annotate"), this);
-    m_annotationAction->setToolTip(tr("Annotate — pen & eraser (in the side panel)"));
-    connect(m_annotationAction, &QAction::triggered, this, &MainWindow::showAnnotations);
-
+    // 批注入口已收敛到侧边栏「批注」Tab（IconTabBar 直接进入），工具栏不再放按钮。
     // 全局撤销/重做快捷键（作用于当前文档），无工具栏按钮，仅快捷键
     m_undoAnnotAction = new QAction(tr("Undo Annotation"), this);
     m_undoAnnotAction->setShortcut(QKeySequence::Undo);   // Ctrl+Z
@@ -1055,29 +1051,12 @@ void MainWindow::createToolBar()
     m_toolBar->addAction(m_ocrHoverAction);
     m_toolBar->addSeparator();
 
-    // 批注：单入口图标（控件都在侧边栏「批注」Tab）
-    m_toolBar->addAction(m_annotationAction);
-    m_toolBar->addSeparator();
-
     m_toolBar->addAction(m_findAction);
 }
 
 // ============================================================
 // 批注：单入口 + 全局撤销/重做
 // ============================================================
-
-void MainWindow::showAnnotations()
-{
-    PDFDocumentTab* tab = currentTab();
-    if (!tab || !tab->isDocumentLoaded()) {
-        return;
-    }
-    // 确保侧边栏可见并切到「批注」Tab、激活钢笔
-    m_navigationDock->setVisible(true);
-    m_showNavigationAction->setChecked(true);
-    m_navPanelAction->setChecked(true);
-    m_navigationPanel->showAnnotationTab();
-}
 
 void MainWindow::undoAnnotation()
 {
@@ -1198,7 +1177,6 @@ void MainWindow::updateUIState()
 
     m_findAction->setEnabled(hasDocument && tab->isTextPDF());
 
-    m_annotationAction->setEnabled(hasDocument);
     m_undoAnnotAction->setEnabled(hasDocument);
     m_redoAnnotAction->setEnabled(hasDocument);
 

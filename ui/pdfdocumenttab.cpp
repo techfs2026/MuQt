@@ -1189,11 +1189,16 @@ void PDFDocumentTab::triggerOCRAtCurrentPosition()
 
 void PDFDocumentTab::onLookupRequested(const QString& text)
 {
+    // 先拷一份：OCR 悬浮卡片用 emit lookupRequested(m_currentText) 直连过来，
+    // text 实际是 m_currentText 的引用；下面的 hideFloating() 会 clear() 它，
+    // 不先存下来，传给 lookup() 的就成了空串（词典打不开）。
+    const QString word = text;
+
     if (m_ocrFloatingWidget) {
         m_ocrFloatingWidget->hideFloating();
     }
 
-    if (!DictionaryConnector::instance().lookup(text)) {
+    if (!DictionaryConnector::instance().lookup(word)) {
         QMessageBox::warning(
             this, tr("Lookup Failed"),
             DictionaryConnector::instance().isConfigured()

@@ -9,8 +9,11 @@ class PDFAnnotationHandler;
 class QListWidget;
 class QLabel;
 class QToolButton;
-class QComboBox;
+class QAbstractButton;
+class QButtonGroup;
+class QHBoxLayout;
 class QAction;
+class QIcon;
 
 // 导航栏「批注」Tab：顶部控制条（钢笔/橡皮/粗细/颜色/橡皮大小/撤销/重做/清空）
 // + 下方有批注的页列表（点击跳页）。
@@ -42,9 +45,7 @@ signals:
 private slots:
     void onPenToggled(bool checked);
     void onEraserToggled(bool checked);
-    void onPenWidthChanged(int index);
     void choosePenColor();
-    void onEraserSizeChanged(int index);
     void clearCurrentPage();
     void clearAllPages();
     void updateActionState();
@@ -57,6 +58,14 @@ private:
                                   const QString& objectName,
                                   const QString& tooltip,
                                   bool checkable = false);
+    // 平铺单选：在 group 里加入一个画着圆点的可勾选按钮。
+    // value = 施加到 handler 的实际宽度/半径；dotPx = 圆点显示直径。
+    QToolButton* addSwatchButton(QButtonGroup* group, QHBoxLayout* row,
+                                 qreal value, qreal dotPx,
+                                 const QString& tooltip, bool hollow);
+    static QIcon dotIcon(qreal dotPx, const QColor& color, bool hollow);
+    qreal currentPenWidth() const;
+    qreal currentEraserRadius() const;
 
     AnnotationManager* m_manager = nullptr;
     PDFAnnotationHandler* m_handler = nullptr;
@@ -68,9 +77,9 @@ private:
 
     QToolButton* m_penButton = nullptr;
     QToolButton* m_eraserButton = nullptr;
-    QComboBox*   m_penWidthCombo = nullptr;
+    QButtonGroup* m_penWidthGroup = nullptr;
     QToolButton* m_colorButton = nullptr;
-    QComboBox*   m_eraserSizeCombo = nullptr;
+    QButtonGroup* m_eraserSizeGroup = nullptr;
     QToolButton* m_undoButton = nullptr;
     QToolButton* m_redoButton = nullptr;
     QToolButton* m_clearButton = nullptr;

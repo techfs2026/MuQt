@@ -7,8 +7,11 @@
 #include <QHBoxLayout>
 #include <QListWidget>
 #include <QLabel>
+#include <QFrame>
 #include <QToolButton>
-#include <QComboBox>
+#include <QButtonGroup>
+#include <QAbstractButton>
+#include <QPen>
 #include <QMenu>
 #include <QColorDialog>
 #include <QPixmap>
@@ -46,6 +49,59 @@ QToolButton* AnnotationWidget::createIconButton(const QString& iconName,
     return button;
 }
 
+QIcon AnnotationWidget::dotIcon(qreal dotPx, const QColor& color, bool hollow)
+{
+    QPixmap pm(kIconSize, kIconSize);
+    pm.fill(Qt::transparent);
+    {
+        QPainter p(&pm);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        const qreal d = qBound<qreal>(3.0, dotPx, kIconSize - 2.0);
+        const QRectF r((kIconSize - d) / 2.0, (kIconSize - d) / 2.0, d, d);
+        if (hollow) {
+            p.setPen(QPen(color, 1.5));
+            p.setBrush(Qt::NoBrush);
+        } else {
+            p.setPen(Qt::NoPen);
+            p.setBrush(color);
+        }
+        p.drawEllipse(r);
+    }
+    return QIcon(pm);
+}
+
+QToolButton* AnnotationWidget::addSwatchButton(QButtonGroup* group, QHBoxLayout* row,
+                                               qreal value, qreal dotPx,
+                                               const QString& tooltip, bool hollow)
+{
+    QToolButton* button = new QToolButton(this);
+    button->setCheckable(true);
+    button->setAutoRaise(true);
+    button->setFocusPolicy(Qt::NoFocus);
+    button->setCursor(Qt::PointingHandCursor);
+    button->setToolTip(tooltip);
+    button->setIconSize(QSize(kIconSize, kIconSize));
+    button->setProperty("annotValue", value);
+    button->setProperty("annotDotPx", dotPx);
+    // 钢笔圆点用当前笔色（随选色重绘），橡皮用空心灰环表示范围。
+    button->setIcon(dotIcon(dotPx, hollow ? QColor(120, 120, 120) : m_penColor, hollow));
+    group->addButton(button);
+    row->addWidget(button);
+    return button;
+}
+
+qreal AnnotationWidget::currentPenWidth() const
+{
+    QAbstractButton* b = m_penWidthGroup->checkedButton();
+    return b ? b->property("annotValue").toReal() : 2.0;
+}
+
+qreal AnnotationWidget::currentEraserRadius() const
+{
+    QAbstractButton* b = m_eraserSizeGroup->checkedButton();
+    return b ? b->property("annotValue").toReal() : 12.0;
+}
+
 void AnnotationWidget::setupUI()
 {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -73,22 +129,13 @@ void AnnotationWidget::setupUI()
     m_colorButton->setToolTip(tr("Pen color"));
     m_colorButton->setIconSize(QSize(kIconSize, kIconSize));
 
-    m_penWidthCombo = new QComboBox(bar);
-    m_penWidthCombo->setObjectName("annotPenWidthCombo");
-    m_penWidthCombo->setToolTip(tr("Pen width"));
-    m_penWidthCombo->addItem(tr("Fine"), 1.0);
-    m_penWidthCombo->addItem(tr("Thin"), 2.0);
-    m_penWidthCombo->addItem(tr("Medium"), 3.5);
-    m_penWidthCombo->addItem(tr("Thick"), 6.0);
-    m_penWidthCombo->setCurrentIndex(1);
+    // 钢笔粗细：平铺单选（圆点直观表示粗细），互斥
+    m_penWidthGroup = new QButtonGroup(this);
+    m_penWidthGroup->setExclusive(true);
 
-    m_eraserSizeCombo = new QComboBox(bar);
-    m_eraserSizeCombo->setObjectName("annotEraserSizeCombo");
-    m_eraserSizeCombo->setToolTip(tr("Eraser size"));
-    m_eraserSizeCombo->addItem(tr("Small"), 6.0);
-    m_eraserSizeCombo->addItem(tr("Medium"), 12.0);
-    m_eraserSizeCombo->addItem(tr("Large"), 24.0);
-    m_eraserSizeCombo->setCurrentIndex(1);
+    // 橡皮大小：平铺单选（空心圆点表示橡皮范围），互斥
+    m_eraserSizeGroup = new QButtonGroup(this);
+    m_eraserSizeGroup->setExclusive(true);
 
     m_undoButton = createIconButton("undo", "annotUndoButton", tr("Undo (Ctrl+Z)"));
     m_redoButton = createIconButton("redo", "annotRedoButton", tr("Redo (Ctrl+Y)"));
@@ -100,20 +147,46 @@ void AnnotationWidget::setupUI()
     m_clearAllItem  = clearMenu->addAction(tr("Clear all pages"));
     m_clearButton->setMenu(clearMenu);
 
-    // 第 1 行：钢笔 + 粗细 + 颜色
+    // 第 1 行：钢笔 + 颜色 + 粗细（平铺）
     QHBoxLayout* penRow = new QHBoxLayout();
     penRow->setSpacing(6);
     penRow->addWidget(m_penButton);
     penRow->addWidget(m_colorButton);
-    penRow->addWidget(m_penWidthCombo, 1);
+    penRow->addSpacing(6);
+    addSwatchButton(m_penWidthGroup, penRow, 1.0,  5.0,  tr("Fine"),   false);
+    QToolButton* defaultPen =
+        addSwatchButton(m_penWidthGroup, penRow, 2.0,  8.0,  tr("Thin"),   false);
+    addSwatchButton(m_penWidthGroup, penRow, 3.5,  12.0, tr("Medium"), false);
+    addSwatchButton(m_penWidthGroup, penRow, 6.0,  16.0, tr("Thick"),  false);
+    defaultPen->setChecked(true);
+    penRow->addStretch();
     rows->addLayout(penRow);
 
-    // 第 2 行：橡皮 + 大小
+    auto addSeparator = [this, rows]() {
+        QFrame* line = new QFrame(this);
+        line->setObjectName("annotRowSeparator");
+        line->setFrameShape(QFrame::HLine);
+        line->setFrameShadow(QFrame::Plain);
+        line->setFixedHeight(1);
+        rows->addWidget(line);
+    };
+
+    addSeparator();
+
+    // 第 2 行：橡皮 + 大小（平铺）
     QHBoxLayout* eraserRow = new QHBoxLayout();
     eraserRow->setSpacing(6);
     eraserRow->addWidget(m_eraserButton);
-    eraserRow->addWidget(m_eraserSizeCombo, 1);
+    eraserRow->addSpacing(6);
+    addSwatchButton(m_eraserSizeGroup, eraserRow, 6.0,  7.0,  tr("Small"),  true);
+    QToolButton* defaultEraser =
+        addSwatchButton(m_eraserSizeGroup, eraserRow, 12.0, 11.0, tr("Medium"), true);
+    addSwatchButton(m_eraserSizeGroup, eraserRow, 24.0, 16.0, tr("Large"),  true);
+    defaultEraser->setChecked(true);
+    eraserRow->addStretch();
     rows->addLayout(eraserRow);
+
+    addSeparator();
 
     // 第 3 行：撤销 / 重做 / 清空
     QHBoxLayout* actionRow = new QHBoxLayout();
@@ -142,11 +215,17 @@ void AnnotationWidget::setupUI()
     // —— 连接 ——
     connect(m_penButton, &QToolButton::toggled, this, &AnnotationWidget::onPenToggled);
     connect(m_eraserButton, &QToolButton::toggled, this, &AnnotationWidget::onEraserToggled);
-    connect(m_penWidthCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &AnnotationWidget::onPenWidthChanged);
+    connect(m_penWidthGroup, &QButtonGroup::buttonToggled, this,
+            [this](QAbstractButton* button, bool checked) {
+                if (checked && m_handler)
+                    m_handler->setPenWidth(button->property("annotValue").toReal());
+            });
     connect(m_colorButton, &QToolButton::clicked, this, &AnnotationWidget::choosePenColor);
-    connect(m_eraserSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &AnnotationWidget::onEraserSizeChanged);
+    connect(m_eraserSizeGroup, &QButtonGroup::buttonToggled, this,
+            [this](QAbstractButton* button, bool checked) {
+                if (checked && m_handler)
+                    m_handler->setEraserRadius(button->property("annotValue").toReal());
+            });
     connect(m_undoButton, &QToolButton::clicked, this, [this]() {
         if (m_manager) m_manager->undo();
     });
@@ -212,8 +291,8 @@ void AnnotationWidget::applyConfigToHandler()
         return;
     }
     m_handler->setPenColor(m_penColor);
-    m_handler->setPenWidth(m_penWidthCombo->currentData().toReal());
-    m_handler->setEraserRadius(m_eraserSizeCombo->currentData().toReal());
+    m_handler->setPenWidth(currentPenWidth());
+    m_handler->setEraserRadius(currentEraserRadius());
 
     AnnotTool tool = m_penButton->isChecked()    ? AnnotTool::Pen
                      : m_eraserButton->isChecked() ? AnnotTool::Eraser
@@ -247,13 +326,6 @@ void AnnotationWidget::onEraserToggled(bool checked)
     }
 }
 
-void AnnotationWidget::onPenWidthChanged(int index)
-{
-    if (m_handler) {
-        m_handler->setPenWidth(m_penWidthCombo->itemData(index).toReal());
-    }
-}
-
 void AnnotationWidget::choosePenColor()
 {
     QColor c = QColorDialog::getColor(m_penColor, this, tr("Pen Color"));
@@ -267,13 +339,6 @@ void AnnotationWidget::choosePenColor()
     }
     if (!m_penButton->isChecked()) {
         m_penButton->setChecked(true);   // 选色通常意味着想继续画
-    }
-}
-
-void AnnotationWidget::onEraserSizeChanged(int index)
-{
-    if (m_handler) {
-        m_handler->setEraserRadius(m_eraserSizeCombo->itemData(index).toReal());
     }
 }
 
@@ -317,6 +382,14 @@ void AnnotationWidget::updateColorSwatch()
         p.drawEllipse(1, 1, kIconSize - 3, kIconSize - 3);
     }
     m_colorButton->setIcon(QIcon(pm));
+
+    // 钢笔粗细圆点跟随笔色重绘
+    if (m_penWidthGroup) {
+        const auto buttons = m_penWidthGroup->buttons();
+        for (QAbstractButton* b : buttons) {
+            b->setIcon(dotIcon(b->property("annotDotPx").toReal(), m_penColor, false));
+        }
+    }
 }
 
 void AnnotationWidget::refresh()
