@@ -90,7 +90,7 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
         strategyName = tr("Medium Document (Visible Sync + Background Async)");
         break;
     case LoadStrategyType::LARGE_DOC:
-        strategyName = tr("Large Document (On-Demand Sync Only)");
+        strategyName = tr("Large Document (Initial Async + On-Demand)");
         break;
     }
 
@@ -123,7 +123,9 @@ void ThumbnailManagerV2::startLoading(const QSet<int>& initialVisible)
     } else {
         m_isLoadingInProgress = false;
         emit loadingStatusChanged(tr("Loading..."));
-        renderPagesSync(initialPages);
+        // 仅大文档首次打开时的可见窗口改为后台任务；分级阈值、后续按需
+        // 加载和小/中型文档路径保持原样，避免 400 页以上文档首帧阻塞 UI。
+        renderPagesAsync(initialPages, RenderPriority::HIGH);
         emit loadingStatusChanged(tr("Scroll to trigger paged loading"));
     }
 }
@@ -309,18 +311,23 @@ void ThumbnailManagerV2::renderPagesAsync(const QVector<int>& pages, RenderPrior
         return;
     }
 
-    auto* task = new ThumbnailBatchTask(
-        m_renderer->documentPath(),
-        m_cache.get(),
-        this,
-        toRender,
-        priority,
-        getRenderWidth(),
-        m_rotation,
-        m_devicePixelRatio,
-        nullptr);
+    // HIGH 任务单批最多渲染 10 页；大文档的可见窗口最多可能包含 17 页，
+    // 因此按限制拆分，确保窗口内每一页都会被调度。
+    const int batchSize = priority == RenderPriority::HIGH ? 10 : toRender.size();
+    for (int start = 0; start < toRender.size(); start += batchSize) {
+        auto* task = new ThumbnailBatchTask(
+            m_renderer->documentPath(),
+            m_cache.get(),
+            this,
+            toRender.mid(start, batchSize),
+            priority,
+            getRenderWidth(),
+            m_rotation,
+            m_devicePixelRatio,
+            nullptr);
 
-    m_threadPool->start(task, static_cast<int>(priority));
+        m_threadPool->start(task, static_cast<int>(priority));
+    }
 }
 
 void ThumbnailManagerV2::setupBackgroundBatches()

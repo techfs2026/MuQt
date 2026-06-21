@@ -109,24 +109,28 @@ QToolBar QComboBox:focus {
     border: 1px solid @primary-color;
 }
 
-QToolBar QComboBox::drop-down {
+QToolBar QComboBox#zoomComboBox {
+    padding: @space-1 26px @space-1 @space-2;
+}
+
+QToolBar QComboBox#zoomComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: center right;
-    width: 20px;
+    width: 18px;
     border: none;
     background-color: transparent;
     border-top-right-radius: @radius-sm;
     border-bottom-right-radius: @radius-sm;
 }
 
-QToolBar QComboBox::drop-down:hover {
+QToolBar QComboBox#zoomComboBox::drop-down:hover {
     background-color: @pressed-background;
 }
 
-QToolBar QComboBox::down-arrow {
-    image: url(:/icons/resources/icons/expand.png);
-    width: 10px;
-    height: 10px;
+QToolBar QComboBox#zoomComboBox::down-arrow {
+    image: url(:/icons/resources/icons/chevron-down.svg);
+    width: 12px;
+    height: 12px;
 }
 
 /* ---------- 工具栏标签 ---------- */
