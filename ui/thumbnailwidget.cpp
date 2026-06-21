@@ -29,6 +29,8 @@ ThumbnailWidget::ThumbnailWidget(QWidget* parent)
 
     setWidget(m_container);
     setWidgetResizable(true);
+    // 始终显示侧栏滚动槽，避免短文档时内容面板与相邻区域视觉粘连。
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     m_throttleTimer = new QTimer(this);
     m_throttleTimer->setSingleShot(true);
@@ -102,7 +104,7 @@ void ThumbnailWidget::initializeThumbnails(int pageCount)
         int col = i % m_columnsPerRow;
         // 顶部对齐：否则页数少时（尤其只有 1 页）整行会被拉伸填满视口高度，
         // item 自身的背景被撑大，看起来"外框比缩略图大"。
-        m_layout->addWidget(item, row, col, Qt::AlignTop);
+        m_layout->addWidget(item, row, col, Qt::AlignTop | Qt::AlignHCenter);
 
         m_thumbnailItems[i] = item;
     }
@@ -165,7 +167,7 @@ void ThumbnailWidget::clear()
     qDebug() << "ThumbnailWidget::clear() - Finished";
 }
 
-void ThumbnailWidget::highlightCurrentPage(int pageIndex)
+void ThumbnailWidget::highlightCurrentPage(int pageIndex, bool ensureVisible)
 {
     if (m_currentPage >= 0 && m_thumbnailItems.contains(m_currentPage)) {
         m_thumbnailItems[m_currentPage]->setHighlight(false);
@@ -176,7 +178,9 @@ void ThumbnailWidget::highlightCurrentPage(int pageIndex)
     if (m_currentPage >= 0 && m_thumbnailItems.contains(m_currentPage)) {
         auto* item = m_thumbnailItems[m_currentPage];
         item->setHighlight(true);
-        ensureWidgetVisible(item, 50, 50);
+        if (ensureVisible) {
+            ensureWidgetVisible(item, 50, 50);
+        }
     }
 }
 
@@ -240,7 +244,7 @@ void ThumbnailWidget::resizeEvent(QResizeEvent* event)
             QLayoutItem* layoutItem = m_layout->itemAtPosition(row, col);
             if (!layoutItem || layoutItem->widget() != m_thumbnailItems[i]) {
                 m_layout->removeWidget(m_thumbnailItems[i]);
-                m_layout->addWidget(m_thumbnailItems[i], row, col, Qt::AlignTop);
+                m_layout->addWidget(m_thumbnailItems[i], row, col, Qt::AlignTop | Qt::AlignHCenter);
             }
         }
 
@@ -436,7 +440,9 @@ ThumbnailItem::ThumbnailItem(int pageIndex, int width, QWidget* parent)
     m_imageLabel = new QLabel(m_imageContainer);
     m_imageLabel->setFixedSize(width, m_height);
     m_imageLabel->setAlignment(Qt::AlignCenter);
-    m_imageLabel->setScaledContents(false);
+    // 边框会占用 QLabel 的内容区域。让 pixmap 填满剩余内容区，避免高 DPI
+    // 下逻辑尺寸取整后在图片底边露出 1～数个像素的白色标签底色。
+    m_imageLabel->setScaledContents(true);
 
     updateStyle();
 
@@ -490,27 +496,24 @@ void ThumbnailItem::setThumbnail(const QImage& image)
 
     m_hasImage = true;
 
-    // 关键：按"物理像素"缩放，并保持 devicePixelRatio。
-    // 以固定缩略图框（m_width × m_height，A4 比例）为上界按页面真实比例缩放；
-    // 用 m_width/m_height 而非当前 label 尺寸，避免多次回填时 label 逐渐缩小。
+    // 所有缩略图卡片均是固定 A4 比例；图片按同一外框尺寸绘制，避免页面实际
+    // 比例影响卡片大小或在边框内留下空白。
     const qreal dpr = image.devicePixelRatio();   // Mac=2.0, Win=1.0
     const QSize targetPhysical = QSize(m_width, m_height) * dpr;
 
     QImage scaled = image.scaled(
-        targetPhysical,                 // 目标用物理像素
-        Qt::KeepAspectRatio,
+        targetPhysical,
+        Qt::IgnoreAspectRatio,
         Qt::SmoothTransformation
         );
     scaled.setDevicePixelRatio(dpr);    // scaled() 会重置 dpr，这里补回来
 
-    // 外框（边框画在 m_imageLabel 上）按缩放后图片的真实逻辑尺寸收紧，
-    // 否则非 A4 比例的页面会在固定 A4 框内留白、外框比缩略图大。
-    const QSize logicalSize(qRound(scaled.width() / dpr), qRound(scaled.height() / dpr));
-    m_imageLabel->setFixedSize(logicalSize);
+    m_imageLabel->setFixedSize(m_width, m_height);
 
-    QPixmap pixmap = createRoundedPixmap(scaled);
-    m_imageLabel->setPixmap(pixmap);
+    m_thumbnailImage = scaled;
     m_imageLabel->setText(QString());
+
+    setFixedWidth(m_width + 16);
 
     updateStyle();
 }
@@ -551,22 +554,11 @@ void ThumbnailItem::updateStyle()
         return;
     }
 
-    QString baseStyle = R"(
-        QLabel {
-            background-color: white;
-            border-radius: 4px;
-        }
-    )";
-
-    if (m_isHighlighted) {
-        m_imageLabel->setStyleSheet(baseStyle +
-                                    "QLabel { border: 3px solid #2196F3; }");
-    } else if (m_isHovered) {
-        m_imageLabel->setStyleSheet(baseStyle +
-                                    "QLabel { border: 2px solid #64B5F6; }");
-    } else {
-        m_imageLabel->setStyleSheet(baseStyle +
-                                    "QLabel { border: 1px solid #E0E0E0; }");
+    // 边框绘制进 pixmap，而不是 QLabel 样式。QSS border 会挤压标签内容区，
+    // 在高 DPI 尺寸取整时让图片底部露出一条白色背景。
+    m_imageLabel->setStyleSheet("QLabel { background: transparent; border: none; }");
+    if (!m_thumbnailImage.isNull()) {
+        m_imageLabel->setPixmap(createRoundedPixmap(m_thumbnailImage));
     }
 }
 
@@ -593,6 +585,16 @@ QPixmap ThumbnailItem::createRoundedPixmap(const QImage& image)
     path.addRoundedRect(logicalRect, 4, 4);
     painter.setClipPath(path);
     painter.drawPixmap(0, 0, pixmap);
+
+    painter.setClipping(false);
+    const int borderWidth = m_isHighlighted ? 3 : (m_isHovered ? 2 : 1);
+    const QColor borderColor = m_isHighlighted ? QColor("#2196F3")
+                              : m_isHovered ? QColor("#64B5F6")
+                                            : QColor("#E0E0E0");
+    painter.setPen(QPen(borderColor, borderWidth));
+    painter.setBrush(Qt::NoBrush);
+    const qreal inset = borderWidth / 2.0;
+    painter.drawRoundedRect(logicalRect.adjusted(inset, inset, -inset, -inset), 4, 4);
 
     return rounded;
 }

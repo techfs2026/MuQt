@@ -98,6 +98,8 @@ void OutlineWidget::setupUI()
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setFrameShape(QFrame::NoFrame);
+    // 轨道由 NavigationPanel 放在页签最外层，使其覆盖顶部工具栏。
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
     // 隐藏默认分支箭头的样式已迁移到 outlinewidget.qss（铁律：页面不写 setStyleSheet）
@@ -215,7 +217,7 @@ void OutlineWidget::clear()
     m_allExpanded = false;
 }
 
-void OutlineWidget::highlightCurrentPage(int pageIndex)
+void OutlineWidget::highlightCurrentPage(int pageIndex, bool ensureVisible)
 {
     m_currentPageIndex = pageIndex;
 
@@ -235,8 +237,10 @@ void OutlineWidget::highlightCurrentPage(int pageIndex)
 
         m_currentHighlight = item;
 
-        expandToItem(item);
-        scrollToItem(item, QAbstractItemView::PositionAtCenter);
+        if (ensureVisible) {
+            expandToItem(item);
+            scrollToItem(item, QAbstractItemView::PositionAtCenter);
+        }
     } else {
         m_currentHighlight = nullptr;
     }

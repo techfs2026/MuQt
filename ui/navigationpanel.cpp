@@ -312,13 +312,11 @@ void NavigationPanel::restoreViewState()
 
     NavViewState st = m_viewStates.value(m_session);
 
-    int subTab = st.subTabIndex;
-    if (subTab < 0) {
-        // 无记忆：有目录默认显示目录页(0)，否则缩略图页(1)
-        bool hasOutline = m_session->contentHandler() &&
-                          m_session->contentHandler()->hasOutline();
-        subTab = hasOutline ? 0 : 1;
-    }
+    // 打开或切回文档时始终按 PDF 是否含目录决定默认页签，不能被上一次
+    // 用户停留的侧边栏页签覆盖。
+    const bool hasOutline = m_session->contentHandler() &&
+                            m_session->contentHandler()->hasOutline();
+    const int subTab = hasOutline ? 0 : 1;
     m_tabWidget->setCurrentIndex(subTab);
 
     // 缩略图滚动位置需等占位重建/布局完成后再恢复
@@ -394,12 +392,17 @@ void NavigationPanel::onTabChanged(int index) {
 
 void NavigationPanel::updateCurrentPage(int pageIndex)
 {
+    // 仅当前可见页签可为了当前页自动滚动。此前每次页码变化都会同时调用
+    // 目录的 scrollToItem 和缩略图的 ensureWidgetVisible，导致用户在一个页签
+    // 手动浏览时，另外两个页签的滚动位置也被悄悄改写。
+    const int activeTab = m_tabWidget ? m_tabWidget->currentIndex() : -1;
+
     if (m_outlineWidget) {
-        m_outlineWidget->highlightCurrentPage(pageIndex);
+        m_outlineWidget->highlightCurrentPage(pageIndex, activeTab == 0);
     }
 
     if (m_thumbnailWidget) {
-        m_thumbnailWidget->highlightCurrentPage(pageIndex);
+        m_thumbnailWidget->highlightCurrentPage(pageIndex, activeTab == 1);
     }
 
     if (m_annotationWidget) {
@@ -430,7 +433,11 @@ void NavigationPanel::setupUI()
     m_tabWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     QWidget* outlineTab = new QWidget(this);
-    QVBoxLayout* outlineLayout = new QVBoxLayout(outlineTab);
+    QHBoxLayout* outlineRootLayout = new QHBoxLayout(outlineTab);
+    outlineRootLayout->setContentsMargins(0, 0, 0, 0);
+    outlineRootLayout->setSpacing(0);
+    QWidget* outlineContent = new QWidget(outlineTab);
+    QVBoxLayout* outlineLayout = new QVBoxLayout(outlineContent);
     outlineLayout->setContentsMargins(0, 0, 0, 0);
     outlineLayout->setSpacing(0);
 
@@ -496,6 +503,11 @@ void NavigationPanel::setupUI()
     m_outlineWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     outlineLayout->addWidget(m_outlineWidget, 1);
+    outlineRootLayout->addWidget(outlineContent, 1);
+    m_outlineScrollBar = new QScrollBar(Qt::Vertical, outlineTab);
+    m_outlineScrollBar->setObjectName("outlinePanelScrollBar");
+    m_outlineScrollBar->setFixedWidth(10);
+    outlineRootLayout->addWidget(m_outlineScrollBar);
     outlineTab->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QWidget* thumbnailTab = new QWidget(this);
@@ -538,7 +550,11 @@ void NavigationPanel::setupUI()
 
     // 批注 Tab
     QWidget* annotationTab = new QWidget(this);
-    QVBoxLayout* annotationLayout = new QVBoxLayout(annotationTab);
+    QHBoxLayout* annotationRootLayout = new QHBoxLayout(annotationTab);
+    annotationRootLayout->setContentsMargins(0, 0, 0, 0);
+    annotationRootLayout->setSpacing(0);
+    QWidget* annotationContent = new QWidget(annotationTab);
+    QVBoxLayout* annotationLayout = new QVBoxLayout(annotationContent);
     annotationLayout->setContentsMargins(0, 0, 0, 0);
     annotationLayout->setSpacing(0);
 
@@ -547,7 +563,27 @@ void NavigationPanel::setupUI()
     m_annotationWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     annotationLayout->addWidget(m_annotationWidget, 1);
+    annotationRootLayout->addWidget(annotationContent, 1);
+    m_annotationScrollBar = new QScrollBar(Qt::Vertical, annotationTab);
+    m_annotationScrollBar->setObjectName("annotationPanelScrollBar");
+    m_annotationScrollBar->setFixedWidth(10);
+    m_annotationScrollBar->setEnabled(false);
+    annotationRootLayout->addWidget(m_annotationScrollBar);
     annotationTab->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    auto mirrorScrollBar = [](QScrollBar* source, QScrollBar* target) {
+        QObject::connect(source, &QScrollBar::rangeChanged, target,
+                         [target](int minimum, int maximum) { target->setRange(minimum, maximum); });
+        QObject::connect(source, &QScrollBar::valueChanged, target, &QScrollBar::setValue);
+        QObject::connect(target, &QScrollBar::valueChanged, source, &QScrollBar::setValue);
+        target->setRange(source->minimum(), source->maximum());
+        target->setPageStep(source->pageStep());
+        target->setSingleStep(source->singleStep());
+    };
+    mirrorScrollBar(m_outlineWidget->verticalScrollBar(), m_outlineScrollBar);
+    mirrorScrollBar(m_annotationWidget->listScrollBar(), m_annotationScrollBar);
+    connect(m_annotationWidget, &AnnotationWidget::listEmptyChanged, this,
+            [this](bool empty) { m_annotationScrollBar->setEnabled(!empty); });
 
     // Tab 用图标 + tooltip 表达（规避竖排文字与国际化问题）
     // 图标由 IconTabBar 自绘，名称在此注册，颜色跟随主题

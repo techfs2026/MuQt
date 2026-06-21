@@ -260,7 +260,8 @@ public:
     void setContentHandler(PDFContentHandler* contentHandler);
     bool loadOutline();
     void clear();
-    void highlightCurrentPage(int pageIndex);
+    // 非活动页签只更新高亮，不接管用户正在浏览的滚动位置。
+    void highlightCurrentPage(int pageIndex, bool ensureVisible = false);
     void setEditEnabled(bool enabled) { m_editEnabled = enabled; }
     bool isEditEnabled() const { return m_editEnabled; }
     void expandAll();

@@ -59,6 +59,8 @@ bool OutlineManager::loadOutline()
         qInfo() << "OutlineManager: PDF has no outline, created empty root for editing";
     }
 
+    m_totalItems = itemCount;
+
     emit outlineLoaded(true, itemCount);
     return true;
 }

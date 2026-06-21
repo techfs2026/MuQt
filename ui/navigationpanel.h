@@ -15,6 +15,7 @@ class OutlineWidget;
 class ThumbnailWidget;
 class AnnotationWidget;
 class QToolButton;
+class QScrollBar;
 
 class NavigationPanel : public QWidget
 {
@@ -70,6 +71,8 @@ private:
 
     QLabel* m_thumbnailStatusLabel;
     QProgressBar* m_thumbnailProgressBar;
+    QScrollBar* m_outlineScrollBar = nullptr;
+    QScrollBar* m_annotationScrollBar = nullptr;
 
     // 与当前 session 相关的连接，detach 时统一断开
     QList<QMetaObject::Connection> m_sessionConns;

@@ -7,7 +7,10 @@
  */
 
 QTreeWidget#outlineWidget {
-    background-color: @surface-color;
+    /* Must match the thumbnail and annotation content panes.  This rule is
+       loaded after navigationpanel.qss, so it needs to preserve the shared
+       panel token instead of overriding it with the generic surface token. */
+    background-color: @background-color;
     border: none;
     outline: none;
     font-family: @font-family;

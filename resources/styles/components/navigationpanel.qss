@@ -2,24 +2,28 @@
 /* 注意：侧边导航 Tab 由 IconTabBar 自绘（见 navigationpanel.cpp），
    其外观不在此 qss 控制，故此处不写 QTabBar 样式。 */
 
+/* 侧边导航按钮条（IconTabBar 透明，露出本控件底色）用 @border-light，
+   与三个内容面板的 @background-color 拉开可见差异。 */
 NavigationPanel {
-    background-color: @surface-color;
+    background-color: @border-light;
     border-right: 1px solid @border-light;
 }
 
+/* 三个面板（缩略图/目录/批注）统一用 @background-color，
+   与侧边导航按钮条、滚动条槽的 @surface-color 区分开。 */
 NavigationPanel QTabWidget::pane {
     border: none;
-    background-color: @surface-color;
+    background-color: @background-color;
 }
 
 /* ---------- 缩略图视图 ---------- */
 NavigationPanel #thumbnailWidget {
-    background-color: @surface-color;
+    background-color: @background-color;
     border: none;
 }
 
 NavigationPanel #thumbnailListWidget {
-    background-color: @surface-color;
+    background-color: @background-color;
     border: none;
     outline: none;
 }
@@ -44,7 +48,7 @@ NavigationPanel #thumbnailListWidget::item:selected {
 
 /* 缩略图页码标签 */
 NavigationPanel #pageLabel {
-    background-color: @surface-color;
+    background-color: @background-color;
     color: @text-secondary;
     padding: @space-1 @space-2;
     border-radius: @radius-sm;
@@ -54,12 +58,12 @@ NavigationPanel #pageLabel {
 
 /* ---------- 大纲视图 ---------- */
 NavigationPanel #outlineWidget {
-    background-color: @surface-color;
+    background-color: @background-color;
     border: none;
 }
 
 NavigationPanel #outlineTreeWidget {
-    background-color: @surface-color;
+    background-color: @background-color;
     border: none;
     outline: none;
     padding: @space-1;
@@ -97,14 +101,30 @@ NavigationPanel #outlineTreeWidget::branch:open:has-children:has-siblings {
     padding: 2px;
 }
 
+/* ---------- 批注视图 ---------- */
+NavigationPanel #annotationWidget {
+    background-color: @background-color;
+    border: none;
+}
+
+NavigationPanel #annotationListWidget {
+    background-color: @background-color;
+    border: none;
+    outline: none;
+}
+
+NavigationPanel #annotationPanelScrollBar::handle:vertical:disabled {
+    background: transparent;
+}
+
 /* ---------- 书签视图 ---------- */
 NavigationPanel #bookmarksWidget {
-    background-color: @surface-color;
+    background-color: @background-color;
     border: none;
 }
 
 NavigationPanel #bookmarksListWidget {
-    background-color: @surface-color;
+    background-color: @background-color;
     border: none;
     outline: none;
     padding: @space-1;
@@ -166,21 +186,22 @@ NavigationPanel #annotRowSeparator {
 }
 
 /* ---------- 滚动条（细腻样式） ---------- */
+/* 槽用更深一档的边框色，窄滚动条也能与内容面板清楚分层。 */
 NavigationPanel QScrollBar:vertical {
-    background: @surface-color;
+    background: @border-medium;
     width: 10px;
     margin: 0px;
 }
 
 NavigationPanel QScrollBar::handle:vertical {
-    background: @border-medium;
+    background: @border-dark;
     border-radius: 5px;
     min-height: 30px;
     margin: 2px;
 }
 
 NavigationPanel QScrollBar::handle:vertical:hover {
-    background: @border-dark;
+    background: @text-secondary;
 }
 
 NavigationPanel QScrollBar::add-line:vertical,

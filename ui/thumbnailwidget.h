@@ -10,6 +10,7 @@
 #include <QMap>
 #include <QVector>
 #include <QRect>
+#include <QImage>
 
 class ThumbnailItem;
 class ThumbnailManagerV2;
@@ -31,7 +32,8 @@ public:
 
     void initializeThumbnails(int pageCount);
     void clear();
-    void highlightCurrentPage(int pageIndex);
+    // 非活动页签只更新高亮，不接管用户正在浏览的滚动位置。
+    void highlightCurrentPage(int pageIndex, bool ensureVisible = false);
     void setThumbnailSize(int width);
 
     void setThumbnailManager(ThumbnailManagerV2* manager);
@@ -122,6 +124,7 @@ private:
     bool m_hasImage;
     bool m_isHighlighted;
     bool m_isHovered;
+    QImage m_thumbnailImage;
 
     QWidget* m_imageContainer;
     QLabel* m_imageLabel;

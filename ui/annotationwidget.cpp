@@ -5,7 +5,9 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QStackedLayout>
 #include <QListWidget>
+#include <QScrollBar>
 #include <QLabel>
 #include <QFrame>
 #include <QToolButton>
@@ -30,6 +32,11 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     updateColorSwatch();
     updateActionState();
     refresh();
+}
+
+QScrollBar* AnnotationWidget::listScrollBar() const
+{
+    return m_list ? m_list->verticalScrollBar() : nullptr;
 }
 
 QToolButton* AnnotationWidget::createIconButton(const QString& iconName,
@@ -208,9 +215,21 @@ void AnnotationWidget::setupUI()
     m_list = new QListWidget(this);
     m_list->setObjectName("annotationListWidget");
     m_list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // 滚动条由 NavigationPanel 放在页签最外层，使轨道覆盖顶部工具栏。
+    m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    mainLayout->addWidget(m_emptyHint);
-    mainLayout->addWidget(m_list, 1);
+    QWidget* emptyPage = new QWidget(this);
+    QHBoxLayout* emptyLayout = new QHBoxLayout(emptyPage);
+    emptyLayout->setContentsMargins(0, 0, 0, 0);
+    emptyLayout->setSpacing(0);
+    emptyLayout->addWidget(m_emptyHint, 1);
+
+    m_contentStack = new QStackedLayout();
+    m_contentStack->setContentsMargins(0, 0, 0, 0);
+    m_contentStack->setStackingMode(QStackedLayout::StackOne);
+    m_contentStack->addWidget(emptyPage);
+    m_contentStack->addWidget(m_list);
+    mainLayout->addLayout(m_contentStack, 1);
 
     // —— 连接 ——
     connect(m_penButton, &QToolButton::toggled, this, &AnnotationWidget::onPenToggled);
@@ -397,8 +416,8 @@ void AnnotationWidget::refresh()
     m_list->clear();
 
     if (!m_manager) {
-        m_emptyHint->setVisible(true);
-        m_list->setVisible(false);
+        m_contentStack->setCurrentIndex(0);
+        emit listEmptyChanged(true);
         return;
     }
 
@@ -411,6 +430,6 @@ void AnnotationWidget::refresh()
     }
 
     const bool empty = pages.isEmpty();
-    m_emptyHint->setVisible(empty);
-    m_list->setVisible(!empty);
+    m_contentStack->setCurrentIndex(empty ? 0 : 1);
+    emit listEmptyChanged(empty);
 }

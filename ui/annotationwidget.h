@@ -12,8 +12,10 @@ class QToolButton;
 class QAbstractButton;
 class QButtonGroup;
 class QHBoxLayout;
+class QStackedLayout;
 class QAction;
 class QIcon;
+class QScrollBar;
 
 // 导航栏「批注」Tab：顶部控制条（钢笔/橡皮/粗细/颜色/橡皮大小/撤销/重做/清空）
 // + 下方有批注的页列表（点击跳页）。
@@ -38,9 +40,11 @@ public:
     void activatePen();
 
     void refresh();
+    QScrollBar* listScrollBar() const;
 
 signals:
     void pageJumpRequested(int pageIndex);
+    void listEmptyChanged(bool empty);
 
 private slots:
     void onPenToggled(bool checked);
@@ -88,6 +92,7 @@ private:
 
     QListWidget* m_list = nullptr;
     QLabel* m_emptyHint = nullptr;
+    QStackedLayout* m_contentStack = nullptr;
 };
 
 #endif // ANNOTATIONWIDGET_H
