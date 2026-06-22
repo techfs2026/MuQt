@@ -117,6 +117,11 @@ NavigationPanel #annotationPanelScrollBar::handle:vertical:disabled {
     background: transparent;
 }
 
+/* 与批注面板一致：无可滚动内容时保留滚动条的布局宽度，但不显示滑块。 */
+NavigationPanel #outlinePanelScrollBar::handle:vertical:disabled {
+    background: transparent;
+}
+
 /* ---------- 书签视图 ---------- */
 NavigationPanel #bookmarksWidget {
     background-color: @background-color;

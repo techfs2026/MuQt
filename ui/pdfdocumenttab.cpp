@@ -12,6 +12,7 @@
 #include "pdfviewhandler.h"
 #include "annotationmanager.h"
 #include "annotationpdfio.h"
+#include "pdfpersistencehandler.h"
 #include "linkmanager.h"
 #include "ocrmanager.h"
 #include "chinesetokenizer.h"
@@ -117,10 +118,11 @@ void PDFDocumentTab::setupConnections()
     connect(m_session->contentHandler(), &PDFContentHandler::documentError,
             this, &PDFDocumentTab::documentError);
 
-    // 批注脏标志变化 → 复用未保存信号（驱动标签页圆点与 Save 可用态）
-    if (AnnotationManager* am = m_session->annotationManager()) {
-        connect(am, &AnnotationManager::dirtyChanged,
-                this, [this](bool dirty) { emit unsavedChangesChanged(dirty); });
+    if (PDFPersistenceHandler* persistence = m_session->persistenceHandler()) {
+        connect(persistence, &PDFPersistenceHandler::unsavedChangesChanged,
+                this, &PDFDocumentTab::unsavedChangesChanged);
+        connect(persistence, &PDFPersistenceHandler::documentVisualsChanged,
+                this, [this]() { renderAndUpdatePages(); });
     }
 
     connect(m_session, &PDFDocumentSession::currentPageChanged,
@@ -226,11 +228,6 @@ void PDFDocumentTab::setupConnections()
     connect(m_session, &PDFDocumentSession::paperEffectChanged,
             this, &PDFDocumentTab::paperEffectChanged);
 
-    connect(m_session->contentHandler(), &PDFContentHandler::unsavedOutlineChangesChanged,
-            this, &PDFDocumentTab::unsavedChangesChanged);
-
-
-
     connect(m_pageWidget, &PDFPageWidget::ocrHoverTriggered,
             this, &PDFDocumentTab::onOCRHoverTriggered);
 
@@ -275,11 +272,8 @@ bool PDFDocumentTab::hasUnsavedChanges() const
     if (!m_session) {
         return false;
     }
-    if (m_session->contentHandler()->hasUnsavedOutlineChanges()) {
-        return true;
-    }
-    AnnotationManager* am = m_session->annotationManager();
-    return am && am->isDirty();
+    return m_session->persistenceHandler() &&
+           m_session->persistenceHandler()->hasUnsavedChanges();
 }
 
 bool PDFDocumentTab::saveOutline()
@@ -287,26 +281,7 @@ bool PDFDocumentTab::saveOutline()
     if (!m_session) {
         return false;
     }
-    // 仅在目录确有改动时才写目录，避免只改批注时多余重写。
-    bool ok = true;
-    if (m_session->contentHandler()->hasUnsavedOutlineChanges()) {
-        ok = m_session->contentHandler()->saveOutlineChanges(QString());
-    }
-
-    // 批注与目录并入同一保存手势（Cmd+S）：有脏批注则一并写回。
-    AnnotationManager* am = m_session->annotationManager();
-    if (am && am->isDirty()) {
-        QString err;
-        if (AnnotationPdfIO::save(m_session->renderer(), am, &err)) {
-            // 写回后内存 doc 已移除 Ink，清缓存重渲，避免显示残留
-            m_session->pageCache()->clear();
-            refreshVisiblePages();
-        } else {
-            qWarning() << "PDFDocumentTab: annotation save failed:" << err;
-            ok = false;
-        }
-    }
-    return ok;
+    return m_session->persistenceHandler()->saveDocument().success;
 }
 
 QString PDFDocumentTab::documentTitle() const

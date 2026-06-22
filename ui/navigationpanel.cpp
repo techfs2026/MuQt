@@ -507,6 +507,8 @@ void NavigationPanel::setupUI()
     m_outlineScrollBar = new QScrollBar(Qt::Vertical, outlineTab);
     m_outlineScrollBar->setObjectName("outlinePanelScrollBar");
     m_outlineScrollBar->setFixedWidth(10);
+    // 与批注面板一致：始终保留右侧 10px 的布局区域，但无溢出时不绘制滑块。
+    m_outlineScrollBar->setEnabled(false);
     outlineRootLayout->addWidget(m_outlineScrollBar);
     outlineTab->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -581,6 +583,13 @@ void NavigationPanel::setupUI()
         target->setSingleStep(source->singleStep());
     };
     mirrorScrollBar(m_outlineWidget->verticalScrollBar(), m_outlineScrollBar);
+    auto updateOutlineScrollBarState = [this](int minimum, int maximum) {
+        m_outlineScrollBar->setEnabled(maximum > minimum);
+    };
+    connect(m_outlineWidget->verticalScrollBar(), &QScrollBar::rangeChanged,
+            this, updateOutlineScrollBarState);
+    updateOutlineScrollBarState(m_outlineWidget->verticalScrollBar()->minimum(),
+                                m_outlineWidget->verticalScrollBar()->maximum());
     mirrorScrollBar(m_annotationWidget->listScrollBar(), m_annotationScrollBar);
     connect(m_annotationWidget, &AnnotationWidget::listEmptyChanged, this,
             [this](bool empty) { m_annotationScrollBar->setEnabled(!empty); });

@@ -6,6 +6,7 @@
 #include <QString>
 #include <QVector>
 #include <QImage>
+#include <QMetaType>
 
 struct RenderResult {
     bool success = false;
@@ -66,6 +67,8 @@ struct PageTextData {
     bool isEmpty() const { return blocks.isEmpty(); }
     bool isValid() const { return pageIndex >= 0; }
 };
+
+Q_DECLARE_METATYPE(PageTextData)
 
 struct SearchOptions {
     bool caseSensitive = false;

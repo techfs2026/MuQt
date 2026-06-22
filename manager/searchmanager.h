@@ -12,6 +12,7 @@
 #include <atomic>
 
 #include "datastructure.h"
+#include "pdfbackgroundtaskhandler.h"
 
 extern "C" {
 #include <mupdf/fitz.h>
@@ -32,7 +33,8 @@ class SearchWorker : public QObject
 public:
     SearchWorker(SearchManager* manager,
                  const QString& query,
-                 const SearchOptions& options);
+                 const SearchOptions& options,
+                 PDFBackgroundTaskToken taskToken);
 
 public slots:
     void process();
@@ -48,6 +50,7 @@ private:
     SearchManager* m_manager;
     QString m_query;
     SearchOptions m_options;
+    PDFBackgroundTaskToken m_taskToken;
     std::atomic_bool m_cancelRequested;
 };
 
@@ -58,6 +61,7 @@ class SearchManager : public QObject
 public:
     explicit SearchManager(PerThreadMuPDFRenderer* renderer,
                            TextCacheManager* textCacheManager,
+                           PDFBackgroundTaskHandler* backgroundTaskHandler,
                            QObject* parent = nullptr);
     ~SearchManager();
 
@@ -108,6 +112,8 @@ private:
 
     PerThreadMuPDFRenderer* m_renderer;
     TextCacheManager* m_textCacheManager;
+    PDFBackgroundTaskHandler* m_backgroundTaskHandler;
+    PDFBackgroundTaskToken m_activeTask;
 
     QVector<SearchResult> m_results;
     int m_currentMatchIndex;

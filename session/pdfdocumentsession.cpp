@@ -6,6 +6,8 @@
 #include "pdfcontenthandler.h"
 #include "pdfinteractionhandler.h"
 #include "pdfannotationhandler.h"
+#include "pdfbackgroundtaskhandler.h"
+#include "pdfpersistencehandler.h"
 #include "annotationmanager.h"
 #include "pdfdocumentstate.h"
 #include "appconfig.h"
@@ -22,7 +24,9 @@ PDFDocumentSession::PDFDocumentSession(QObject* parent)
         PageCacheManager::CacheStrategy::NearCurrent
         );
 
-    m_textCache = std::make_unique<TextCacheManager>(m_renderer.get(), this);
+    m_backgroundTaskHandler = std::make_unique<PDFBackgroundTaskHandler>(this);
+    m_textCache = std::make_unique<TextCacheManager>(
+        m_renderer.get(), m_backgroundTaskHandler.get(), this);
 
     m_state = std::make_unique<PDFDocumentState>(this);
 
@@ -34,8 +38,12 @@ PDFDocumentSession::PDFDocumentSession(QObject* parent)
     m_interactionHandler = std::make_unique<PDFInteractionHandler>(
         m_renderer.get(),
         m_textCache.get(),
+        m_backgroundTaskHandler.get(),
         this
         );
+    m_persistenceHandler = std::make_unique<PDFPersistenceHandler>(
+        m_renderer.get(), m_pageCache.get(), m_contentHandler.get(),
+        m_annotationManager.get(), this);
 
     setupConnections();
 }
@@ -58,6 +66,10 @@ bool PDFDocumentSession::loadDocument(const QString& filePath, QString* errorMes
         closeDocument();
     }
 
+    if (m_backgroundTaskHandler) {
+        m_backgroundTaskHandler->invalidateAll();
+    }
+
     QString error;
     if (!m_contentHandler->loadDocument(filePath, &error)) {
         if (errorMessage) *errorMessage = error;
@@ -71,6 +83,10 @@ void PDFDocumentSession::closeDocument()
 {
     if (!m_state->isDocumentLoaded()) {
         return;
+    }
+
+    if (m_backgroundTaskHandler) {
+        m_backgroundTaskHandler->invalidateAll();
     }
 
     if (m_interactionHandler && m_state->isTextPDF()) {
@@ -100,6 +116,10 @@ void PDFDocumentSession::closeDocument()
     }
 
     m_state->reset();
+
+    if (m_persistenceHandler) {
+        m_persistenceHandler->refreshUnsavedState();
+    }
 
     qInfo() << "PDFDocumentSession: Document closed";
 }

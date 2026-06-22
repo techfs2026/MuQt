@@ -11,10 +11,12 @@
 
 SearchManager::SearchManager(PerThreadMuPDFRenderer* renderer,
                              TextCacheManager* textCacheManager,
+                             PDFBackgroundTaskHandler* backgroundTaskHandler,
                              QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
     , m_textCacheManager(textCacheManager)
+    , m_backgroundTaskHandler(backgroundTaskHandler)
     , m_currentMatchIndex(-1)
     , m_isSearching(false)
     , m_cancelRequested(false)
@@ -70,8 +72,17 @@ void SearchManager::startSearch(const QString& query,
     }
     m_startPage = startPage;
 
+    if (!m_backgroundTaskHandler) {
+        m_isSearching.store(false);
+        return;
+    }
+
+    const PDFBackgroundTaskToken taskToken =
+        m_backgroundTaskHandler->startTask(PDFBackgroundTaskType::Search);
+    m_activeTask = taskToken;
+
     QThread* thread = new QThread;
-    SearchWorker* worker = new SearchWorker(this, query, options);
+    SearchWorker* worker = new SearchWorker(this, query, options, taskToken);
 
     m_workerThread = thread;
     m_worker = worker;
@@ -80,7 +91,12 @@ void SearchManager::startSearch(const QString& query,
 
     connect(thread, &QThread::started, worker, &SearchWorker::process);
 
-    connect(worker, &SearchWorker::progress, this, &SearchManager::searchProgress, Qt::QueuedConnection);
+    connect(worker, &SearchWorker::progress, this,
+            [this, taskToken](int currentPage, int totalPages, int matchCount) {
+                if (m_backgroundTaskHandler->isCurrent(taskToken)) {
+                    emit searchProgress(currentPage, totalPages, matchCount);
+                }
+            }, Qt::QueuedConnection);
 
     connect(worker, &SearchWorker::finished, thread, &QThread::quit, Qt::QueuedConnection);
     connect(worker, &SearchWorker::cancelled, thread, &QThread::quit, Qt::QueuedConnection);
@@ -89,7 +105,10 @@ void SearchManager::startSearch(const QString& query,
     connect(thread, &QThread::finished, worker, &QObject::deleteLater);
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
-    connect(worker, &SearchWorker::finished, this, [this](const QString& q, int total) {
+    connect(worker, &SearchWorker::finished, this, [this, taskToken](const QString& q, int total) {
+        if (!m_backgroundTaskHandler->isCurrent(taskToken)) {
+            return;
+        }
         {
             QMutexLocker locker(&m_mutex);
             m_isSearching.store(false);
@@ -97,7 +116,10 @@ void SearchManager::startSearch(const QString& query,
         emit searchCompleted(q, total);
     }, Qt::QueuedConnection);
 
-    connect(worker, &SearchWorker::cancelled, this, [this]() {
+    connect(worker, &SearchWorker::cancelled, this, [this, taskToken]() {
+        if (!m_backgroundTaskHandler->isCurrent(taskToken)) {
+            return;
+        }
         {
             QMutexLocker locker(&m_mutex);
             m_isSearching.store(false);
@@ -105,7 +127,10 @@ void SearchManager::startSearch(const QString& query,
         emit searchCancelled();
     }, Qt::QueuedConnection);
 
-    connect(worker, &SearchWorker::error, this, [this](const QString& err) {
+    connect(worker, &SearchWorker::error, this, [this, taskToken](const QString& err) {
+        if (!m_backgroundTaskHandler->isCurrent(taskToken)) {
+            return;
+        }
         {
             QMutexLocker locker(&m_mutex);
             m_isSearching.store(false);
@@ -116,8 +141,8 @@ void SearchManager::startSearch(const QString& query,
     connect(thread, &QThread::finished, this, [this, thread]() {
         if (m_workerThread == thread) {
             m_workerThread = nullptr;
+            m_worker = nullptr;
         }
-        m_worker = nullptr;
     }, Qt::QueuedConnection);
 
     thread->start();
@@ -125,13 +150,21 @@ void SearchManager::startSearch(const QString& query,
 
 void SearchManager::cancelSearch()
 {
+    if (m_backgroundTaskHandler) {
+        m_backgroundTaskHandler->invalidate(PDFBackgroundTaskType::Search);
+    }
     m_cancelRequested.store(true);
+    const bool wasSearching = m_isSearching.exchange(false);
 
     if (m_worker) {
         QMetaObject::invokeMethod(m_worker, "requestCancel", Qt::QueuedConnection);
     }
 
     QCoreApplication::processEvents();
+
+    if (wasSearching) {
+        emit searchCancelled();
+    }
 }
 
 bool SearchManager::isSearching() const
@@ -378,11 +411,13 @@ QString SearchManager::getContextFromTextData(const PageTextData& textData,
 
 SearchWorker::SearchWorker(SearchManager* manager,
                            const QString& query,
-                           const SearchOptions& options)
+                           const SearchOptions& options,
+                           PDFBackgroundTaskToken taskToken)
     : QObject(nullptr)
     , m_manager(manager)
     , m_query(query)
     , m_options(options)
+    , m_taskToken(taskToken)
     , m_cancelRequested(false)
 {
 }
@@ -402,7 +437,9 @@ void SearchWorker::process()
 
     auto isCancelled = [this]() {
         return m_cancelRequested.load() ||
-               (m_manager && m_manager->m_cancelRequested.load());
+               (m_manager && m_manager->m_cancelRequested.load()) ||
+               !m_manager->m_backgroundTaskHandler ||
+               !m_manager->m_backgroundTaskHandler->isCurrent(m_taskToken);
     };
 
     // 文档信息只在开始时从共享 renderer 读一次，循环内不再触碰它

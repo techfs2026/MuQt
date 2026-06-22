@@ -18,6 +18,8 @@ class PDFInteractionHandler;
 class PDFAnnotationHandler;
 class AnnotationManager;
 class PDFDocumentState;
+class PDFPersistenceHandler;
+class PDFBackgroundTaskHandler;
 
 class PDFDocumentSession : public QObject
 {
@@ -36,6 +38,8 @@ public:
     PDFInteractionHandler* interactionHandler() const { return m_interactionHandler.get(); }
     PDFAnnotationHandler* annotationHandler() const { return m_annotationHandler.get(); }
     AnnotationManager* annotationManager() const { return m_annotationManager.get(); }
+    PDFPersistenceHandler* persistenceHandler() const { return m_persistenceHandler.get(); }
+    PDFBackgroundTaskHandler* backgroundTaskHandler() const { return m_backgroundTaskHandler.get(); }
 
     const PDFDocumentState* state() const { return m_state.get(); }
 
@@ -76,6 +80,8 @@ private:
 private:
     std::unique_ptr<PerThreadMuPDFRenderer> m_renderer;
     std::unique_ptr<PageCacheManager> m_pageCache;
+    // 必须比 TextCache/Search 等后台使用者更晚析构。
+    std::unique_ptr<PDFBackgroundTaskHandler> m_backgroundTaskHandler;
     std::unique_ptr<TextCacheManager> m_textCache;
 
     // 在各 handler 之前声明：handler 持有指向它的指针，必须比 handler 后析构。
@@ -88,6 +94,8 @@ private:
     std::unique_ptr<PDFContentHandler> m_contentHandler;
     std::unique_ptr<PDFInteractionHandler> m_interactionHandler;
     std::unique_ptr<PDFAnnotationHandler> m_annotationHandler;
+    // 依赖上述对象，最后声明以便最先析构。
+    std::unique_ptr<PDFPersistenceHandler> m_persistenceHandler;
 };
 
 #endif // PDFDOCUMENTSESSION_H

@@ -1,6 +1,7 @@
 #include "pdfinteractionhandler.h"
 #include "perthreadmupdfrenderer.h"
 #include "textcachemanager.h"
+#include "pdfbackgroundtaskhandler.h"
 #include "searchmanager.h"
 #include "linkmanager.h"
 #include "textselector.h"
@@ -10,6 +11,7 @@
 
 PDFInteractionHandler::PDFInteractionHandler(PerThreadMuPDFRenderer* renderer,
                                              TextCacheManager* textCacheManager,
+                                             PDFBackgroundTaskHandler* backgroundTaskHandler,
                                              QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
@@ -24,7 +26,8 @@ PDFInteractionHandler::PDFInteractionHandler(PerThreadMuPDFRenderer* renderer,
         return;
     }
 
-    m_searchManager = std::make_unique<SearchManager>(m_renderer, m_textCacheManager, this);
+    m_searchManager = std::make_unique<SearchManager>(
+        m_renderer, m_textCacheManager, backgroundTaskHandler, this);
     m_linkManager = std::make_unique<LinkManager>(m_renderer, this);
     m_textSelector = std::make_unique<TextSelector>(m_renderer, m_textCacheManager, this);
 

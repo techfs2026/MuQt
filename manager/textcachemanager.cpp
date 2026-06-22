@@ -14,10 +14,12 @@ class PageExtractTask : public QRunnable
 public:
     PageExtractTask(TextCacheManager* manager,
                     const QString& pdfPath,
-                    const QVector<int>& pageIndices)
+                    const QVector<int>& pageIndices,
+                    PDFBackgroundTaskToken taskToken)
         : m_manager(manager)
         , m_pdfPath(pdfPath)
         , m_pageIndices(pageIndices)
+        , m_taskToken(taskToken)
         , m_renderer(nullptr)
     {
         setAutoDelete(true);
@@ -30,7 +32,9 @@ public:
             return;
         }
 
-        if (m_manager->m_cancelRequested.loadAcquire()) {
+        if (m_manager->m_cancelRequested.loadAcquire() ||
+            !m_manager->m_backgroundTaskHandler ||
+            !m_manager->m_backgroundTaskHandler->isCurrent(m_taskToken)) {
             qDebug() << "PageExtractTask: Cancelled before start, pages:" << m_pageIndices;
             reportAllFailed();
             return;
@@ -55,7 +59,8 @@ public:
         int failCount = 0;
 
         for (int pageIndex : m_pageIndices) {
-            if (m_manager->m_cancelRequested.loadAcquire()) {
+            if (m_manager->m_cancelRequested.loadAcquire() ||
+                !m_manager->m_backgroundTaskHandler->isCurrent(m_taskToken)) {
                 qDebug() << "PageExtractTask: Cancelled at page" << pageIndex;
                 reportDone(pageIndex, PageTextData(), false);
                 failCount++;
@@ -107,7 +112,8 @@ private:
                                   Qt::QueuedConnection,
                                   Q_ARG(int, pageIndex),
                                   Q_ARG(PageTextData, data),
-                                  Q_ARG(bool, ok));
+                                  Q_ARG(bool, ok),
+                                  Q_ARG(PDFBackgroundTaskToken, m_taskToken));
     }
 
     void reportAllFailed()
@@ -120,12 +126,16 @@ private:
     TextCacheManager* m_manager;
     QString m_pdfPath;
     QVector<int> m_pageIndices;
+    PDFBackgroundTaskToken m_taskToken;
     std::unique_ptr<PerThreadMuPDFRenderer> m_renderer;
 };
 
-TextCacheManager::TextCacheManager(PerThreadMuPDFRenderer* renderer, QObject* parent)
+TextCacheManager::TextCacheManager(PerThreadMuPDFRenderer* renderer,
+                                   PDFBackgroundTaskHandler* backgroundTaskHandler,
+                                   QObject* parent)
     : QObject(parent)
     , m_renderer(renderer)
+    , m_backgroundTaskHandler(backgroundTaskHandler)
     , m_maxCacheSize(-1)
     , m_isPreloading(0)
     , m_cancelRequested(0)
@@ -133,6 +143,7 @@ TextCacheManager::TextCacheManager(PerThreadMuPDFRenderer* renderer, QObject* pa
     , m_hitCount(0)
     , m_missCount(0)
 {
+    qRegisterMetaType<PageTextData>("PageTextData");
 }
 
 TextCacheManager::~TextCacheManager()
@@ -144,7 +155,7 @@ TextCacheManager::~TextCacheManager()
 
 void TextCacheManager::startPreload()
 {
-    if (!m_renderer) {
+    if (!m_renderer || !m_backgroundTaskHandler) {
         emit preloadError(tr("No renderer assigned"));
         return;
     }
@@ -178,6 +189,7 @@ void TextCacheManager::startPreload()
 
     m_isPreloading.storeRelease(1);
     m_cancelRequested.storeRelease(0);
+    m_activeTask = m_backgroundTaskHandler->startTask(PDFBackgroundTaskType::TextPreload);
     m_preloadedPages.storeRelease(0);
     m_remainingTasks.storeRelease(pageCount);
 
@@ -210,7 +222,7 @@ void TextCacheManager::startPreload()
         }
 
         if (!batch.isEmpty()) {
-            PageExtractTask* task = new PageExtractTask(this, pdfPath, batch);
+            PageExtractTask* task = new PageExtractTask(this, pdfPath, batch, m_activeTask);
             m_threadPool.start(task);
             ++tasksSubmitted;
         }
@@ -227,12 +239,18 @@ void TextCacheManager::startPreload()
 
 void TextCacheManager::cancelPreload()
 {
+    if (m_backgroundTaskHandler) {
+        m_backgroundTaskHandler->invalidate(PDFBackgroundTaskType::TextPreload);
+    }
+
     if (!m_isPreloading.loadAcquire()) {
         return;
     }
 
     m_cancelRequested.storeRelease(1);
+    m_isPreloading.storeRelease(0);
     qDebug() << "TextCacheManager: Cancel requested";
+    emit preloadCancelled();
 }
 
 bool TextCacheManager::isPreloading() const
@@ -314,8 +332,14 @@ QString TextCacheManager::getStatistics() const
         .arg(m_missCount);
 }
 
-void TextCacheManager::handleTaskDone(int pageIndex, PageTextData pageData, bool ok)
+void TextCacheManager::handleTaskDone(int pageIndex, PageTextData pageData, bool ok,
+                                      PDFBackgroundTaskToken taskToken)
 {
+    if (!m_backgroundTaskHandler || !m_backgroundTaskHandler->isCurrent(taskToken) ||
+        taskToken.documentGeneration != m_activeTask.documentGeneration ||
+        taskToken.taskGeneration != m_activeTask.taskGeneration) {
+        return;
+    }
     int remaining = m_remainingTasks.fetchAndSubRelaxed(1) - 1;
     Q_UNUSED(remaining);
 

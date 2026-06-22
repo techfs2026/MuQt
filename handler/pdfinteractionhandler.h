@@ -9,6 +9,7 @@
 
 class PerThreadMuPDFRenderer;
 class TextCacheManager;
+class PDFBackgroundTaskHandler;
 class SearchManager;
 class LinkManager;
 class TextSelector;
@@ -23,6 +24,7 @@ class PDFInteractionHandler : public QObject
 public:
     explicit PDFInteractionHandler(PerThreadMuPDFRenderer* renderer,
                                    TextCacheManager* textCacheManager,
+                                   PDFBackgroundTaskHandler* backgroundTaskHandler,
                                    QObject* parent = nullptr);
     ~PDFInteractionHandler();
 

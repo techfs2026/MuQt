@@ -9,6 +9,7 @@
 #include <QThreadPool>
 
 #include "datastructure.h"
+#include "pdfbackgroundtaskhandler.h"
 
 class PerThreadMuPDFRenderer;
 class PageExtractTask;
@@ -18,7 +19,9 @@ class TextCacheManager : public QObject
     Q_OBJECT
 
 public:
-    explicit TextCacheManager(PerThreadMuPDFRenderer* renderer, QObject* parent = nullptr);
+    explicit TextCacheManager(PerThreadMuPDFRenderer* renderer,
+                              PDFBackgroundTaskHandler* backgroundTaskHandler,
+                              QObject* parent = nullptr);
     ~TextCacheManager();
 
     void startPreload();
@@ -43,12 +46,14 @@ signals:
     void preloadError(const QString& error);
 
 private slots:
-    void handleTaskDone(int pageIndex, PageTextData pageData, bool ok);
+    void handleTaskDone(int pageIndex, PageTextData pageData, bool ok,
+                        PDFBackgroundTaskToken taskToken);
 
 private:
     friend class PageExtractTask;
 
     PerThreadMuPDFRenderer* m_renderer;
+    PDFBackgroundTaskHandler* m_backgroundTaskHandler;
 
     QHash<int, PageTextData> m_cache;
     mutable QMutex m_mutex;
@@ -59,6 +64,7 @@ private:
     QAtomicInt m_cancelRequested;
     QAtomicInt m_preloadedPages;
     QAtomicInt m_remainingTasks;
+    PDFBackgroundTaskToken m_activeTask;
 
     QThreadPool m_threadPool;
 
